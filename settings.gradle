@@ -1,0 +1,4 @@
+rootProject.name = 'mybatis-generator'
+include 'generator-client'
+include 'generator-preloader'
+

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="700" prefWidth="900" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.MainController">
+    <top>
+        <VBox>
+            <children>
+                <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+                    <menus>
+                        <Menu fx:id="fileMenu" mnemonicParsing="false" text="文件">
+                            <items>
+                                <MenuItem fx:id="newConnectionMenuItem" mnemonicParsing="false" text="新建连接" />
+                                <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" text="退出" />
+                            </items>
+                        </Menu>
+                        <Menu fx:id="editMenu" mnemonicParsing="false" text="配置文件">
+                            <items>
+                                <MenuItem fx:id="newConfigurationMenuItem" mnemonicParsing="false" text="新增" />
+                                <MenuItem fx:id="manageConfigurationMenuItem" mnemonicParsing="false" text="管理" />
+                                <Menu fx:id="configurationListMenu" mnemonicParsing="false" text="选择">
+                                    <items>
+                                        <RadioMenuItem mnemonicParsing="false" text="系统默认配置">
+                                            <toggleGroup>
+                                                <ToggleGroup fx:id="configurationGroup" />
+                                            </toggleGroup>
+                                        </RadioMenuItem>
+                                        <RadioMenuItem mnemonicParsing="false" text="配置文件1" toggleGroup="$configurationGroup" />
+                                        <RadioMenuItem mnemonicParsing="false" text="配置文件2" toggleGroup="$configurationGroup" />
+                                        <RadioMenuItem mnemonicParsing="false" text="配置文件2" toggleGroup="$configurationGroup" />
+                                        <RadioMenuItem mnemonicParsing="false" text="配置文件3" toggleGroup="$configurationGroup" />
+                                        <RadioMenuItem mnemonicParsing="false" text="配置文件4" toggleGroup="$configurationGroup" />
+                                    </items>
+                                </Menu>
+                            </items>
+                        </Menu>
+                        <Menu fx:id="helpMenu" mnemonicParsing="false" text="帮助">
+                            <items>
+                                <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+                <HBox alignment="CENTER_RIGHT">
+                    <children>
+                        <ImageView pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@/image/mybatis-logo-large.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </top>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" BorderPane.alignment="CENTER_LEFT">
+            <children>
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="message" text="--" wrapText="true">
+                            <padding>
+                                <Insets left="10.0" />
+                            </padding>
+                        </Label>
+                    </children>
+                </HBox>
+                <ProgressIndicator fx:id="progressIndicator" HBox.hgrow="NEVER" />
+            </children>
+        </HBox>
+    </bottom>
+    <center>
+        <SplitPane fx:id="splitPane" dividerPositions="0.3" nodeOrientation="LEFT_TO_RIGHT" BorderPane.alignment="CENTER">
+            <items>
+                <VBox alignment="TOP_CENTER">
+                    <children>
+                        <ComboBox fx:id="databases" maxWidth="1.7976931348623157E308" />
+                        <ListView fx:id="tables" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
+                <VBox alignment="TOP_CENTER" spacing="10.0">
+                    <children>
+                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                            <tabs>
+                                <Tab text="基本配置">
+                                    <content>
+                                        <GridPane>
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="20.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="20.0" percentWidth="10.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                            </rowConstraints>
+                                            <children>
+                                                <Label text="项目文件夹" />
+                                                <TextField fx:id="projectDir" promptText="/workspace/example" GridPane.columnIndex="1" />
+                                                <Button fx:id="explorerProject" mnemonicParsing="false" text="浏览" GridPane.columnIndex="2" />
+                                                <Label text="源码文件夹" GridPane.rowIndex="1" />
+                                                <TextField fx:id="sourceDir" promptText="src/main/java" text="src/main/java" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="资源文件夹" GridPane.rowIndex="2" />
+                                                <TextField fx:id="resourcesDir" promptText="src/main/resources" text="src/main/resources" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Label text="实体包名" GridPane.rowIndex="3" />
+                                                <TextField fx:id="modelPackage" promptText="com.example.model" text="com.example.model" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                                <Label text="Mapper接口的包名" GridPane.rowIndex="4" />
+                                                <TextField fx:id="mapperPackage" promptText="com.example.mapper" text="com.example.mapper" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                <Label text="SQL映射文件包名" GridPane.rowIndex="5" />
+                                                <TextField fx:id="sqlMapperPackage" promptText="mapper(XML)，默认放在资源文件目录" text="mapper" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                <Label text="驼峰命名" GridPane.rowIndex="6" />
+                                                <CheckBox fx:id="camelCase" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                            </children>
+                                            <padding>
+                                                <Insets left="10.0" right="10.0" />
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                                <Tab text="高级配置">
+                                    <content>
+                                        <GridPane>
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="20.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="20.0" percentWidth="10.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                            <padding>
+                                                <Insets left="10.0" right="10.0" />
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
+                        <HBox alignment="CENTER" spacing="20.0" VBox.vgrow="NEVER">
+                            <children>
+                                <Button fx:id="generate" mnemonicParsing="false" text="生成代码" />
+                                <Button fx:id="saveConfig" mnemonicParsing="false" text="保存配置" />
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" top="5.0" />
+                            </padding>
+                        </HBox>
+                    </children>
+                </VBox>
+            </items>
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+        </SplitPane>
+    </center>
+</BorderPane>

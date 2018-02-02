@@ -1,0 +1,30 @@
+apply plugin: 'application'
+
+//插件地址 https://github.com/FibreFoX/javafx-gradle-plugin
+apply plugin: 'javafx-gradle-plugin'
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
+    }
+    repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+        mavenLocal()
+    }
+}
+
+
+dependencies {
+    compile 'org.mybatis.generator:mybatis-generator-core:1.3.5'
+    compile 'mysql:mysql-connector-java:5.1.41'
+    compile 'org.controlsfx:controlsfx:8.40.12'
+    compile 'org.springframework:spring-context:4.3.10.RELEASE'
+
+}
+
+
+jfx {
+    mainClass = 'com.jean.mybatis.generator.MainApplication'
+    jfxMainAppJarName = project.name + ".jar"
+    preLoader = null // String
+    vendor = 'jinshubao'
+}

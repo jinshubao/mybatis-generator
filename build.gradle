@@ -1,0 +1,25 @@
+group 'com.jean'
+version '1.0-SNAPSHOT'
+
+
+allprojects {
+
+    apply plugin: 'groovy'
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+
+    [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
+
+    repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.3.11'
+
+        compile "org.slf4j:jcl-over-slf4j:1.7.25"
+        compile "ch.qos.logback:logback-classic:1.2.3"
+    }
+}
