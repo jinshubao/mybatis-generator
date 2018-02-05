@@ -3,6 +3,7 @@ package com.jean.mybatis.generator.utils
 import com.jean.mybatis.generator.constant.DatabaseType
 import com.jean.mybatis.generator.constant.EncodingEnum
 import com.jean.mybatis.generator.controller.BaseController
+import com.jean.mybatis.generator.support.connection.DefaultConnectionConfig
 import com.jean.mybatis.generator.support.connection.IConnectionConfig
 import javafx.scene.Node
 import javafx.scene.control.*
@@ -133,10 +134,9 @@ class DialogUtil {
                         values.put(it.id, it.isSelected())
                     }
                 }
-                def databaseType = values?.dataBaseType as DatabaseType
-                IConnectionConfig config = BaseController.getConnectionConfigNewInstance(databaseType)
+                IConnectionConfig config = new DefaultConnectionConfig()
                 if (config) {
-                    config.databaseType = values?.dataBaseType as DatabaseType
+                    config.type = values?.dataBaseType as DatabaseType
                     config.host = values?.host as String
                     config.port = values?.port as Integer
                     config.username = values?.username as String
@@ -149,17 +149,6 @@ class DialogUtil {
             }
             return null
         }
-        return dialog.showAndWait()
-    }
-
-    static Optional<?> configurationDialog(String title, String headerText, Node node) {
-        def dialog = new Dialog<>()
-        dialog.setTitle(title)
-        dialog.setHeaderText(headerText)
-        dialog.dialogPane.setContent(node)
-        dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
-        def stage = dialog.getDialogPane().getScene().getWindow() as Stage
-        stage.getIcons().add(new Image(this.getClass().getResourceAsStream(LOGO_IMAGE)))
         return dialog.showAndWait()
     }
 

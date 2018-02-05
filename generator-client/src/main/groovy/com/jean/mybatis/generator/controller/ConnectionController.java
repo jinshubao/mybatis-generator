@@ -2,6 +2,7 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
+import com.jean.mybatis.generator.support.connection.DefaultConnectionConfig;
 import com.jean.mybatis.generator.support.connection.IConnectionConfig;
 import com.jean.mybatis.generator.support.metadata.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
@@ -47,12 +48,8 @@ public class ConnectionController extends BaseController {
         this.properties.setText("serverTimezone=UTC&useUnicode=true&useSSL=false");
         this.testConnection.setOnAction(event -> {
             DatabaseType typeValue = this.dataBaseType.getValue();
-            IConnectionConfig config = BaseController.getConnectionConfigNewInstance(typeValue);
-            if (config == null) {
-                DialogUtil.error("发生错误", "不支持的数据库类型", "暂不支持据库【" + typeValue.name + "】");
-                return;
-            }
-            config.setDatabaseType(typeValue);
+            IConnectionConfig config = new DefaultConnectionConfig();
+            config.setType(typeValue);
             config.setHost(this.host.getText());
             config.setPort(Integer.parseInt(this.port.getText()));
             config.setUsername(this.username.getText());
@@ -60,7 +57,7 @@ public class ConnectionController extends BaseController {
             config.setCharset(this.encoding.getValue().value);
             config.setProperties(StringUtil.parseProperties(this.properties.getText()));
             try {
-                IMetadataProvider service = chooseMetadataService(config.getDatabaseType());
+                IMetadataProvider service = chooseMetadataService(config.getType());
                 service.setConnectionConfig(config);
                 if (service.testConnection()) {
                     DialogUtil.information("连接成功", null, "连接成功");

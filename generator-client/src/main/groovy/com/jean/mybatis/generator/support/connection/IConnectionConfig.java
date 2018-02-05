@@ -8,9 +8,9 @@ import java.util.Map;
 
 public interface IConnectionConfig {
 
-    DatabaseType getDatabaseType();
+    DatabaseType getType();
 
-    void setDatabaseType(DatabaseType databaseType);
+    void setType(DatabaseType type);
 
     String getHost();
 
@@ -40,8 +40,8 @@ public interface IConnectionConfig {
 
     void setSavePassword(boolean savePassword);
 
-    String getConnectionURL(IDatabaseMetadata metadata);
+    String getDatabaseName();
 
-    boolean isSupport(DatabaseType databaseType);
+    void setDatabaseName(String databaseName);
 
 }

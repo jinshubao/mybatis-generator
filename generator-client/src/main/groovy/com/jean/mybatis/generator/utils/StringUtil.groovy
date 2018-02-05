@@ -44,6 +44,16 @@ public class StringUtil {
         return map
     }
 
+    public static String expandProperties(Map proper) {
+        def props = []
+        if (proper) {
+            proper.each { key, value ->
+                props << key + "=" + value
+            }
+        }
+        props.join("&")
+    }
+
     public static boolean isNotBlank(String text) {
         return text != null && !text.trim().isEmpty()
     }

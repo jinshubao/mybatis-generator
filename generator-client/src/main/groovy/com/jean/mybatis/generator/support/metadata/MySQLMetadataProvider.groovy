@@ -6,6 +6,7 @@ import com.jean.mybatis.generator.support.database.IDatabaseMetadata
 import com.jean.mybatis.generator.support.table.IColumnMetadata
 import com.jean.mybatis.generator.support.table.ITableMetadata
 import com.jean.mybatis.generator.support.table.TableMetadata
+import com.jean.mybatis.generator.utils.StringUtil
 import groovy.sql.Sql
 import org.springframework.stereotype.Service
 
@@ -18,7 +19,7 @@ class MySQLMetadataProvider extends AbstractMetadataProvider {
 
     protected Sql getSql(IDatabaseMetadata database) {
         def url = getConnectionURL(database)
-        return Sql.newInstance(url, connectionConfig.username, connectionConfig.password, connectionConfig.databaseType.driverClass)
+        return Sql.newInstance(url, connectionConfig.username, connectionConfig.password, connectionConfig.type.driverClass)
     }
 
     @Override
@@ -58,7 +59,18 @@ class MySQLMetadataProvider extends AbstractMetadataProvider {
 
     @Override
     String getConnectionURL(IDatabaseMetadata metadata) {
-        return this.connectionConfig.getConnectionURL(metadata)
+        def url = "jdbc:mysql://${connectionConfig.host}:${connectionConfig.port}"
+        if (metadata) {
+            url += "/${metadata.getName()}"
+        }
+        def props = StringUtil.expandProperties(connectionConfig.properties)
+        def charset = connectionConfig.getCharset()
+        if (charset) {
+            props << "useUnicode=true"
+            props << "&"
+            props << "characterEncoding=${charset.name()}"
+        }
+        return url + "?" + props
     }
 
     @Override

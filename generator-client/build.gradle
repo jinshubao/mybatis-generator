@@ -18,6 +18,7 @@ dependencies {
     compile 'mysql:mysql-connector-java:5.1.41'
     compile 'org.controlsfx:controlsfx:8.40.12'
     compile 'org.springframework:spring-context:4.3.10.RELEASE'
+    compile project(':generator-preloader')
 
 }
 
@@ -25,6 +26,6 @@ dependencies {
 jfx {
     mainClass = 'com.jean.mybatis.generator.MainApplication'
     jfxMainAppJarName = project.name + ".jar"
-    preLoader = null // String
+    preLoader = 'com.jean.preloader.support.PreloaderSupport' // String
     vendor = 'jinshubao'
 }

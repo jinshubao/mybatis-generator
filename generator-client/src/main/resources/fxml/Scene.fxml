@@ -111,61 +111,152 @@
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="20.0" />
                                                 <ColumnConstraints hgrow="SOMETIMES" />
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="20.0" percentWidth="10.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="40.0" percentWidth="10.0" />
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                             </rowConstraints>
                                             <children>
-                                                <Label text="项目文件夹" />
+                                                <Label text="项目文件夹" wrapText="true" />
                                                 <TextField fx:id="projectDir" promptText="/workspace/example" GridPane.columnIndex="1" />
                                                 <Button fx:id="explorerProject" mnemonicParsing="false" text="浏览" GridPane.columnIndex="2" />
-                                                <Label text="源码文件夹" GridPane.rowIndex="1" />
+                                                <Label text="源码文件夹" wrapText="true" GridPane.rowIndex="1" />
                                                 <TextField fx:id="sourceDir" promptText="src/main/java" text="src/main/java" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <Label text="资源文件夹" GridPane.rowIndex="2" />
+                                                <Label text="资源文件夹" wrapText="true" GridPane.rowIndex="2" />
                                                 <TextField fx:id="resourcesDir" promptText="src/main/resources" text="src/main/resources" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                <Label text="实体包名" GridPane.rowIndex="3" />
+                                                <Label text="Model包名" wrapText="true" GridPane.rowIndex="3" />
                                                 <TextField fx:id="modelPackage" promptText="com.example.model" text="com.example.model" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                                                <Label text="Mapper接口的包名" GridPane.rowIndex="4" />
+                                                <Label text="Mapper包名" wrapText="true" GridPane.rowIndex="4" />
                                                 <TextField fx:id="mapperPackage" promptText="com.example.mapper" text="com.example.mapper" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                                <Label text="SQL映射文件包名" GridPane.rowIndex="5" />
+                                                <Label text="XML文件包名" wrapText="true" GridPane.rowIndex="5" />
                                                 <TextField fx:id="sqlMapperPackage" promptText="mapper(XML)，默认放在资源文件目录" text="mapper" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                                <Label text="驼峰命名" GridPane.rowIndex="6" />
-                                                <CheckBox fx:id="camelCase" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                <Label text="覆盖已有代码" wrapText="true" GridPane.rowIndex="6" />
+                                                <CheckBox fx:id="overwrite" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                <Label text="Model类型" wrapText="true" GridPane.rowIndex="7" />
+                                                <ComboBox fx:id="defaultModelType" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                                <Label text="运行时目标" wrapText="true" GridPane.rowIndex="8" />
+                                                <ComboBox fx:id="targetRuntime" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                                                <Label text="自动识别数据库关键字" wrapText="true" GridPane.rowIndex="9" />
+                                                <CheckBox fx:id="autoDelimitKeywords" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+
+                                                <Label fx:id="useSerializablePlugin" text="生成序列化代码" wrapText="true" GridPane.rowIndex="10" />
+                                                <CheckBox fx:id="useSerializerPlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+
+                                                <Label text="生成注释" wrapText="true" GridPane.rowIndex="11" />
+                                                <CheckBox fx:id="useCommentPlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                                    <Label text="生成Equals和HashCode方法" wrapText="true" GridPane.rowIndex="12" />
+                                    <CheckBox fx:id="useEqualsHashCodePlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+
                                             </children>
                                             <padding>
-                                                <Insets left="10.0" right="10.0" />
+                                                <Insets left="10.0" right="10.0" top="10.0" />
                                             </padding>
                                         </GridPane>
                                     </content>
                                 </Tab>
-                                <Tab text="高级配置">
+                                <Tab text="Model配置">
                                     <content>
                                         <GridPane>
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="20.0" />
                                                 <ColumnConstraints hgrow="SOMETIMES" />
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="20.0" percentWidth="10.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="40.0" percentWidth="10.0" />
                                             </columnConstraints>
                                             <rowConstraints>
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                             </rowConstraints>
+                                            <children>
+                                                <Label text="Model驼峰命名" wrapText="true" GridPane.rowIndex="1" />
+                                                <CheckBox fx:id="camelCase" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                                <Label text="强制使用小数" wrapText="true" GridPane.rowIndex="2" />
+                                                <CheckBox fx:id="forceBigDecimals" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Label text="Java文件编码" wrapText="true" GridPane.rowIndex="3" />
+                                                <ComboBox fx:id="javaFileEncoding" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                <CheckBox fx:id="enableModelSubPackages" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                <Label text="生成子包" wrapText="true" GridPane.rowIndex="4" />
+                                                <Label text="生成构造方法" wrapText="true" GridPane.rowIndex="6" />
+                                                <CheckBox fx:id="constructorBased" mnemonicParsing="false" text="仅对运行时目标为MyBatis3、MyBatis3Simple生效" textFill="#000000bf" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                <Label text="Model父类" wrapText="true" />
+                                                <TextField fx:id="rootClass" promptText="com.exapmle.model.BasicModel" GridPane.columnIndex="1" />
+                                                <Label text="生成不可变Model" wrapText="true" GridPane.rowIndex="5" />
+                                                <CheckBox fx:id="immutable" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                <Label text="去除字符串两端空白" wrapText="true" GridPane.rowIndex="7" />
+                                                <CheckBox fx:id="trimStrings" mnemonicParsing="false" text="在Model的Getter方法中去除字符串两端的空白字符" textFill="#000000bf" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                            </children>
                                             <padding>
-                                                <Insets left="10.0" right="10.0" />
+                                                <Insets left="10.0" right="10.0" top="10.0" />
                                             </padding>
                                         </GridPane>
                                     </content>
                                 </Tab>
+                        <Tab text="Mapper配置">
+                          <content>
+                              <GridPane>
+                                  <columnConstraints>
+                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="20.0" />
+                                      <ColumnConstraints hgrow="SOMETIMES" />
+                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="40.0" percentWidth="10.0" />
+                                  </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                </rowConstraints>
+                                 <padding>
+                                    <Insets left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                                 <children>
+                                    <CheckBox fx:id="enableMapperSubPackages" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="生成子包" wrapText="true" GridPane.rowIndex="2" />
+                                    <ComboBox fx:id="javaClientType" prefWidth="150.0" GridPane.columnIndex="1" />
+                                    <Label text="Mapper生成模式" wrapText="true" />
+                                    <Label text="Mapper父接口" wrapText="true" GridPane.rowIndex="5" />
+                                    <TextField fx:id="rootInterface" promptText="com.example.mapper.BaseMapper" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    <Label text="实现类包名" wrapText="true" GridPane.rowIndex="1" />
+                                    <TextField fx:id="implementationPackage" promptText="com.example.mapper.impl" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Example方法可见性" wrapText="true" GridPane.rowIndex="3" />
+                                    <CheckBox fx:id="exampleMethodVisibility" mnemonicParsing="false" text="运行时目标为MyBatis3时该属性不可用" textFill="#000000bf" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <ComboBox fx:id="methodNameCalculator" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <Label text="Mapper方法名生成方式" wrapText="true" GridPane.rowIndex="4" />
+                                    <Label text="兼容MyBatis 3.2以前的版本" wrapText="true" GridPane.rowIndex="6" />
+                                    <CheckBox fx:id="useLegacyBuilder" mnemonicParsing="false" text="Default false." textFill="#000000c0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                 </children>
+                              </GridPane>
+                          </content>
+                        </Tab>
                             </tabs>
                         </TabPane>
                         <HBox alignment="CENTER" spacing="20.0" VBox.vgrow="NEVER">
@@ -174,7 +265,7 @@
                                 <Button fx:id="saveConfig" mnemonicParsing="false" text="保存配置" />
                             </children>
                             <padding>
-                                <Insets bottom="10.0" top="5.0" />
+                                <Insets bottom="10.0" top="10.0" />
                             </padding>
                         </HBox>
                     </children>

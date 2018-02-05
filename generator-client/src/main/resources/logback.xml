@@ -9,7 +9,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/redis-client.log</file>
+        <file>logs/mybatis-generator.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/log.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
             <maxFileSize>20MB</maxFileSize>
