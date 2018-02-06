@@ -358,7 +358,7 @@ public class MainController extends BaseController {
             equalsHashCodePlugin.setConfigurationType(EqualsHashCodePlugin.class.getName());
             context.addPluginConfiguration(equalsHashCodePlugin);
         }
-        if (this.useToStringPlugin.isSelected()){
+        if (this.useToStringPlugin.isSelected()) {
             PluginConfiguration toStringPlugin = new PluginConfiguration();
             toStringPlugin.setConfigurationType(ToStringPlugin.class.getName());
             context.addPluginConfiguration(toStringPlugin);
@@ -401,7 +401,10 @@ public class MainController extends BaseController {
         boolean subPackagesSelected = this.enableMapperSubPackages.isSelected();
         javaClientGenerator.addProperty("exampleMethodVisibility", this.exampleMethodVisibility.getValue().getValue());
         javaClientGenerator.addProperty("methodNameCalculator", this.methodNameCalculator.getValue().getValue());
-        javaClientGenerator.addProperty("rootInterface", this.rootInterface.getText());
+        String rootInterfaceText = this.rootInterface.getText();
+        if (StringUtil.isNotBlank(rootClassText)) {
+            javaClientGenerator.addProperty("rootInterface", rootInterfaceText);
+        }
         javaClientGenerator.addProperty("useLegacyBuilder", Boolean.toString(this.useLegacyBuilder.isSelected()));
         javaClientGenerator.addProperty("enableSubPackages", Boolean.toString(subPackagesSelected));
         if (subPackagesSelected) {
