@@ -9,7 +9,7 @@ public enum JavaClientType {
     GENERIC_SI("GENERIC-SI"),
     SPRING("SPRING");
 
-    private String value;
+    protected String value;
 
     JavaClientType(String value) {
         this.value = value;
@@ -17,5 +17,10 @@ public enum JavaClientType {
 
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
     }
 }

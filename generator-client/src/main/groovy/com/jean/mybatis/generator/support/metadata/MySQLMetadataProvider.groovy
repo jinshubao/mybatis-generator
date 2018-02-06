@@ -3,7 +3,7 @@ package com.jean.mybatis.generator.support.metadata
 import com.jean.mybatis.generator.constant.DatabaseType
 import com.jean.mybatis.generator.support.database.DataBaseMetadata
 import com.jean.mybatis.generator.support.database.IDatabaseMetadata
-import com.jean.mybatis.generator.support.table.IColumnMetadata
+import com.jean.mybatis.generator.support.column.IColumnMetadata
 import com.jean.mybatis.generator.support.table.ITableMetadata
 import com.jean.mybatis.generator.support.table.TableMetadata
 import com.jean.mybatis.generator.utils.StringUtil

@@ -2,7 +2,6 @@ package com.jean.mybatis.generator.utils
 
 import com.jean.mybatis.generator.constant.DatabaseType
 import com.jean.mybatis.generator.constant.EncodingEnum
-import com.jean.mybatis.generator.controller.BaseController
 import com.jean.mybatis.generator.support.connection.DefaultConnectionConfig
 import com.jean.mybatis.generator.support.connection.IConnectionConfig
 import javafx.scene.Node
@@ -150,6 +149,10 @@ class DialogUtil {
             return null
         }
         return dialog.showAndWait()
+    }
+
+    static void exceptionDialog(Throwable ex) {
+        exceptionDialog("出错了", ex.message, ex)
     }
 
     static void exceptionDialog(String title, String headerText, Throwable ex) {

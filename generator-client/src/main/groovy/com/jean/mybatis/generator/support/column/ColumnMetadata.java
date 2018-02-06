@@ -1,4 +1,4 @@
-package com.jean.mybatis.generator.support.table;
+package com.jean.mybatis.generator.support.column;
 
 public class ColumnMetadata implements IColumnMetadata {
 

@@ -65,7 +65,7 @@ public class ConnectionController extends BaseController {
                     DialogUtil.information("连接失败", null, "连接失败");
                 }
             } catch (Exception e) {
-                DialogUtil.exceptionDialog("连接失败", e.getMessage(), e);
+                DialogUtil.exceptionDialog(e);
             }
         });
     }

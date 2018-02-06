@@ -1,7 +1,5 @@
 package com.jean.mybatis.generator.factory;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
@@ -13,23 +11,16 @@ public class ListViewCellFactory {
 
     private static class CheckBoxListCell<P extends Selectable> extends ListCell<P> {
         private final CheckBox checkBox;
+        private P ref;
 
         public CheckBoxListCell(Pos pos) {
             this.checkBox = new CheckBox();
-//            this.checkBox.selectedProperty().bind(selectedProperty());
             if (pos != null) {
                 setAlignment(pos);
             } else {
                 setAlignment(Pos.CENTER_LEFT);
             }
             setContentDisplay(ContentDisplay.LEFT);
-            setGraphic(null);
-            this.checkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                    getItem().setSelected(newValue);
-                }
-            });
         }
 
         @Override
@@ -40,18 +31,22 @@ public class ListViewCellFactory {
                 setText(null);
             } else {
                 if (item != null) {
-                    checkBox.setSelected(item.isSelected());
+                    item.selectedProperty().unbind();
+                    if (this.ref != null) {
+                        checkBox.selectedProperty().unbindBidirectional(this.ref.selectedProperty());
+                    }
+                    checkBox.selectedProperty().bindBidirectional(item.selectedProperty());
+                    this.ref = item;
+                    setGraphic(checkBox);
                     setText(item.toString());
                 } else {
-                    checkBox.setSelected(false);
                     setText("");
                 }
-                setGraphic(checkBox);
             }
         }
     }
 
-    public static <T extends Selectable> Callback<ListView<T>, ListCell<T>> forListView(Pos pos) {
-        return param -> new CheckBoxListCell<>(pos);
+    public static <T extends Selectable> Callback<ListView<T>, ListCell<T>> forListView() {
+        return param -> new CheckBoxListCell<>(Pos.CENTER_LEFT);
     }
 }

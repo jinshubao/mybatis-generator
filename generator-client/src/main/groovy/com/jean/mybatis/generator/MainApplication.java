@@ -1,7 +1,7 @@
 package com.jean.mybatis.generator;
 
 import com.jean.mybatis.generator.constant.CommonConstant;
-import com.jean.mybatis.generator.constant.StageTypeEnum;
+import com.jean.mybatis.generator.constant.StageType;
 import com.jean.mybatis.generator.support.application.ApplicationSupport;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -31,11 +31,11 @@ public class MainApplication extends ApplicationSupport {
     public void start(Stage stage) {
         super.start(stage);
         Parent root = loadFxml("/fxml/Scene.fxml");
-        CommonConstant.SCENES.put(StageTypeEnum.MAIN.toString(), root);
+        CommonConstant.SCENES.put(StageType.MAIN.toString(), root);
         Parent databaseConnection = loadFxml("/fxml/Connection.fxml");
-        CommonConstant.SCENES.put(StageTypeEnum.CONNECTION.toString(), databaseConnection);
+        CommonConstant.SCENES.put(StageType.CONNECTION.toString(), databaseConnection);
         Parent configuration = loadFxml("/fxml/Configuration.fxml");
-        CommonConstant.SCENES.put(StageTypeEnum.CONFIGURATION.toString(), configuration);
+        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
 //        def bounds = Screen.getPrimary().getBounds()
 //        Scene scene = new Scene(root, bounds.width, bounds.height)
         Scene scene = new Scene(root);

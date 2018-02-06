@@ -21,11 +21,10 @@ public class GeneratorService extends Service<List<String>> {
     @Override
     protected Task<List<String>> createTask() {
         return new GeneratorTask(configuration, callback);
-
     }
 
     @Override
-    public synchronized void restart() {
+    public void restart() {
         //not support
     }
 
@@ -37,14 +36,10 @@ public class GeneratorService extends Service<List<String>> {
         }
     }
 
-
     private static class GeneratorTask extends Task<List<String>> implements ProgressCallback {
 
         private final Configuration configuration;
         private final ShellCallback shellCallback;
-        private int saveTaskIndex = 1;
-        private int introspectionTaskIndex = 1;
-        private int generationTaskIndex = 1;
 
         GeneratorTask(Configuration configuration, ShellCallback shellCallback) {
             this.configuration = configuration;
@@ -61,57 +56,56 @@ public class GeneratorService extends Service<List<String>> {
 
         @Override
         public void introspectionStarted(int totalTasks) {
-            updateMessage("正在检查文件" + introspectionTaskIndex + "/" + totalTasks);
-            introspectionTaskIndex++;
+            updateMessage("introspection Started, total tasks:" + totalTasks);
         }
 
         @Override
         public void generationStarted(int totalTasks) {
-            updateMessage("正在生成文件" + generationTaskIndex + "/" + totalTasks);
-            generationTaskIndex++;
+            updateMessage("generation Started, total tasks:" + totalTasks);
         }
 
         @Override
         public void saveStarted(int totalTasks) {
-            updateMessage("正在保存文件" + saveTaskIndex + "/" + totalTasks);
-            saveTaskIndex++;
+            updateMessage("save Started, total tasks:" + totalTasks);
         }
 
         @Override
         public void startTask(String taskName) {
-            updateMessage("正在执行" + taskName + "...");
+            updateMessage(taskName);
         }
 
         @Override
-        public void checkCancel() {
-            updateMessage("取消生成");
+        public void checkCancel() throws InterruptedException {
+            if (this.isCancelled()) {
+                updateMessage("cancelled");
+                throw new InterruptedException("task was cancelled.");
+            }
         }
 
         @Override
         protected void succeeded() {
             List<String> warnings = getValue();
             if (warnings.isEmpty()) {
-                updateMessage("生成成功");
+                updateMessage("success");
             } else {
                 String msg = StringUtil.join(warnings, ";\r\n");
-                updateMessage("警告：" + msg);
-                System.err.println(msg);
+                updateMessage("warn：" + msg);
             }
         }
 
         @Override
         public void done() {
+
         }
 
         @Override
         protected void failed() {
             Throwable throwable = getException();
             if (throwable != null) {
-                updateMessage("生成失败, " + throwable.getMessage());
+                updateMessage("failed, " + throwable.getMessage());
             } else {
-                updateMessage("生成失败");
+                updateMessage("failed");
             }
         }
     }
-
 }

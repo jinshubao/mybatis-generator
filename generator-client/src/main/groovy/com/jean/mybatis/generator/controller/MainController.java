@@ -12,12 +12,11 @@ import com.jean.mybatis.generator.support.table.ITableMetadata;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.ObjectBinding;
-import javafx.collections.FXCollections;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
@@ -26,12 +25,12 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.plugins.EqualsHashCodePlugin;
 import org.mybatis.generator.plugins.SerializablePlugin;
+import org.mybatis.generator.plugins.ToStringPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -84,6 +83,10 @@ public class MainController extends BaseController {
     @FXML
     private ListView<ITableMetadata> tables;
     @FXML
+    private Hyperlink selectAll;
+    @FXML
+    private Hyperlink reverseSelect;
+    @FXML
     private CheckBox overwrite;
     @FXML
     private ComboBox<ModelType> defaultModelType;
@@ -95,6 +98,8 @@ public class MainController extends BaseController {
     private CheckBox useSerializerPlugin;
     @FXML
     private CheckBox useEqualsHashCodePlugin;
+    @FXML
+    private CheckBox useToStringPlugin;
 
     //---------Model配置----------
     @FXML
@@ -121,7 +126,17 @@ public class MainController extends BaseController {
     @FXML
     private ComboBox<JavaClientType> javaClientType;
     @FXML
+    private ComboBox<MethodVisibility> exampleMethodVisibility;
+    @FXML
+    private ComboBox<NameCalculator> methodNameCalculator;
+    @FXML
     private CheckBox enableMapperSubPackages;
+    @FXML
+    private TextField implementationPackage;
+    @FXML
+    private TextField rootInterface;
+    @FXML
+    private CheckBox useLegacyBuilder;
 
     //---------Common----------
     @FXML
@@ -143,23 +158,20 @@ public class MainController extends BaseController {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        tables.setCellFactory(ListViewCellFactory.forListView(Pos.CENTER_LEFT));
-
         this.newConnectionMenuItem.setOnAction(event ->
-                DialogUtil.newConnectionDialog("新建数据库连接", null, CommonConstant.SCENES.get(StageTypeEnum.CONNECTION.toString()))
+                DialogUtil.newConnectionDialog("新建数据库连接", null, CommonConstant.SCENES.get(StageType.CONNECTION.toString()))
                         .ifPresent(config -> {
                             try {
                                 this.metadataProvider = MainController.this.chooseMetadataService(config.getType());
+                                this.metadataProvider.setConnectionConfig(config);
+                                this.databases.getSelectionModel().clearSelection();
+                                this.databases.getItems().clear();
+                                this.databases.getItems().addAll(metadataProvider.getDatabases());
+                                this.tables.getSelectionModel().clearSelection();
+                                this.tables.getItems().clear();
                             } catch (Exception e) {
-                                DialogUtil.exceptionDialog(e.getMessage(), "", e);
-                                return;
+                                DialogUtil.exceptionDialog(e);
                             }
-                            this.metadataProvider.setConnectionConfig(config);
-                            this.databases.getSelectionModel().clearSelection();
-                            this.databases.getItems().clear();
-                            this.databases.getItems().addAll(metadataProvider.getDatabases());
-                            this.tables.getSelectionModel().clearSelection();
-                            this.tables.getItems().clear();
                         }));
 
         this.explorerProject.setOnAction(event -> {
@@ -171,37 +183,69 @@ public class MainController extends BaseController {
             }
         });
 
+        this.tables.setCellFactory(ListViewCellFactory.forListView());
+
+        this.selectAll.setOnAction(event -> {
+            ObservableList<ITableMetadata> items = this.tables.getItems();
+            if (!items.isEmpty()) {
+                final BooleanProperty selectedAll = new SimpleBooleanProperty(true);
+                for (ITableMetadata item : items) {
+                    if (!item.isSelected()) {
+                        selectedAll.set(false);
+                        break;
+                    }
+                }
+                this.tables.getItems().forEach(tableMetadata -> tableMetadata.setSelected(!selectedAll.get()));
+            }
+        });
+
+        this.reverseSelect.setOnAction(event -> {
+            if (!this.tables.getItems().isEmpty()) {
+                this.tables.getItems().forEach(tableMetadata -> tableMetadata.setSelected(!tableMetadata.isSelected()));
+            }
+        });
 
         this.message.textProperty().bind(this.generatorService.messageProperty());
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
-        this.generatorService.setOnFailed(event -> {
-            Throwable exception = this.generatorService.getException();
-            DialogUtil.exceptionDialog("生成失败", exception.getMessage(), exception);
-        });
-        this.generatorService.setOnSucceeded(event -> {
-            List<String> value = this.generatorService.getValue();
-            if (!value.isEmpty()) {
-                DialogUtil.warning("警告", "生成过程出现警告", StringUtil.join(value, ";\r\n"));
-            }
-        });
 
         this.databases.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.tables.getItems().clear();
             this.tables.getSelectionModel().clearSelection();
             if (newValue != null) {
-                this.tables.getItems().addAll(metadataProvider.getTables(newValue));
+                this.tables.getItems().addAll(this.metadataProvider.getTables(newValue));
             }
 
         });
 
-
-        this.defaultModelType.getItems().addAll(ModelType.values());
-        this.defaultModelType.getSelectionModel().select(ModelType.CONDITIONAL);
+        this.targetRuntime.valueProperty().addListener((observable, oldValue, newValue) -> {
+            this.javaClientType.getItems().clear();
+            ObservableList<JavaClientType> objects = this.javaClientType.getItems();
+            if (newValue == TargetRuntime.MyBatis3) {
+                objects.add(JavaClientType.XMLMAPPER);
+                objects.add(JavaClientType.ANNOTATEDMAPPER);
+                objects.add(JavaClientType.MIXEDMAPPER);
+            } else if (newValue == TargetRuntime.MyBatis3Simple) {
+                objects.add(JavaClientType.XMLMAPPER);
+                objects.add(JavaClientType.ANNOTATEDMAPPER);
+            } else if (newValue == TargetRuntime.Ibatis2Java2
+                    || newValue == TargetRuntime.Ibatis2Java5) {
+                objects.add(JavaClientType.IBATIS);
+                objects.add(JavaClientType.GENERIC_CI);
+                objects.add(JavaClientType.GENERIC_SI);
+                objects.add(JavaClientType.SPRING);
+            }
+            if (!objects.isEmpty()) {
+                this.javaClientType.getSelectionModel().selectFirst();
+            }
+        });
         this.targetRuntime.getItems().addAll(TargetRuntime.values());
         this.targetRuntime.getSelectionModel().select(TargetRuntime.MyBatis3Simple);
+        this.defaultModelType.getItems().addAll(ModelType.values());
+        this.defaultModelType.getSelectionModel().select(ModelType.CONDITIONAL);
         this.useSerializerPlugin.setSelected(true);
-        this.useEqualsHashCodePlugin.setSelected(true);
         this.useCommentPlugin.setSelected(true);
+        this.useEqualsHashCodePlugin.setSelected(false);
+        this.useToStringPlugin.setSelected(false);
 
         //绑定按钮状态
         this.generate.disableProperty().bind(
@@ -209,8 +253,8 @@ public class MainController extends BaseController {
                         .or(projectDir.textProperty().isEmpty())
                         .or(modelPackage.textProperty().isEmpty())
                         .or(mapperPackage.textProperty().isEmpty())
-                        .or(sqlMapperPackage.textProperty().isEmpty())
-        );
+                        .or(sqlMapperPackage.textProperty().isEmpty()));
+
 
         //model
         this.camelCase.setSelected(true);
@@ -236,34 +280,38 @@ public class MainController extends BaseController {
         this.trimStrings.setSelected(false);
 
         //mapper
-        this.javaClientType.itemsProperty().bind(new ObjectBinding<ObservableList<JavaClientType>>() {
+        BooleanBinding mybatis3Binding = new BooleanBinding() {
             {
                 super.bind(targetRuntime.valueProperty());
             }
 
             @Override
-            protected ObservableList<JavaClientType> computeValue() {
-                ObservableList<JavaClientType> objects = FXCollections.observableArrayList();
-                if (targetRuntime.getValue() == TargetRuntime.MyBatis3) {
-                    objects.add(JavaClientType.XMLMAPPER);
-                    objects.add(JavaClientType.ANNOTATEDMAPPER);
-                    objects.add(JavaClientType.MIXEDMAPPER);
-                } else if (targetRuntime.getValue() == TargetRuntime.MyBatis3Simple) {
-                    objects.add(JavaClientType.XMLMAPPER);
-                    objects.add(JavaClientType.ANNOTATEDMAPPER);
-                } else if (targetRuntime.getValue() == TargetRuntime.Ibatis2Java2
-                        || targetRuntime.getValue() == TargetRuntime.Ibatis2Java5) {
-                    objects.add(JavaClientType.IBATIS);
-                    objects.add(JavaClientType.GENERIC_CI);
-                    objects.add(JavaClientType.GENERIC_SI);
-                    objects.add(JavaClientType.SPRING);
-                }
-                return objects;
+            protected boolean computeValue() {
+                return targetRuntime.getValue() == TargetRuntime.MyBatis3;
             }
-        });
-        this.javaClientType.getSelectionModel().selectFirst();
+        };
         this.enableMapperSubPackages.setSelected(false);
+        this.implementationPackage.disableProperty().bind(this.enableMapperSubPackages.selectedProperty().not());
+        this.exampleMethodVisibility.getItems().addAll(MethodVisibility.values());
+        this.exampleMethodVisibility.getSelectionModel().selectFirst();
+        this.exampleMethodVisibility.disableProperty().bind(mybatis3Binding);
+        this.methodNameCalculator.getItems().addAll(NameCalculator.values());
+        this.methodNameCalculator.getSelectionModel().selectFirst();
+        this.methodNameCalculator.disableProperty().bind(mybatis3Binding);
 
+
+        this.generatorService.messageProperty().addListener((observable, oldValue, newValue) -> {
+            logger.debug(newValue);
+        });
+        this.generatorService.setOnFailed(event -> {
+            Throwable exception = this.generatorService.getException();
+            DialogUtil.exceptionDialog(exception);
+            logger.error(exception.getMessage(), exception);
+        });
+
+        this.generatorService.setOnSucceeded(event -> {
+            //什么都不做
+        });
 
         //生成代码
         this.generate.setOnAction((ActionEvent event) -> {
@@ -305,10 +353,15 @@ public class MainController extends BaseController {
             serializablePlugin.setConfigurationType(SerializablePlugin.class.getName());
             context.addPluginConfiguration(serializablePlugin);
         }
-        if (useEqualsHashCodePlugin.isSelected()) {
+        if (this.useEqualsHashCodePlugin.isSelected()) {
             PluginConfiguration equalsHashCodePlugin = new PluginConfiguration();
             equalsHashCodePlugin.setConfigurationType(EqualsHashCodePlugin.class.getName());
             context.addPluginConfiguration(equalsHashCodePlugin);
+        }
+        if (this.useToStringPlugin.isSelected()){
+            PluginConfiguration toStringPlugin = new PluginConfiguration();
+            toStringPlugin.setConfigurationType(ToStringPlugin.class.getName());
+            context.addPluginConfiguration(toStringPlugin);
         }
 
         //---------注释----------
@@ -342,17 +395,27 @@ public class MainController extends BaseController {
 
         //---------mapper----------
         JavaClientGeneratorConfiguration javaClientGenerator = new JavaClientGeneratorConfiguration();
-        javaClientGenerator.setConfigurationType("XMLMAPPER");
-        javaClientGenerator.addProperty("enableSubPackages", Boolean.toString(this.enableMapperSubPackages.isSelected()));
+        javaClientGenerator.setConfigurationType(this.javaClientType.getValue().getValue());
         javaClientGenerator.setTargetProject(sourcePath);
         javaClientGenerator.setTargetPackage(this.mapperPackage.getText());
+        boolean subPackagesSelected = this.enableMapperSubPackages.isSelected();
+        javaClientGenerator.addProperty("exampleMethodVisibility", this.exampleMethodVisibility.getValue().getValue());
+        javaClientGenerator.addProperty("methodNameCalculator", this.methodNameCalculator.getValue().getValue());
+        javaClientGenerator.addProperty("rootInterface", this.rootInterface.getText());
+        javaClientGenerator.addProperty("useLegacyBuilder", Boolean.toString(this.useLegacyBuilder.isSelected()));
+        javaClientGenerator.addProperty("enableSubPackages", Boolean.toString(subPackagesSelected));
+        if (subPackagesSelected) {
+            String packageText = this.implementationPackage.getText();
+            if (StringUtil.isNotBlank(packageText)) {
+                javaClientGenerator.setImplementationPackage(packageText);
+            }
+        }
         context.setJavaClientGeneratorConfiguration(javaClientGenerator);
 
         //---------sql----------
         SqlMapGeneratorConfiguration sqlMapGenerator = new SqlMapGeneratorConfiguration();
-        String sqlMapperPackageText = this.sqlMapperPackage.getText();
         sqlMapGenerator.setTargetProject(resourcePath);
-        sqlMapGenerator.setTargetPackage(sqlMapperPackageText);
+        sqlMapGenerator.setTargetPackage(this.sqlMapperPackage.getText());
         context.setSqlMapGeneratorConfiguration(sqlMapGenerator);
 
         //---------jdbc----------

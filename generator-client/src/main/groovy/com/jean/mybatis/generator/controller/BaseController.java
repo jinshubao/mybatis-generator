@@ -29,7 +29,7 @@ public abstract class BaseController implements Initializable {
                 }
             }
         }
-        throw new Exception("不支持的数据库类型");
+        throw new Exception("暂不支持该数据库");
     }
 
 }
