@@ -52,7 +52,7 @@
            <Label text="plugins" GridPane.rowIndex="4" GridPane.valignment="TOP" />
            <ComboBox editable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
            <TextField GridPane.columnIndex="1" />
-           <Label text="commentGenerator.type" GridPane.rowIndex="5" />
+           <Label text="commentGenerator.tableType" GridPane.rowIndex="5" />
            <ListView GridPane.columnIndex="1" GridPane.rowIndex="4" />
            <Label text="resource" GridPane.rowIndex="1" />
            <ComboBox editable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />

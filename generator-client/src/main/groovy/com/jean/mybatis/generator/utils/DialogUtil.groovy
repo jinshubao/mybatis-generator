@@ -1,8 +1,7 @@
 package com.jean.mybatis.generator.utils
 
 import com.jean.mybatis.generator.constant.DatabaseType
-import com.jean.mybatis.generator.constant.EncodingEnum
-import com.jean.mybatis.generator.support.connection.DefaultConnectionConfig
+import com.jean.mybatis.generator.support.connection.ConnectionConfigFactory
 import com.jean.mybatis.generator.support.connection.IConnectionConfig
 import javafx.scene.Node
 import javafx.scene.control.*
@@ -120,8 +119,8 @@ class DialogUtil {
         dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
         def stage = dialog.getDialogPane().getScene().getWindow() as Stage
         stage.getIcons().add(new Image(this.getClass().getResourceAsStream(LOGO_IMAGE)))
-        dialog.setResultConverter { type ->
-            if (type.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+        dialog.setResultConverter { buttonType ->
+            if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 def values = [:]
                 def pane = node as Pane
                 pane.getChildren().each { it ->
@@ -133,18 +132,13 @@ class DialogUtil {
                         values.put(it.id, it.isSelected())
                     }
                 }
-                IConnectionConfig config = new DefaultConnectionConfig()
-                if (config) {
-                    config.type = values?.dataBaseType as DatabaseType
-                    config.host = values?.host as String
-                    config.port = values?.port as Integer
-                    config.username = values?.username as String
-                    config.password = values?.password as String
-                    config.charset = (values?.encoding as EncodingEnum)?.value
-                    config.properties = StringUtil.parseProperties(values?.properties as String)
-                    config.savePassword = values?.savePassword as Boolean
-                    return config
-                }
+                DatabaseType type = values?.dataBaseType as DatabaseType
+                String host = values?.host as String
+                Integer port = values?.port as Integer
+                String username = values?.username as String
+                String password = values?.password as String
+                String properties = values?.properties as String
+                return ConnectionConfigFactory.newInstance(type, host, port, username, password, properties)
             }
             return null
         }

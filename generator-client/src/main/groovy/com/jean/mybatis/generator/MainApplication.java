@@ -3,9 +3,11 @@ package com.jean.mybatis.generator;
 import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.constant.StageType;
 import com.jean.mybatis.generator.support.application.ApplicationSupport;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -36,8 +38,8 @@ public class MainApplication extends ApplicationSupport {
         CommonConstant.SCENES.put(StageType.CONNECTION.toString(), databaseConnection);
         Parent configuration = loadFxml("/fxml/Configuration.fxml");
         CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
-//        def bounds = Screen.getPrimary().getBounds()
-//        Scene scene = new Scene(root, bounds.width, bounds.height)
+//        Rectangle2D bounds = Screen.getPrimary().getBounds();
+//        Scene scene = new Scene(root, bounds.getWidth(), bounds.getHeight());
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         stage.setTitle("Mybatis Generator 1.0");

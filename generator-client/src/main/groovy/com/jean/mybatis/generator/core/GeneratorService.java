@@ -77,7 +77,7 @@ public class GeneratorService extends Service<List<String>> {
         @Override
         public void checkCancel() throws InterruptedException {
             if (this.isCancelled()) {
-                updateMessage("cancelled");
+                updateMessage("CANCELLED");
                 throw new InterruptedException("task was cancelled.");
             }
         }
@@ -86,10 +86,10 @@ public class GeneratorService extends Service<List<String>> {
         protected void succeeded() {
             List<String> warnings = getValue();
             if (warnings.isEmpty()) {
-                updateMessage("success");
+                updateMessage("SUCCESS");
             } else {
-                String msg = StringUtil.join(warnings, ";\r\n");
-                updateMessage("warn：" + msg);
+                String msg = StringUtil.join(warnings, ". ");
+                updateMessage("WARN:" + msg);
             }
         }
 

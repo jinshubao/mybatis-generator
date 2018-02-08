@@ -2,13 +2,14 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
-import com.jean.mybatis.generator.support.connection.DefaultConnectionConfig;
-import com.jean.mybatis.generator.support.connection.IConnectionConfig;
-import com.jean.mybatis.generator.support.metadata.IMetadataProvider;
+import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
+import com.jean.mybatis.generator.support.connection.ConnectionConfigFactory;
 import com.jean.mybatis.generator.utils.DialogUtil;
-import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import org.springframework.stereotype.Controller;
 
 import java.net.URL;
@@ -36,8 +37,6 @@ public class ConnectionController extends BaseController {
     private TextField properties;
     @FXML
     private Button testConnection;
-    @FXML
-    private CheckBox savePassword;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -45,26 +44,22 @@ public class ConnectionController extends BaseController {
         this.dataBaseType.getSelectionModel().selectFirst();
         this.encoding.getItems().addAll(EncodingEnum.values());
         this.encoding.getSelectionModel().selectFirst();
-        this.properties.setText("serverTimezone=UTC&useUnicode=true&useSSL=false");
+        this.properties.setText("serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false");
         this.testConnection.setOnAction(event -> {
-            DatabaseType typeValue = this.dataBaseType.getValue();
-            IConnectionConfig config = new DefaultConnectionConfig();
-            config.setType(typeValue);
-            config.setHost(this.host.getText());
-            config.setPort(Integer.parseInt(this.port.getText()));
-            config.setUsername(this.username.getText());
-            config.setPassword(this.password.getText());
-            config.setCharset(this.encoding.getValue().value);
-            config.setProperties(StringUtil.parseProperties(this.properties.getText()));
             try {
-                IMetadataProvider service = chooseMetadataService(config.getType());
-                service.setConnectionConfig(config);
-                if (service.testConnection()) {
+                AbstractConnectionConfig config = ConnectionConfigFactory.newInstance(
+                        this.dataBaseType.getValue(),
+                        this.host.getText(),
+                        Integer.parseInt(this.port.getText()),
+                        this.username.getText(), this.password.getText(),
+                        this.properties.getText());
+                if (config.testConnection()) {
                     DialogUtil.information("连接成功", null, "连接成功");
                 } else {
                     DialogUtil.information("连接失败", null, "连接失败");
                 }
             } catch (Exception e) {
+                logger.error(e.getMessage(), e);
                 DialogUtil.exceptionDialog(e);
             }
         });

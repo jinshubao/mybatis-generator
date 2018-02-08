@@ -2,25 +2,32 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.*;
 import com.jean.mybatis.generator.core.GeneratorService;
+import com.jean.mybatis.generator.support.meta.AbstractTableMetaData;
+import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.factory.ListViewCellFactory;
 import com.jean.mybatis.generator.factory.Selectable;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
+import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
 import com.jean.mybatis.generator.support.connection.IConnectionConfig;
-import com.jean.mybatis.generator.support.database.IDatabaseMetadata;
-import com.jean.mybatis.generator.support.metadata.IMetadataProvider;
-import com.jean.mybatis.generator.support.table.ITableMetadata;
+import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
+import com.jean.mybatis.generator.support.meta.ITableMetaData;
+import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
+import javafx.util.Callback;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.plugins.EqualsHashCodePlugin;
@@ -31,6 +38,7 @@ import org.springframework.stereotype.Controller;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -63,6 +71,18 @@ public class MainController extends BaseController {
     @FXML
     private MenuItem aboutMenuItem;
 
+    //left
+    @FXML
+    private ComboBox<ICatalogMetaData> tableCatalog;
+    @FXML
+    private ListView<ITableMetaData> tables;
+    @FXML
+    private TableView<ITableMetaData> table;
+    @FXML
+    private Hyperlink selectAll;
+    @FXML
+    private Hyperlink reverseSelect;
+
     //---------基本配置----------
     @FXML
     private TextField projectDir;
@@ -78,14 +98,6 @@ public class MainController extends BaseController {
     private TextField sqlMapperPackage;
     @FXML
     private TextField mapperPackage;
-    @FXML
-    private ComboBox<IDatabaseMetadata> databases;
-    @FXML
-    private ListView<ITableMetadata> tables;
-    @FXML
-    private Hyperlink selectAll;
-    @FXML
-    private Hyperlink reverseSelect;
     @FXML
     private CheckBox overwrite;
     @FXML
@@ -153,7 +165,11 @@ public class MainController extends BaseController {
     //私有变量
     @Autowired
     private GeneratorService generatorService;
+
     private IMetadataProvider metadataProvider;
+
+    @Autowired
+    private IMetaDataProviderManager providerManager;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -162,34 +178,64 @@ public class MainController extends BaseController {
                 DialogUtil.newConnectionDialog("新建数据库连接", null, CommonConstant.SCENES.get(StageType.CONNECTION.toString()))
                         .ifPresent(config -> {
                             try {
-                                this.metadataProvider = MainController.this.chooseMetadataService(config.getType());
+                                this.metadataProvider = this.providerManager.getMetaDataProvider(config.getType());
                                 this.metadataProvider.setConnectionConfig(config);
-                                this.databases.getSelectionModel().clearSelection();
-                                this.databases.getItems().clear();
-                                this.databases.getItems().addAll(metadataProvider.getDatabases());
-                                this.tables.getSelectionModel().clearSelection();
-                                this.tables.getItems().clear();
+                                this.tableCatalog.getItems().clear();
+                                this.tableCatalog.getItems().addAll(metadataProvider.getCatalogs());
                             } catch (Exception e) {
+                                logger.error(e.getMessage(), e);
                                 DialogUtil.exceptionDialog(e);
                             }
                         }));
 
-        this.explorerProject.setOnAction(event -> {
-            DirectoryChooser chooser = new DirectoryChooser();
-            Window window = ((Node) event.getSource()).getScene().getWindow();
-            File file = chooser.showDialog(window);
-            if (file != null && file.exists() && file.isDirectory()) {
-                this.projectDir.setText(file.getAbsolutePath());
+        this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                this.tables.getItems().clear();
+                this.table.getItems().clear();
+                AbstractConnectionConfig config = (AbstractConnectionConfig) this.metadataProvider.getConnectionConfig();
+                if (newValue != null) {
+                    config.setTableCatalog(newValue.getTableCatalog());
+                } else {
+                    config.setTableCatalog(null);
+                }
+                List<ITableMetaData> tables = this.metadataProvider.getTables();
+                this.tables.getItems().addAll(tables);
+                this.table.getItems().addAll(tables);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                DialogUtil.exceptionDialog(e);
             }
         });
-
+        /*this.tableSchema.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                this.tables.getItems().clear();
+                AbstractConnectionConfig config = (AbstractConnectionConfig) this.metadataProvider.getConnectionConfig();
+                if (newValue != null) {
+                    config.setTableSchema(newValue.getTableSchema());
+                } else {
+                    config.setTableSchema(null);
+                }
+                this.tables.getItems().addAll(this.metadataProvider.getTables());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                DialogUtil.exceptionDialog(e);
+            }
+        });*/
         this.tables.setCellFactory(ListViewCellFactory.forListView());
+        TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) table.getColumns().get(0);
+        TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) table.getColumns().get(1);
+        TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) table.getColumns().get(2);
+        Callback callback = CheckBoxTableCell.forTableColumn(column0);
+        column0.setCellValueFactory(callback);
+        column0.setCellValueFactory(param -> param.getValue().selectedProperty());
+        column1.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getTableName()));
+        column2.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getRemarks()));
 
         this.selectAll.setOnAction(event -> {
-            ObservableList<ITableMetadata> items = this.tables.getItems();
+            ObservableList<ITableMetaData> items = this.tables.getItems();
             if (!items.isEmpty()) {
                 final BooleanProperty selectedAll = new SimpleBooleanProperty(true);
-                for (ITableMetadata item : items) {
+                for (ITableMetaData item : items) {
                     if (!item.isSelected()) {
                         selectedAll.set(false);
                         break;
@@ -207,15 +253,6 @@ public class MainController extends BaseController {
 
         this.message.textProperty().bind(this.generatorService.messageProperty());
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
-
-        this.databases.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.tables.getItems().clear();
-            this.tables.getSelectionModel().clearSelection();
-            if (newValue != null) {
-                this.tables.getItems().addAll(this.metadataProvider.getTables(newValue));
-            }
-
-        });
 
         this.targetRuntime.valueProperty().addListener((observable, oldValue, newValue) -> {
             this.javaClientType.getItems().clear();
@@ -257,6 +294,15 @@ public class MainController extends BaseController {
 
 
         //model
+
+        this.explorerProject.setOnAction(event -> {
+            DirectoryChooser chooser = new DirectoryChooser();
+            Window window = ((Node) event.getSource()).getScene().getWindow();
+            File file = chooser.showDialog(window);
+            if (file != null && file.exists() && file.isDirectory()) {
+                this.projectDir.setText(file.getAbsolutePath());
+            }
+        });
         this.camelCase.setSelected(true);
         this.autoDelimitKeywords.setSelected(false);
         this.forceBigDecimals.setSelected(false);
@@ -304,9 +350,9 @@ public class MainController extends BaseController {
             logger.debug(newValue);
         });
         this.generatorService.setOnFailed(event -> {
-            Throwable exception = this.generatorService.getException();
-            DialogUtil.exceptionDialog(exception);
-            logger.error(exception.getMessage(), exception);
+            Throwable ex = this.generatorService.getException();
+            logger.error(ex.getMessage(), ex);
+            DialogUtil.exceptionDialog(ex);
         });
 
         this.generatorService.setOnSucceeded(event -> {
@@ -333,6 +379,8 @@ public class MainController extends BaseController {
     }
 
     protected Context createDefaultContext() {
+
+        IConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
         //---------上下文环境----------
         Context context = new Context(this.defaultModelType.getValue());
         context.setId("context");
@@ -423,9 +471,8 @@ public class MainController extends BaseController {
 
         //---------jdbc----------
         JDBCConnectionConfiguration jdbcConnection = new JDBCConnectionConfiguration();
-        IConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
         jdbcConnection.setDriverClass(connectionConfig.getType().driverClass);
-        jdbcConnection.setConnectionURL(this.metadataProvider.getConnectionURL(null));
+        jdbcConnection.setConnectionURL(connectionConfig.getConnectionUrl());
         jdbcConnection.setUserId(connectionConfig.getUsername());
         jdbcConnection.setPassword(connectionConfig.getPassword());
         context.setJdbcConnectionConfiguration(jdbcConnection);
@@ -433,12 +480,12 @@ public class MainController extends BaseController {
         //---------tables----------
         boolean camelCaseSelected = this.camelCase.isSelected();
         String statement = this.metadataProvider.getConnectionConfig().getType().name;
-        IDatabaseMetadata catalog = databases.getValue();
+        String catalog = connectionConfig.getTableCatalog();
+        String schema = connectionConfig.getTableSchema();
         tables.getItems().filtered(Selectable::isSelected).forEach(tableMetadata -> {
             TableConfiguration table = new TableConfiguration(context);
-            if (catalog != null) {
-                table.setCatalog(catalog.getName());
-            }
+            table.setCatalog(catalog);
+            table.setSchema(schema);
             table.setTableName(tableMetadata.getName());
 //                table.setSelectByExampleStatementEnabled(false);
 //                table.setDeleteByExampleStatementEnabled(false);

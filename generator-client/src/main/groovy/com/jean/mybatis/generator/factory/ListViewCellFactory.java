@@ -10,7 +10,7 @@ import javafx.util.Callback;
 public class ListViewCellFactory {
 
     private static class CheckBoxListCell<P extends Selectable> extends ListCell<P> {
-        private final CheckBox checkBox;
+        private CheckBox checkBox;
         private P ref;
 
         public CheckBoxListCell(Pos pos) {
