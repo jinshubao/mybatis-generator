@@ -221,12 +221,11 @@ public class MainController extends BaseController {
                 DialogUtil.exceptionDialog(e);
             }
         });*/
-        this.tables.setCellFactory(ListViewCellFactory.forListView());
+//        this.tables.setCellFactory(ListViewCellFactory.forListView());
         TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) table.getColumns().get(0);
         TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) table.getColumns().get(1);
         TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) table.getColumns().get(2);
-        Callback callback = CheckBoxTableCell.forTableColumn(column0);
-        column0.setCellValueFactory(callback);
+        column0.setCellFactory(CheckBoxTableCell.forTableColumn(column0));
         column0.setCellValueFactory(param -> param.getValue().selectedProperty());
         column1.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getTableName()));
         column2.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getRemarks()));
