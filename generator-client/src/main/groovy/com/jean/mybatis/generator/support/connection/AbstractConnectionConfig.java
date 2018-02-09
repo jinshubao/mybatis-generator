@@ -7,7 +7,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+/**
+ * @author jinshubao
+ */
 public abstract class AbstractConnectionConfig implements IConnectionConfig {
 
     protected DatabaseType type;
@@ -97,13 +101,24 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
     public abstract void setProperties(String properties);
 
     public void setProperties(Map<String, String> properties) {
-        if (properties != null)
+        if (properties != null) {
             this.properties.putAll(properties);
+        }
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(this.getConnectionUrl(), this.username, this.password);
+        Properties properties = new Properties();
+        properties.putAll(getProperties());
+        if (username != null) {
+            properties.setProperty("user", username);
+        }
+        if (password != null) {
+            properties.setProperty("password", password);
+        }
+        //设置可以获取remarks信息
+        properties.setProperty("remarks", Boolean.toString(true));
+        return DriverManager.getConnection(getConnectionUrl(), properties);
     }
 
     @Override

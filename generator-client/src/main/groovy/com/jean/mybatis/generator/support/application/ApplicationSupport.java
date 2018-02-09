@@ -14,14 +14,18 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * JavaFX-Spring 适配
- * Created by jinshubao on 2017/4/8.
+ *
+ * @author jinshubao
+ * @date 2017/4/8
  */
 public abstract class ApplicationSupport extends Application {
     protected static final Logger logger = LoggerFactory.getLogger(ApplicationSupport.class);
-    private ApplicationContext applicationContext;
+    protected ApplicationContext applicationContext;
     protected Stage primaryStage;
 
     public ApplicationSupport() {
@@ -71,9 +75,12 @@ public abstract class ApplicationSupport extends Application {
         launch(applicationClass, args);
     }
 
-    protected Parent loadFxml(String name) {
+    protected Parent loadFxml(String name, String resource, Locale locale) {
         logger.info("loading fxml {}", name);
         FXMLLoader loader = new FXMLLoader();
+        if (resource != null) {
+            loader.setResources(ResourceBundle.getBundle(resource, locale));
+        }
         loader.setControllerFactory(param -> applicationContext.getBean(param));
         try {
             return loader.load(getClass().getResourceAsStream(name));
@@ -82,5 +89,9 @@ public abstract class ApplicationSupport extends Application {
             notifyPreloader(new Preloader.ErrorNotification(name, "加载fxml文件" + name + "出错", e));
             throw new RuntimeException(e);
         }
+    }
+
+    protected Parent loadFxml(String name) {
+        return loadFxml(name, null, null);
     }
 }

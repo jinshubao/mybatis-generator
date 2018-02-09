@@ -10,8 +10,7 @@ public class MySQLConnectionConfig extends AbstractConnectionConfig {
         if (StringUtil.isNotBlank(tableCatalog)) {
             url += ("/" + tableCatalog);
         }
-        String props = StringUtil.expandProperties(properties);
-        return url + "?" + props;
+        return url;
     }
 
     @Override

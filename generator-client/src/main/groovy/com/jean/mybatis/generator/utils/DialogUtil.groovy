@@ -8,6 +8,7 @@ import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.stage.Stage
+import javafx.util.Callback
 
 /**
  * 弹框工具类
@@ -112,14 +113,7 @@ class DialogUtil {
      * @return
      */
     static Optional<IConnectionConfig> newConnectionDialog(String title, String headerText, Node node) {
-        def dialog = new Dialog<>()
-        dialog.setTitle(title)
-        dialog.setHeaderText(headerText)
-        dialog.dialogPane.setContent(node)
-        dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
-        def stage = dialog.getDialogPane().getScene().getWindow() as Stage
-        stage.getIcons().add(new Image(this.getClass().getResourceAsStream(LOGO_IMAGE)))
-        dialog.setResultConverter { buttonType ->
+        return customizeDialog(title, headerText, node) { buttonType ->
             if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 def values = [:]
                 def pane = node as Pane
@@ -141,6 +135,27 @@ class DialogUtil {
                 return ConnectionConfigFactory.newInstance(type, host, port, username, password, properties)
             }
             return null
+        }
+    }
+
+    /**
+     * 自定义对话框
+     * @param title
+     * @param headerText
+     * @param node
+     * @param resultConverter
+     * @return
+     */
+    static <T> Optional<T> customizeDialog(String title, String headerText, Node node, Callback<ButtonType, T> resultConverter) {
+        def dialog = new Dialog<>()
+        dialog.setTitle(title)
+        dialog.setHeaderText(headerText)
+        dialog.dialogPane.setContent(node)
+        dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
+        def stage = dialog.getDialogPane().getScene().getWindow() as Stage
+        stage.getIcons().add(new Image(this.getClass().getResourceAsStream(LOGO_IMAGE)))
+        if (resultConverter) {
+            dialog.setResultConverter(resultConverter)
         }
         return dialog.showAndWait()
     }

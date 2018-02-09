@@ -1,18 +1,20 @@
 package com.jean.mybatis.generator.support.meta;
 
-import com.jean.mybatis.generator.factory.Selectable;
-import com.jean.mybatis.generator.support.common.INaming;
-
-public interface ITableMetaData extends Selectable, INaming {
-
-    String getTableSchema();
-
-    String getTableCatalog();
+/**
+ * @author jinshubao
+ */
+public interface ITableMetaData extends ISchemaMetaData {
 
     String getTableName();
 
+    void  setTableName(String tableName);
+
     String getRemarks();
 
+    void setRemarks(String remarks);
+
     String getTableType();
+
+    void setTableType(String tableType);
 
 }

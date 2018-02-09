@@ -6,6 +6,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+/**
+ * @author jinshubao
+ */
 public interface IConnectionConfig {
 
     DatabaseType getType();

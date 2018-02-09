@@ -7,12 +7,11 @@ import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
 import com.jean.mybatis.generator.support.meta.ITableMetaData;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Created by jinshubao on 2017/4/9.
+ * @author jinshubao
+ * @date 2017/4/9
  */
 public interface IMetadataProvider extends ISupport {
 
@@ -20,12 +19,12 @@ public interface IMetadataProvider extends ISupport {
 
     IConnectionConfig getConnectionConfig();
 
-    List<ICatalogMetaData> getCatalogs() throws SQLException;
+    List<ICatalogMetaData> getCatalogs() throws Exception;
 
-    List<ISchemaMetaData> getSchemas() throws SQLException;
+    List<ISchemaMetaData> getSchemas() throws Exception;
 
-    List<ITableMetaData> getTables() throws SQLException;
+    List<ITableMetaData> getTables() throws Exception;
 
-    List<IColumnMetaData> getColumns(String tableNamePattern) throws SQLException;
+    List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception;
 
 }

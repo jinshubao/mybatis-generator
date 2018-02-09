@@ -8,35 +8,12 @@ import com.jean.mybatis.generator.support.meta.ITableMetaData;
 import com.jean.mybatis.generator.support.provider.AbstractMetadataProvider;
 import org.springframework.stereotype.Component;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
- * Created by jinshubao on 2018/2/8.
+ * @author jinshubao
+ * @date 2018/2/8
  */
 @Component
 public class OracleMetadataProvider extends AbstractMetadataProvider {
-
-
-    @Override
-    protected ICatalogMetaData getCatalogMetaData(ResultSet resultSet) throws SQLException {
-        return null;
-    }
-
-    @Override
-    protected ISchemaMetaData getSchemaMetaData(ResultSet resultSet) throws SQLException {
-        return null;
-    }
-
-    @Override
-    protected ITableMetaData getTableMetaData(ResultSet resultSet) throws SQLException {
-        return null;
-    }
-
-    @Override
-    protected IColumnMetaData getColumnMetaData(ResultSet resultSet) throws SQLException {
-        return null;
-    }
 
 
     @Override
@@ -44,4 +21,23 @@ public class OracleMetadataProvider extends AbstractMetadataProvider {
         return databaseType == DatabaseType.Oracle;
     }
 
+    @Override
+    protected Class<? extends ICatalogMetaData> getCatalogMetaDataClass() {
+        return null;
+    }
+
+    @Override
+    protected Class<? extends ISchemaMetaData> getSchemaMetaDataClass() {
+        return null;
+    }
+
+    @Override
+    protected Class<? extends ITableMetaData> getTableMetaDataClass() {
+        return null;
+    }
+
+    @Override
+    protected Class<? extends IColumnMetaData> getColumnMetaDataClass() {
+        return null;
+    }
 }

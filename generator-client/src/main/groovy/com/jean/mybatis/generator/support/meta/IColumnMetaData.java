@@ -1,14 +1,12 @@
 package com.jean.mybatis.generator.support.meta;
 
-public interface IColumnMetaData {
-
-    String getTableCatalog();
-
-    String getTableSchema();
-
-    String getTableName();
+/**
+ * @author jinshubao
+ */
+public interface IColumnMetaData extends ITableMetaData {
 
     String getColumnName();
+    void setColumnName(String columnName);
 
     int getDataType();
 
@@ -22,12 +20,27 @@ public interface IColumnMetaData {
 
     int getNullAble();
 
-    String getRemarks();
-
     String getColumnDef();
 
     int getCharOctetLength();
 
     String getIsNullAble();
 
+    void setDataType(int dataType);
+
+    void setDataTypeName(String dataTypeName);
+
+    void setColumnSize(int columnSize);
+
+    void setDecimalDigits(int decimalDigits);
+
+    void setNumPrecRadix(int numPrecRadix);
+
+    void setNullAble(int nullAble);
+
+    void setColumnDef(String columnDef);
+
+    void setCharOctetLength(int charOctetLength);
+
+    void setIsNullAble(String isNullAble);
 }

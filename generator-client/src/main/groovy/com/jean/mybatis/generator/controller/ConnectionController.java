@@ -4,6 +4,7 @@ import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
 import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
 import com.jean.mybatis.generator.support.connection.ConnectionConfigFactory;
+import com.jean.mybatis.generator.support.connection.IConnectionConfig;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,7 +17,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Created by jinshubao on 2017/4/8.
+ *
+ * @author jinshubao
+ * @date 2017/4/8
  */
 @Controller
 public class ConnectionController extends BaseController {
@@ -47,12 +50,7 @@ public class ConnectionController extends BaseController {
         this.properties.setText("serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false");
         this.testConnection.setOnAction(event -> {
             try {
-                AbstractConnectionConfig config = ConnectionConfigFactory.newInstance(
-                        this.dataBaseType.getValue(),
-                        this.host.getText(),
-                        Integer.parseInt(this.port.getText()),
-                        this.username.getText(), this.password.getText(),
-                        this.properties.getText());
+                IConnectionConfig config = getConnectionConfig();
                 if (config.testConnection()) {
                     DialogUtil.information("连接成功", null, "连接成功");
                 } else {
@@ -63,6 +61,15 @@ public class ConnectionController extends BaseController {
                 DialogUtil.exceptionDialog(e);
             }
         });
+    }
+
+   public IConnectionConfig getConnectionConfig(){
+       return ConnectionConfigFactory.newInstance(
+               this.dataBaseType.getValue(),
+               this.host.getText(),
+               Integer.parseInt(this.port.getText()),
+               this.username.getText(), this.password.getText(),
+               this.properties.getText());
     }
 
 }

@@ -2,23 +2,17 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.*;
 import com.jean.mybatis.generator.core.GeneratorService;
-import com.jean.mybatis.generator.support.meta.AbstractTableMetaData;
-import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
-import com.jean.mybatis.generator.factory.ListViewCellFactory;
-import com.jean.mybatis.generator.factory.Selectable;
+import com.jean.mybatis.generator.factory.HyperlinkTableCellFactory;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
 import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
 import com.jean.mybatis.generator.support.connection.IConnectionConfig;
-import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
-import com.jean.mybatis.generator.support.meta.ITableMetaData;
+import com.jean.mybatis.generator.support.meta.*;
+import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.plugins.EqualsHashCodePlugin;
@@ -38,16 +31,20 @@ import org.springframework.stereotype.Controller;
 
 import java.io.File;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Created by jinshubao on 2017/4/8.
+ *
+ * @author jinshubao
+ * @date 2017/4/8
  */
 @Controller
 public class MainController extends BaseController {
 
     //---------菜单栏----------
+
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -72,18 +69,27 @@ public class MainController extends BaseController {
     private MenuItem aboutMenuItem;
 
     //left
+
     @FXML
     private ComboBox<ICatalogMetaData> tableCatalog;
     @FXML
-    private ListView<ITableMetaData> tables;
+    private TableView<ITableMetaData> tables;
     @FXML
-    private TableView<ITableMetaData> table;
+    private Hyperlink selectAllTable;
     @FXML
-    private Hyperlink selectAll;
+    private Hyperlink reverseSelectTable;
+
+    //---------right----------
+
     @FXML
-    private Hyperlink reverseSelect;
+    private TableView<IColumnMetaData> columns;
+    @FXML
+    private Hyperlink selectAllColumn;
+    @FXML
+    private Hyperlink reverseSelectColumn;
 
     //---------基本配置----------
+
     @FXML
     private TextField projectDir;
     @FXML
@@ -114,6 +120,7 @@ public class MainController extends BaseController {
     private CheckBox useToStringPlugin;
 
     //---------Model配置----------
+
     @FXML
     private CheckBox camelCase;
     @FXML
@@ -135,6 +142,7 @@ public class MainController extends BaseController {
 
 
     //---------Mapper配置----------
+
     @FXML
     private ComboBox<JavaClientType> javaClientType;
     @FXML
@@ -151,18 +159,24 @@ public class MainController extends BaseController {
     private CheckBox useLegacyBuilder;
 
     //---------Common----------
+
     @FXML
     private Button generate;
     @FXML
     private Button saveConfig;
 
     //---------bottom----------
+
     @FXML
     private ProgressIndicator progressIndicator;
     @FXML
     private Label message;
 
+    @Autowired
+    private ConnectionController connectionController;
+
     //私有变量
+
     @Autowired
     private GeneratorService generatorService;
 
@@ -173,82 +187,85 @@ public class MainController extends BaseController {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         this.newConnectionMenuItem.setOnAction(event ->
-                DialogUtil.newConnectionDialog("新建数据库连接", null, CommonConstant.SCENES.get(StageType.CONNECTION.toString()))
-                        .ifPresent(config -> {
-                            try {
-                                this.metadataProvider = this.providerManager.getMetaDataProvider(config.getType());
-                                this.metadataProvider.setConnectionConfig(config);
-                                this.tableCatalog.getItems().clear();
-                                this.tableCatalog.getItems().addAll(metadataProvider.getCatalogs());
-                            } catch (Exception e) {
-                                logger.error(e.getMessage(), e);
-                                DialogUtil.exceptionDialog(e);
+                DialogUtil.customizeDialog(resources.getString("dialog.title.newconnection"),
+                        null,
+                        CommonConstant.SCENES.get(StageType.CONNECTION.toString()),
+                        param -> {
+                            if (param.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                                return connectionController.getConnectionConfig();
                             }
-                        }));
+                            return null;
+                        }).ifPresent(config -> {
+                    try {
+                        this.metadataProvider = this.providerManager.getMetaDataProvider(config.getType());
+                        this.metadataProvider.setConnectionConfig(config);
+                        this.tableCatalog.getItems().clear();
+                        this.tableCatalog.getItems().addAll(metadataProvider.getCatalogs());
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                        DialogUtil.exceptionDialog(e);
+                    }
+                }));
 
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 this.tables.getItems().clear();
-                this.table.getItems().clear();
                 AbstractConnectionConfig config = (AbstractConnectionConfig) this.metadataProvider.getConnectionConfig();
-                if (newValue != null) {
-                    config.setTableCatalog(newValue.getTableCatalog());
-                } else {
-                    config.setTableCatalog(null);
-                }
+                config.setTableCatalog(newValue == null ? null : newValue.getTableCatalog());
                 List<ITableMetaData> tables = this.metadataProvider.getTables();
                 this.tables.getItems().addAll(tables);
-                this.table.getItems().addAll(tables);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 DialogUtil.exceptionDialog(e);
             }
         });
-        /*this.tableSchema.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                this.tables.getItems().clear();
-                AbstractConnectionConfig config = (AbstractConnectionConfig) this.metadataProvider.getConnectionConfig();
-                if (newValue != null) {
-                    config.setTableSchema(newValue.getTableSchema());
-                } else {
-                    config.setTableSchema(null);
-                }
-                this.tables.getItems().addAll(this.metadataProvider.getTables());
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                DialogUtil.exceptionDialog(e);
-            }
-        });*/
-//        this.tables.setCellFactory(ListViewCellFactory.forListView());
-        TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) table.getColumns().get(0);
-        TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) table.getColumns().get(1);
-        TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) table.getColumns().get(2);
+
+        TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) tables.getColumns().get(0);
         column0.setCellFactory(CheckBoxTableCell.forTableColumn(column0));
         column0.setCellValueFactory(param -> param.getValue().selectedProperty());
-        column1.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getTableName()));
-        column2.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getRemarks()));
-
-        this.selectAll.setOnAction(event -> {
-            ObservableList<ITableMetaData> items = this.tables.getItems();
-            if (!items.isEmpty()) {
-                final BooleanProperty selectedAll = new SimpleBooleanProperty(true);
-                for (ITableMetaData item : items) {
-                    if (!item.isSelected()) {
-                        selectedAll.set(false);
-                        break;
-                    }
+        TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(1);
+        column1.setCellValueFactory(param -> {
+            AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
+            return value.tableNameProperty();
+        });
+        TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(2);
+        column2.setCellValueFactory(param -> {
+            AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
+            return value.remarksProperty();
+        });
+        TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(3);
+        column3.setCellFactory(HyperlinkTableCellFactory.forTableView(resources.getString("tables.column3.text"), param -> {
+            this.columns.getItems().clear();
+            try {
+                if (metadataProvider != null) {
+                    this.columns.getItems().addAll(metadataProvider.getColumns(param.getTableName()));
                 }
-                this.tables.getItems().forEach(tableMetadata -> tableMetadata.setSelected(!selectedAll.get()));
+            } catch (Exception e) {
+                DialogUtil.exceptionDialog(e);
             }
-        });
+            return null;
+        }));
 
-        this.reverseSelect.setOnAction(event -> {
-            if (!this.tables.getItems().isEmpty()) {
-                this.tables.getItems().forEach(tableMetadata -> tableMetadata.setSelected(!tableMetadata.isSelected()));
-            }
-        });
+
+        this.selectAllTable.setOnAction(event -> selectAll(this.tables.getItems()));
+
+        this.reverseSelectTable.setOnAction(event -> reverseSelect(this.tables.getItems()));
+
+        //right
+        TableColumn<IColumnMetaData, Boolean> c0 = (TableColumn<IColumnMetaData, Boolean>) this.columns.getColumns().get(0);
+        c0.setCellFactory(CheckBoxTableCell.forTableColumn(c0));
+        c0.setCellValueFactory(data -> data.getValue().selectedProperty());
+
+        TableColumn<IColumnMetaData, String> c1 = (TableColumn<IColumnMetaData, String>) this.columns.getColumns().get(1);
+        c1.setCellValueFactory(param1 -> new SimpleStringProperty(param1.getValue().getColumnName()));
+
+        TableColumn<IColumnMetaData, String> c2 = (TableColumn<IColumnMetaData, String>) this.columns.getColumns().get(2);
+        c2.setCellValueFactory(param1 -> new SimpleStringProperty(param1.getValue().getRemarks()));
+
+
+        this.selectAllColumn.setOnAction(event -> selectAll(this.columns.getItems()));
+        this.reverseSelectColumn.setOnAction(event -> reverseSelect(this.columns.getItems()));
 
         this.message.textProperty().bind(this.generatorService.messageProperty());
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
@@ -491,8 +508,10 @@ public class MainController extends BaseController {
 //                table.setUpdateByExampleStatementEnabled(false);
             table.addProperty("useActualColumnNames", Boolean.toString(!camelCaseSelected));
             table.setGeneratedKey(new GeneratedKey("id", statement, true, ""));
+//            table.addColumnOverride();
             context.addTableConfiguration(table);
         });
         return context;
     }
+
 }

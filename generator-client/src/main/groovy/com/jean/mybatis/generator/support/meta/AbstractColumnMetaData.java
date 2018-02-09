@@ -5,14 +5,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class AbstractColumnMetaData implements IColumnMetaData {
-
-    private StringProperty tableSchema = new SimpleStringProperty();
-
-    private StringProperty tableCatalog = new SimpleStringProperty();
-
-    private StringProperty tableName = new SimpleStringProperty();
-
+/**
+ * @author jinshubao
+ */
+public abstract class AbstractColumnMetaData extends AbstractTableMetaData implements IColumnMetaData {
 
     protected StringProperty columnName = new SimpleStringProperty();
 
@@ -32,6 +28,7 @@ public class AbstractColumnMetaData implements IColumnMetaData {
      * 小数位数
      */
     protected IntegerProperty decimalDigits = new SimpleIntegerProperty();
+
     protected IntegerProperty numPrecRadix = new SimpleIntegerProperty();
     /**
      * 是否允许为null
@@ -41,10 +38,6 @@ public class AbstractColumnMetaData implements IColumnMetaData {
      */
     protected IntegerProperty nullAble = new SimpleIntegerProperty();
 
-    /**
-     * 列描述
-     */
-    protected StringProperty remarks = new SimpleStringProperty();
     /**
      * 默认值
      */
@@ -62,45 +55,6 @@ public class AbstractColumnMetaData implements IColumnMetaData {
      * 空字符串--- 不知道该列是否可为空
      */
     protected StringProperty isNullAble = new SimpleStringProperty();
-
-    @Override
-    public String getTableSchema() {
-        return tableSchema.get();
-    }
-
-    public StringProperty tableSchemaProperty() {
-        return tableSchema;
-    }
-
-    public void setTableSchema(String tableSchema) {
-        this.tableSchema.set(tableSchema);
-    }
-
-    @Override
-    public String getTableCatalog() {
-        return tableCatalog.get();
-    }
-
-    public StringProperty tableCatalogProperty() {
-        return tableCatalog;
-    }
-
-    public void setTableCatalog(String tableCatalog) {
-        this.tableCatalog.set(tableCatalog);
-    }
-
-    @Override
-    public String getTableName() {
-        return tableName.get();
-    }
-
-    public StringProperty tableNameProperty() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName.set(tableName);
-    }
 
     @Override
     public String getColumnName() {
@@ -163,6 +117,7 @@ public class AbstractColumnMetaData implements IColumnMetaData {
         return decimalDigits;
     }
 
+    @Override
     public void setDecimalDigits(int decimalDigits) {
         this.decimalDigits.set(decimalDigits);
     }
@@ -176,6 +131,7 @@ public class AbstractColumnMetaData implements IColumnMetaData {
         return numPrecRadix;
     }
 
+    @Override
     public void setNumPrecRadix(int numPrecRadix) {
         this.numPrecRadix.set(numPrecRadix);
     }
@@ -189,21 +145,9 @@ public class AbstractColumnMetaData implements IColumnMetaData {
         return nullAble;
     }
 
+    @Override
     public void setNullAble(int nullAble) {
         this.nullAble.set(nullAble);
-    }
-
-    @Override
-    public String getRemarks() {
-        return remarks.get();
-    }
-
-    public StringProperty remarksProperty() {
-        return remarks;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks.set(remarks);
     }
 
     @Override
@@ -228,6 +172,7 @@ public class AbstractColumnMetaData implements IColumnMetaData {
         return charOctetLength;
     }
 
+    @Override
     public void setCharOctetLength(int charOctetLength) {
         this.charOctetLength.set(charOctetLength);
     }
@@ -241,6 +186,7 @@ public class AbstractColumnMetaData implements IColumnMetaData {
         return isNullAble;
     }
 
+    @Override
     public void setIsNullAble(String isNullAble) {
         this.isNullAble.set(isNullAble);
     }
