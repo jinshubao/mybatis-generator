@@ -3,22 +3,25 @@ package com.jean.mybatis.generator;
 import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.constant.StageType;
 import com.jean.mybatis.generator.support.application.ApplicationSupport;
+import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
  * @author jinshubao
  * @date 2017/4/8
  */
-@Configuration
 @ComponentScan
 public class MainApplication extends ApplicationSupport {
 
@@ -37,14 +40,18 @@ public class MainApplication extends ApplicationSupport {
         CommonConstant.SCENES.put(StageType.MAIN.toString(), root);
         Parent databaseConnection = loadFxml("/fxml/Connection.fxml");
         CommonConstant.SCENES.put(StageType.CONNECTION.toString(), databaseConnection);
-        Parent configuration = loadFxml("/fxml/Configuration.fxml");
-        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
+//        Parent configuration = loadFxml("/fxml/Configuration.fxml");
+//        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
         //Rectangle2D bounds = Screen.getPrimary().getBounds();
         //Scene scene = new Scene(root, bounds.getWidth(), bounds.getHeight());
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
-        stage.setTitle("Mybatis Generator 1.0");
-        stage.getIcons().add(new Image(getClass().getResourceAsStream("/image/mybatis-logo.png")));
+        String name = "mybatis-generator-client";
+        String version = "0.1-snapshot";
+        String author = "jinshubao";
+        String title = StringUtil.join(Arrays.asList(name, version, author), " --");
+        stage.setTitle(title);
+        stage.getIcons().add(new Image(getClass().getResourceAsStream(CommonConstant.LOGO_IMAGE)));
         stage.setScene(scene);
         stage.show();
 

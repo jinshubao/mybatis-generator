@@ -31,12 +31,10 @@ import org.springframework.stereotype.Controller;
 
 import java.io.File;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- *
  * @author jinshubao
  * @date 2017/4/8
  */
@@ -185,6 +183,8 @@ public class MainController extends BaseController {
     @Autowired
     private IMetaDataProviderManager providerManager;
 
+    private ITableMetaData currentCustom;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.newConnectionMenuItem.setOnAction(event ->
@@ -204,7 +204,7 @@ public class MainController extends BaseController {
                         this.tableCatalog.getItems().addAll(metadataProvider.getCatalogs());
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
-                        DialogUtil.exceptionDialog(e);
+                        DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
                     }
                 }));
 
@@ -217,7 +217,7 @@ public class MainController extends BaseController {
                 this.tables.getItems().addAll(tables);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
-                DialogUtil.exceptionDialog(e);
+                DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
             }
         });
 
@@ -237,12 +237,11 @@ public class MainController extends BaseController {
         TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(3);
         column3.setCellFactory(HyperlinkTableCellFactory.forTableView(resources.getString("tables.column3.text"), param -> {
             this.columns.getItems().clear();
+            this.currentCustom = param;
             try {
-                if (metadataProvider != null) {
-                    this.columns.getItems().addAll(metadataProvider.getColumns(param.getTableName()));
-                }
+                this.columns.getItems().addAll(metadataProvider.getColumns(param.getTableName()));
             } catch (Exception e) {
-                DialogUtil.exceptionDialog(e);
+                DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
             }
             return null;
         }));
@@ -366,9 +365,9 @@ public class MainController extends BaseController {
             logger.debug(newValue);
         });
         this.generatorService.setOnFailed(event -> {
-            Throwable ex = this.generatorService.getException();
-            logger.error(ex.getMessage(), ex);
-            DialogUtil.exceptionDialog(ex);
+            Throwable e = this.generatorService.getException();
+            logger.error(e.getMessage(), e);
+            DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
         });
 
         this.generatorService.setOnSucceeded(event -> {
