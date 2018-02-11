@@ -3,6 +3,7 @@ package com.jean.mybatis.generator.factory;
 import com.jean.mybatis.generator.support.meta.Selectable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -26,6 +27,7 @@ public class HyperlinkTableCellFactory {
             this.hyperlink = new Hyperlink(label);
             this.hyperlink.setVisible(false);
             this.callback = callback;
+            setAlignment(Pos.CENTER);
         }
 
         @Override

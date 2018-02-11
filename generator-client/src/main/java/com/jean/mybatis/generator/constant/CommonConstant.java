@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CommonConstant {
 
-    public final static Map<String, Parent> SCENES = new ConcurrentHashMap<>();
+    public final static Map<StageType, Parent> SCENES = new ConcurrentHashMap<>();
 
     public static final String LOGO_IMAGE = "/image/mybatis-logo.png";
 }

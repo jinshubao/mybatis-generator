@@ -36,10 +36,16 @@ public class MainApplication extends ApplicationSupport {
     @Override
     public void start(Stage stage) {
         super.start(stage);
-        Parent root = loadFxml("/fxml/Scene.fxml", "message.scene", Locale.SIMPLIFIED_CHINESE);
-        CommonConstant.SCENES.put(StageType.MAIN.toString(), root);
-        Parent databaseConnection = loadFxml("/fxml/Connection.fxml");
-        CommonConstant.SCENES.put(StageType.CONNECTION.toString(), databaseConnection);
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        Parent root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
+        CommonConstant.SCENES.put(StageType.MAIN, root);
+
+        Parent databaseConnection = loadFxml("/fxml/Connection.fxml","message.connection", locale);
+        CommonConstant.SCENES.put(StageType.CONNECTION, databaseConnection);
+
+        Parent customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
+        CommonConstant.SCENES.put(StageType.CUSTOM_TABLE, customTable);
+
 //        Parent configuration = loadFxml("/fxml/Configuration.fxml");
 //        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
         //Rectangle2D bounds = Screen.getPrimary().getBounds();

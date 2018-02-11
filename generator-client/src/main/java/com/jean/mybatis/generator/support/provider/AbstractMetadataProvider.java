@@ -6,8 +6,6 @@ import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
 import com.jean.mybatis.generator.support.meta.ITableMetaData;
-import com.jean.mybatis.generator.support.meta.mysql.MySQColumnMetaData;
-import com.jean.mybatis.generator.support.meta.mysql.MySQLTableMetaData;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -33,64 +31,88 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return connectionConfig;
     }
 
-    protected DatabaseMetaData getDatabaseMetaData() throws Exception {
-        return getConnection().getMetaData();
-    }
-
     protected Connection getConnection() throws Exception {
         return connectionConfig.getConnection();
     }
 
     @Override
     public List<ICatalogMetaData> getCatalogs() throws Exception {
-        DatabaseMetaData metaData = getDatabaseMetaData();
-        ResultSet rs = metaData.getCatalogs();
-        List<ICatalogMetaData> catalogs = new ArrayList<>();
-        while (rs.next()) {
-            catalogs.add(getCatalogMetaData(rs));
+        Connection connection = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+            rs = metaData.getCatalogs();
+            List<ICatalogMetaData> catalogs = new ArrayList<>();
+            while (rs.next()) {
+                catalogs.add(getCatalogMetaData(rs));
+            }
+            return catalogs;
+        } finally {
+            close(connection, rs);
         }
-        return catalogs;
     }
 
     @Override
     public List<ISchemaMetaData> getSchemas() throws Exception {
-        DatabaseMetaData metaData = getDatabaseMetaData();
-        ResultSet rs = metaData.getSchemas(connectionConfig.getTableCatalog(), null);
-        List<ISchemaMetaData> schemas = new ArrayList<>();
-        while (rs.next()) {
-            schemas.add(getSchemaMetaData(rs));
+        Connection connection = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+            rs = metaData.getSchemas(connectionConfig.getTableCatalog(), null);
+            List<ISchemaMetaData> schemas = new ArrayList<>();
+            while (rs.next()) {
+                schemas.add(getSchemaMetaData(rs));
+            }
+            return schemas;
+        } finally {
+            close(connection, rs);
         }
-        return schemas;
     }
 
 
     @Override
     public List<ITableMetaData> getTables() throws Exception {
-        DatabaseMetaData metaData = getDatabaseMetaData();
-        ResultSet rs = metaData.getTables(connectionConfig.getTableCatalog(),
-                connectionConfig.getTableSchema(),
-                null,
-                new String[]{TableType.TABLE.getValue()});
-        List<ITableMetaData> tables = new ArrayList<>();
-        while (rs.next()) {
-            tables.add(getTableMetaData(rs));
+        Connection connection = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+            rs = metaData.getTables(connectionConfig.getTableCatalog(),
+                    connectionConfig.getTableSchema(),
+                    null,
+                    new String[]{TableType.TABLE.getValue()});
+            List<ITableMetaData> tables = new ArrayList<>();
+            while (rs.next()) {
+                tables.add(getTableMetaData(rs));
+            }
+            return tables;
+        } finally {
+            close(connection, rs);
         }
-        return tables;
     }
 
 
     @Override
     public List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception {
-        DatabaseMetaData metaData = getDatabaseMetaData();
-        ResultSet rs = metaData.getColumns(connectionConfig.getTableCatalog(),
-                connectionConfig.getTableSchema(),
-                tableNamePattern,
-                null);
-        List<IColumnMetaData> columns = new ArrayList<>();
-        while (rs.next()) {
-            columns.add(getColumnMetaData(rs));
+        Connection connection = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+            rs = metaData.getColumns(connectionConfig.getTableCatalog(),
+                    connectionConfig.getTableSchema(),
+                    tableNamePattern,
+                    null);
+            List<IColumnMetaData> columns = new ArrayList<>();
+            while (rs.next()) {
+                columns.add(getColumnMetaData(rs));
+            }
+            return columns;
+        }finally {
+            close(connection, rs);
         }
-        return columns;
     }
 
     protected ICatalogMetaData getCatalogMetaData(ResultSet resultSet) throws Exception {
@@ -133,7 +155,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     protected IColumnMetaData getColumnMetaData(ResultSet resultSet) throws Exception {
-//表类别（可能为空）
+        //表类别（可能为空）
         String tableCat = resultSet.getString("TABLE_CAT");
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
         String tableSchema = resultSet.getString("TABLE_SCHEM");
@@ -179,6 +201,23 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         data.setCharOctetLength(charOctetLength);
         data.setIsNullAble(isNullAble);
         return data;
+    }
+
+    protected void close(Connection connection, ResultSet resultSet) throws SQLException {
+        close(connection);
+        close(resultSet);
+    }
+
+    protected void close(Connection connection) throws SQLException {
+        if (connection != null) {
+            connection.close();
+        }
+    }
+
+    protected void close(ResultSet resultSet) throws SQLException {
+        if (resultSet != null) {
+            resultSet.close();
+        }
     }
 
 

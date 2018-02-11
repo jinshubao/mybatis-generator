@@ -23,6 +23,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.plugins.EqualsHashCodePlugin;
 import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
@@ -75,7 +76,7 @@ public class MainController extends BaseController {
     @FXML
     private Hyperlink selectAllTable;
     @FXML
-    private Hyperlink reverseSelectTable;
+    private Hyperlink invertSelectTable;
 
     //---------right----------
 
@@ -84,7 +85,7 @@ public class MainController extends BaseController {
     @FXML
     private Hyperlink selectAllColumn;
     @FXML
-    private Hyperlink reverseSelectColumn;
+    private Hyperlink invertSelectColumn;
 
     //---------基本配置----------
 
@@ -170,10 +171,14 @@ public class MainController extends BaseController {
     @FXML
     private Label message;
 
+
+    //私有变量
+
     @Autowired
     private ConnectionController connectionController;
 
-    //私有变量
+    @Autowired
+    private CustomTableController customTableController;
 
     @Autowired
     private GeneratorService generatorService;
@@ -190,7 +195,7 @@ public class MainController extends BaseController {
         this.newConnectionMenuItem.setOnAction(event ->
                 DialogUtil.customizeDialog(resources.getString("dialog.title.newconnection"),
                         null,
-                        CommonConstant.SCENES.get(StageType.CONNECTION.toString()),
+                        CommonConstant.SCENES.get(StageType.CONNECTION),
                         param -> {
                             if (param.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                                 return connectionController.getConnectionConfig();
@@ -236,10 +241,37 @@ public class MainController extends BaseController {
         });
         TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(3);
         column3.setCellFactory(HyperlinkTableCellFactory.forTableView(resources.getString("tables.column3.text"), param -> {
-            this.columns.getItems().clear();
-            this.currentCustom = param;
             try {
-                this.columns.getItems().addAll(metadataProvider.getColumns(param.getTableName()));
+                List<IColumnMetaData> columns = metadataProvider.getColumns(param.getTableName());
+                for (IColumnMetaData column : columns) {
+                    column.setSelected(true);
+                    column.setJavaProperty(JavaBeansUtil.getCamelCaseString(column.getColumnName(), false));
+                }
+                customTableController.initColumns(columns);
+                DialogUtil.customizeDialog("高级设置", "设置忽略的列...",
+                        CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
+                        buttonType -> {
+                            if (buttonType == ButtonType.OK) {
+                                return customTableController.getColumns();
+                            }
+                            return null;
+                        })
+                        .ifPresent(value -> {
+                            param.clearColumnOverrides();
+                            param.clearIgnoredColumns();
+                            for (IColumnMetaData metaData : value) {
+                                if (metaData.isSelected()) {
+                                    ColumnOverride override = new ColumnOverride(metaData.getColumnName());
+                                    override.setJavaProperty(metaData.getJavaProperty());
+                                    override.setJavaType(metaData.getJavaType());
+                                    param.addColumnOverride(override);
+                                } else {
+                                    IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
+                                    param.addIgnoredColumn(column);
+                                }
+                            }
+                        });
+
             } catch (Exception e) {
                 DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
             }
@@ -249,25 +281,7 @@ public class MainController extends BaseController {
 
         this.selectAllTable.setOnAction(event -> selectAll(this.tables.getItems()));
 
-        this.reverseSelectTable.setOnAction(event -> reverseSelect(this.tables.getItems()));
-
-        //right
-        TableColumn<IColumnMetaData, Boolean> c0 = (TableColumn<IColumnMetaData, Boolean>) this.columns.getColumns().get(0);
-        c0.setCellFactory(CheckBoxTableCell.forTableColumn(c0));
-        c0.setCellValueFactory(data -> data.getValue().selectedProperty());
-
-        TableColumn<IColumnMetaData, String> c1 = (TableColumn<IColumnMetaData, String>) this.columns.getColumns().get(1);
-        c1.setCellValueFactory(param1 -> new SimpleStringProperty(param1.getValue().getColumnName()));
-
-        TableColumn<IColumnMetaData, String> c2 = (TableColumn<IColumnMetaData, String>) this.columns.getColumns().get(2);
-        c2.setCellValueFactory(param1 -> new SimpleStringProperty(param1.getValue().getRemarks()));
-
-
-        this.selectAllColumn.setOnAction(event -> selectAll(this.columns.getItems()));
-        this.reverseSelectColumn.setOnAction(event -> reverseSelect(this.columns.getItems()));
-
-        this.message.textProperty().bind(this.generatorService.messageProperty());
-        this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
+        this.invertSelectTable.setOnAction(event -> reverseSelect(this.tables.getItems()));
 
         this.targetRuntime.valueProperty().addListener((observable, oldValue, newValue) -> {
             this.javaClientType.getItems().clear();
@@ -385,6 +399,11 @@ public class MainController extends BaseController {
             Configuration configuration = createDefaultConfiguration(createDefaultContext());
             logger.debug(configuration.toDocument().getFormattedContent());
         });
+
+        // bottom
+
+        this.message.textProperty().bind(this.generatorService.messageProperty());
+        this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
     }
 
     protected Configuration createDefaultConfiguration(Context context) {
@@ -400,9 +419,9 @@ public class MainController extends BaseController {
         Context context = new Context(this.defaultModelType.getValue());
         context.setId("context");
         context.setTargetRuntime(this.targetRuntime.getValue().getValue());
-        context.addProperty("beginningDelimiter", "`");
-        context.addProperty("endingDelimiter", "`");
-        context.addProperty("javaFileEncoding", this.javaFileEncoding.getValue().value.name());
+        context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, "`");
+        context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, "`");
+        context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, this.javaFileEncoding.getValue().value.name());
 //        context.addProperty("javaFormatter", DefaultJavaFormatter.class.getName());
 //        context.addProperty("xmlFormatter", DefaultXmlFormatter.class.getName());
 
@@ -429,9 +448,9 @@ public class MainController extends BaseController {
 
         //---------注释----------
         CommentGeneratorConfiguration commentGenerator = new CommentGeneratorConfiguration();
-        commentGenerator.addProperty("suppressAllComments", Boolean.toString(false));
-        commentGenerator.addProperty("addRemarkComments", Boolean.toString(true));
-        commentGenerator.addProperty("suppressDate", Boolean.toString(false));
+        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS, Boolean.toString(false));
+        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS, Boolean.toString(true));
+        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, Boolean.toString(false));
         if (this.useCommentPlugin.isSelected()) {
             commentGenerator.setConfigurationType(CommentGeneratorPlugin.class.getName());
         }
@@ -439,7 +458,7 @@ public class MainController extends BaseController {
 
         //---------类型转换----------
         JavaTypeResolverConfiguration javaTypeResolver = new JavaTypeResolverConfiguration();
-        javaTypeResolver.addProperty("forceBigDecimals", Boolean.toString(this.forceBigDecimals.isSelected()));
+        javaTypeResolver.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, Boolean.toString(this.forceBigDecimals.isSelected()));
         context.setJavaTypeResolverConfiguration(javaTypeResolver);
 
         //---------model----------
@@ -448,12 +467,12 @@ public class MainController extends BaseController {
         javaModelGenerator.setTargetPackage(this.modelPackage.getText());
         String rootClassText = this.rootClass.getText();
         if (StringUtil.isNotBlank(rootClassText)) {
-            javaModelGenerator.addProperty("rootClass", rootClassText);
+            javaModelGenerator.addProperty(PropertyRegistry.ANY_ROOT_CLASS, rootClassText);
         }
-        javaModelGenerator.addProperty("constructorBased", Boolean.toString(this.constructorBased.isSelected()));
-        javaModelGenerator.addProperty("enableSubPackages", Boolean.toString(this.enableModelSubPackages.isSelected()));
-        javaModelGenerator.addProperty("immutable", Boolean.toString(this.immutable.isSelected()));
-        javaModelGenerator.addProperty("trimStrings", Boolean.toString(this.trimStrings.isSelected()));
+        javaModelGenerator.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, Boolean.toString(this.constructorBased.isSelected()));
+        javaModelGenerator.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, Boolean.toString(this.enableModelSubPackages.isSelected()));
+        javaModelGenerator.addProperty(PropertyRegistry.ANY_IMMUTABLE, Boolean.toString(this.immutable.isSelected()));
+        javaModelGenerator.addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, Boolean.toString(this.trimStrings.isSelected()));
         context.setJavaModelGeneratorConfiguration(javaModelGenerator);
 
         //---------mapper----------
@@ -462,14 +481,14 @@ public class MainController extends BaseController {
         javaClientGenerator.setTargetProject(sourcePath);
         javaClientGenerator.setTargetPackage(this.mapperPackage.getText());
         boolean subPackagesSelected = this.enableMapperSubPackages.isSelected();
-        javaClientGenerator.addProperty("exampleMethodVisibility", this.exampleMethodVisibility.getValue().getValue());
-        javaClientGenerator.addProperty("methodNameCalculator", this.methodNameCalculator.getValue().getValue());
+        javaClientGenerator.addProperty(PropertyRegistry.DAO_EXAMPLE_METHOD_VISIBILITY, this.exampleMethodVisibility.getValue().getValue());
+        javaClientGenerator.addProperty(PropertyRegistry.DAO_METHOD_NAME_CALCULATOR, this.methodNameCalculator.getValue().getValue());
         String rootInterfaceText = this.rootInterface.getText();
         if (StringUtil.isNotBlank(rootClassText)) {
-            javaClientGenerator.addProperty("rootInterface", rootInterfaceText);
+            javaClientGenerator.addProperty(PropertyRegistry.ANY_ROOT_INTERFACE, rootInterfaceText);
         }
-        javaClientGenerator.addProperty("useLegacyBuilder", Boolean.toString(this.useLegacyBuilder.isSelected()));
-        javaClientGenerator.addProperty("enableSubPackages", Boolean.toString(subPackagesSelected));
+        javaClientGenerator.addProperty(PropertyRegistry.CLIENT_USE_LEGACY_BUILDER, Boolean.toString(this.useLegacyBuilder.isSelected()));
+        javaClientGenerator.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, Boolean.toString(subPackagesSelected));
         if (subPackagesSelected) {
             String packageText = this.implementationPackage.getText();
             if (StringUtil.isNotBlank(packageText)) {
@@ -505,9 +524,22 @@ public class MainController extends BaseController {
 //                table.setSelectByExampleStatementEnabled(false);
 //                table.setDeleteByExampleStatementEnabled(false);
 //                table.setUpdateByExampleStatementEnabled(false);
-            table.addProperty("useActualColumnNames", Boolean.toString(!camelCaseSelected));
+            table.addProperty(PropertyRegistry.TABLE_USE_ACTUAL_COLUMN_NAMES, Boolean.toString(!camelCaseSelected));
             table.setGeneratedKey(new GeneratedKey("id", statement, true, ""));
-//            table.addColumnOverride();
+            if (!tableMetadata.getColumnOverrides().isEmpty()) {
+                for (ColumnOverride override : tableMetadata.getColumnOverrides()) {
+                    if (override != null) {
+                        table.addColumnOverride(override);
+                    }
+                }
+            }
+            if (!tableMetadata.getIgnoredColumns().isEmpty()) {
+                for (IgnoredColumn column : tableMetadata.getIgnoredColumns()) {
+                    if (column != null) {
+                        table.addIgnoredColumn(column);
+                    }
+                }
+            }
             context.addTableConfiguration(table);
         });
         return context;

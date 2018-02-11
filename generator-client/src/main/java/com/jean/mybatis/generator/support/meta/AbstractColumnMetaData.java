@@ -56,15 +56,21 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
      */
     protected StringProperty isNullAble = new SimpleStringProperty();
 
+    protected StringProperty javaType = new SimpleStringProperty();
+
+    protected StringProperty javaProperty = new SimpleStringProperty();
+
     @Override
     public String getColumnName() {
         return columnName.get();
     }
 
+    @Override
     public StringProperty columnNameProperty() {
         return columnName;
     }
 
+    @Override
     public void setColumnName(String columnName) {
         this.columnName.set(columnName);
     }
@@ -74,10 +80,12 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return dataType.get();
     }
 
+    @Override
     public IntegerProperty dataTypeProperty() {
         return dataType;
     }
 
+    @Override
     public void setDataType(int dataType) {
         this.dataType.set(dataType);
     }
@@ -87,10 +95,12 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return dataTypeName.get();
     }
 
+    @Override
     public StringProperty dataTypeNameProperty() {
         return dataTypeName;
     }
 
+    @Override
     public void setDataTypeName(String dataTypeName) {
         this.dataTypeName.set(dataTypeName);
     }
@@ -100,10 +110,12 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return columnSize.get();
     }
 
+    @Override
     public IntegerProperty columnSizeProperty() {
         return columnSize;
     }
 
+    @Override
     public void setColumnSize(int columnSize) {
         this.columnSize.set(columnSize);
     }
@@ -113,6 +125,7 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return decimalDigits.get();
     }
 
+    @Override
     public IntegerProperty decimalDigitsProperty() {
         return decimalDigits;
     }
@@ -127,6 +140,7 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return numPrecRadix.get();
     }
 
+    @Override
     public IntegerProperty numPrecRadixProperty() {
         return numPrecRadix;
     }
@@ -141,6 +155,7 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return nullAble.get();
     }
 
+    @Override
     public IntegerProperty nullAbleProperty() {
         return nullAble;
     }
@@ -155,10 +170,12 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return columnDef.get();
     }
 
+    @Override
     public StringProperty columnDefProperty() {
         return columnDef;
     }
 
+    @Override
     public void setColumnDef(String columnDef) {
         this.columnDef.set(columnDef);
     }
@@ -168,6 +185,7 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return charOctetLength.get();
     }
 
+    @Override
     public IntegerProperty charOctetLengthProperty() {
         return charOctetLength;
     }
@@ -182,6 +200,7 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
         return isNullAble.get();
     }
 
+    @Override
     public StringProperty isNullAbleProperty() {
         return isNullAble;
     }
@@ -189,5 +208,35 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
     @Override
     public void setIsNullAble(String isNullAble) {
         this.isNullAble.set(isNullAble);
+    }
+
+    @Override
+    public String getJavaProperty() {
+        return javaProperty.get();
+    }
+
+    @Override
+    public StringProperty javaPropertyProperty() {
+        return javaProperty;
+    }
+
+    @Override
+    public void setJavaProperty(String javaProperty) {
+        this.javaProperty.set(javaProperty);
+    }
+
+    @Override
+    public String getJavaType() {
+        return javaType.get();
+    }
+
+    @Override
+    public StringProperty javaTypeProperty() {
+        return javaType;
+    }
+
+    @Override
+    public void setJavaType(String javaType) {
+        this.javaType.set(javaType);
     }
 }
