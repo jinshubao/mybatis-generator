@@ -28,17 +28,15 @@ public abstract class ApplicationSupport extends Application {
     protected ApplicationContext applicationContext;
     protected Stage primaryStage;
 
+
     public ApplicationSupport() {
-        super();
-        logger.info("application loaded...");
         notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_LOAD, this));
     }
 
     @Override
     public void init() {
-        logger.info("application init...");
-        notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_INIT, this));
-        this.applicationContext = initApplicationContext();
+        notifyProgress(0d);
+        applicationInit();
         if (this.applicationContext == null) {
             RuntimeException exception = new RuntimeException("applicationContext 不能为空");
             notifyPreloader(new Preloader.ErrorNotification(null, "初始化上下文出错", exception));
@@ -46,12 +44,12 @@ public abstract class ApplicationSupport extends Application {
         }
     }
 
-    protected abstract ApplicationContext initApplicationContext();
+    protected abstract void applicationInit();
+
+    protected abstract void applicationStart(Stage stage);
 
     @Override
     public void start(Stage primaryStage) {
-        logger.info("application start...");
-        notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START, this));
         this.primaryStage = primaryStage;
         primaryStage.setOnCloseRequest(event -> DialogUtil.confirmation("退出提示", null, "确认退出？")
                 .ifPresent(button -> {
@@ -59,11 +57,12 @@ public abstract class ApplicationSupport extends Application {
                         event.consume();
                     }
                 }));
+        applicationStart(primaryStage);
+        notifyProgress(1d);
     }
 
     @Override
     public void stop() {
-        logger.info("application stop...");
         if (applicationContext instanceof ConfigurableApplicationContext) {
             ConfigurableApplicationContext context = (ConfigurableApplicationContext) applicationContext;
             context.close();
@@ -86,12 +85,23 @@ public abstract class ApplicationSupport extends Application {
             return loader.load(getClass().getResourceAsStream(name));
         } catch (IOException e) {
             logger.error("加载fxml文件{}出错", e);
-            notifyPreloader(new Preloader.ErrorNotification(name, "加载fxml文件" + name + "出错", e));
             throw new RuntimeException(e);
         }
     }
 
+    protected void notifyProgress(double progress) {
+        notifyPreloader(new Preloader.ProgressNotification(progress));
+    }
+
     protected Parent loadFxml(String name) {
         return loadFxml(name, null, null);
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 }

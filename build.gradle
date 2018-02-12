@@ -4,7 +4,6 @@ version '1.0-SNAPSHOT'
 
 allprojects {
 
-    apply plugin: 'groovy'
     apply plugin: 'java'
 
     sourceCompatibility = 1.8
@@ -17,7 +16,6 @@ allprojects {
     }
 
     dependencies {
-        compile 'org.codehaus.groovy:groovy-all:2.3.11'
 
         compile "org.slf4j:jcl-over-slf4j:1.7.25"
         compile "ch.qos.logback:logback-classic:1.2.3"

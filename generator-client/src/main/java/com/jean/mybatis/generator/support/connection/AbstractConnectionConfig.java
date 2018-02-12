@@ -1,12 +1,11 @@
 package com.jean.mybatis.generator.support.connection;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
+import com.jean.mybatis.generator.utils.StringUtil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -28,7 +27,7 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
 
     protected String tableCatalog;
 
-    protected Map<String, String> properties = new HashMap<>();
+    protected String properties;
 
     @Override
     public DatabaseType getType() {
@@ -94,22 +93,18 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
     }
 
     @Override
-    public Map<String, String> getProperties() {
+    public String getProperties() {
         return properties;
     }
 
-    public abstract void setProperties(String properties);
-
-    public void setProperties(Map<String, String> properties) {
-        if (properties != null) {
-            this.properties.putAll(properties);
-        }
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     @Override
     public Connection getConnection() throws SQLException {
         Properties properties = new Properties();
-        properties.putAll(getProperties());
+        properties.putAll(StringUtil.parseMysqlProperties(getProperties()));
         if (username != null) {
             properties.setProperty("user", username);
         }

@@ -72,7 +72,7 @@ public interface IColumnMetaData extends ITableMetaData {
 
     StringProperty javaTypeProperty();
 
-    void setJavaType(String javaType);
+    void  setJavaType(String javaType);
 
     String getJavaProperty();
 

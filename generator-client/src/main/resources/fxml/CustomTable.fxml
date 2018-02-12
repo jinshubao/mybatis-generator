@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.CustomTableController">
+<VBox prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.CustomTableController">
    <children>
       <TableView fx:id="columnTableView" editable="true" VBox.vgrow="ALWAYS">
         <columns>
@@ -16,7 +16,7 @@
             <TableColumn minWidth="50.0" prefWidth="150.0" text="JDBC_TYPE" />
             <TableColumn minWidth="50.0" prefWidth="150.0" text="JAVA_TYPE" />
             <TableColumn minWidth="50.0" prefWidth="150.0" text="JAVA_PROPERTY" />
-            <TableColumn minWidth="50.0" prefWidth="200.0" text="REMARKS" />
+            <TableColumn minWidth="50.0" prefWidth="150.0" text="REMARKS" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

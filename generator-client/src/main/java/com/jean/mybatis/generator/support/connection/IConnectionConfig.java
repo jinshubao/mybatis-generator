@@ -25,7 +25,7 @@ public interface IConnectionConfig {
 
     String getTableCatalog();
 
-    Map<String, String> getProperties();
+    String getProperties();
 
     Connection getConnection() throws SQLException;
 

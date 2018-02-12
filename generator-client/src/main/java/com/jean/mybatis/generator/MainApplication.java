@@ -8,12 +8,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -26,26 +23,26 @@ import java.util.Locale;
 public class MainApplication extends ApplicationSupport {
 
     @Override
-    protected ApplicationContext initApplicationContext() {
+    protected void applicationInit() {
         ApplicationContext context = new AnnotationConfigApplicationContext(MainApplication.class);
         context.getAutowireCapableBeanFactory().autowireBean(this);
-        return context;
+        setApplicationContext(context);
     }
 
-
     @Override
-    public void start(Stage stage) {
-        super.start(stage);
+    public void applicationStart(Stage stage) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
         Parent root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
         CommonConstant.SCENES.put(StageType.MAIN, root);
-
-        Parent databaseConnection = loadFxml("/fxml/Connection.fxml","message.connection", locale);
+        notifyProgress(50d);
+        sleep();
+        Parent databaseConnection = loadFxml("/fxml/Connection.fxml", "message.connection", locale);
         CommonConstant.SCENES.put(StageType.CONNECTION, databaseConnection);
-
+        notifyProgress(70d);
+        sleep();
         Parent customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
         CommonConstant.SCENES.put(StageType.CUSTOM_TABLE, customTable);
-
+        sleep();
 //        Parent configuration = loadFxml("/fxml/Configuration.fxml");
 //        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
         //Rectangle2D bounds = Screen.getPrimary().getBounds();
@@ -60,7 +57,6 @@ public class MainApplication extends ApplicationSupport {
         stage.getIcons().add(new Image(getClass().getResourceAsStream(CommonConstant.LOGO_IMAGE)));
         stage.setScene(scene);
         stage.show();
-
     }
 
     /**
@@ -73,5 +69,13 @@ public class MainApplication extends ApplicationSupport {
      */
     static void main(String[] args) {
         launchApplication(MainApplication.class, args);
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

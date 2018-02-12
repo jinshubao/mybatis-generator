@@ -12,7 +12,6 @@ import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,8 +21,9 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.xml.ConfigurationParser;
+import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.DefaultShellCallback;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.plugins.EqualsHashCodePlugin;
 import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
@@ -31,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -47,21 +49,15 @@ public class MainController extends BaseController {
     @FXML
     private MenuBar menuBar;
     @FXML
-    private Menu fileMenu;
+    private Menu connectionMenu;
     @FXML
     private MenuItem newConnectionMenuItem;
     @FXML
     private MenuItem exitMenuItem;
     @FXML
-    private Menu editMenu;
-    @FXML
-    private MenuItem newConfigurationMenuItem;
-    @FXML
-    private MenuItem manageConfigurationMenuItem;
+    private Menu configurationMenu;
     @FXML
     private Menu configurationListMenu;
-    @FXML
-    private ToggleGroup configurationGroup;
     @FXML
     private Menu helpMenu;
     @FXML
@@ -77,15 +73,6 @@ public class MainController extends BaseController {
     private Hyperlink selectAllTable;
     @FXML
     private Hyperlink invertSelectTable;
-
-    //---------right----------
-
-    @FXML
-    private TableView<IColumnMetaData> columns;
-    @FXML
-    private Hyperlink selectAllColumn;
-    @FXML
-    private Hyperlink invertSelectColumn;
 
     //---------基本配置----------
 
@@ -138,6 +125,10 @@ public class MainController extends BaseController {
     private CheckBox immutable;
     @FXML
     private CheckBox trimStrings;
+    @FXML
+    private TextField searchString;
+    @FXML
+    private TextField replaceString;
 
 
     //---------Mapper配置----------
@@ -191,9 +182,10 @@ public class MainController extends BaseController {
     private ITableMetaData currentCustom;
 
     @Override
+    @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
         this.newConnectionMenuItem.setOnAction(event ->
-                DialogUtil.customizeDialog(resources.getString("dialog.title.newconnection"),
+                DialogUtil.customizeDialog(resources.getString("dialog.newconnection.title"),
                         null,
                         CommonConstant.SCENES.get(StageType.CONNECTION),
                         param -> {
@@ -226,29 +218,53 @@ public class MainController extends BaseController {
             }
         });
 
-        TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) tables.getColumns().get(0);
+        int columnIndex = 0;
+        ObservableList<TableColumn<ITableMetaData, ?>> tableColumns = tables.getColumns();
+
+
+        TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) tableColumns.get(columnIndex++);
+        column0.setText(resources.getString("select.text"));
         column0.setCellFactory(CheckBoxTableCell.forTableColumn(column0));
         column0.setCellValueFactory(param -> param.getValue().selectedProperty());
-        TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(1);
+
+        TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex++);
+        column1.setText(resources.getString("tablename.text"));
         column1.setCellValueFactory(param -> {
             AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
             return value.tableNameProperty();
         });
-        TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(2);
+
+        TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex++);
+        column2.setText(resources.getString("remarks.text"));
         column2.setCellValueFactory(param -> {
             AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
             return value.remarksProperty();
         });
-        TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tables.getColumns().get(3);
-        column3.setCellFactory(HyperlinkTableCellFactory.forTableView(resources.getString("tables.column3.text"), param -> {
+
+        TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex);
+        column3.setText(resources.getString("custom.text"));
+        column3.setCellFactory(HyperlinkTableCellFactory.forTableView(resources.getString("customhtperlink.text"), param -> {
+
             try {
                 List<IColumnMetaData> columns = metadataProvider.getColumns(param.getTableName());
-                for (IColumnMetaData column : columns) {
-                    column.setSelected(true);
-                    column.setJavaProperty(JavaBeansUtil.getCamelCaseString(column.getColumnName(), false));
+                for (IColumnMetaData columnMetaData : columns) {
+                    columnMetaData.setSelected(true);
+                    columnMetaData.setJavaType("");
+                    columnMetaData.setJavaType("");
+                    for (ColumnOverride override : param.getColumnOverrides()) {
+                        if (override.getColumnName().equals(columnMetaData.getColumnName())) {
+                            columnMetaData.setJavaType(override.getJavaType());
+                            columnMetaData.setJavaProperty(override.getJavaProperty());
+                        }
+                    }
+                    for (IgnoredColumn ignoredColumn : param.getIgnoredColumns()) {
+                        if (ignoredColumn.getColumnName().equals(columnMetaData.getColumnName())) {
+                            columnMetaData.setSelected(false);
+                        }
+                    }
                 }
                 customTableController.initColumns(columns);
-                DialogUtil.customizeDialog("高级设置", "设置忽略的列...",
+                DialogUtil.customizeDialog(resources.getString("customhtperlink.text"), resources.getString("dialog.customtable.header.text"),
                         CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
                         buttonType -> {
                             if (buttonType == ButtonType.OK) {
@@ -261,26 +277,35 @@ public class MainController extends BaseController {
                             param.clearIgnoredColumns();
                             for (IColumnMetaData metaData : value) {
                                 if (metaData.isSelected()) {
+                                    boolean hasValue = false;
                                     ColumnOverride override = new ColumnOverride(metaData.getColumnName());
-                                    override.setJavaProperty(metaData.getJavaProperty());
-                                    override.setJavaType(metaData.getJavaType());
-                                    param.addColumnOverride(override);
+                                    if (StringUtil.isNotBlank(metaData.getJavaType())
+                                            && !CommonConstant.DEFAULT.equals(metaData.getJavaType())) {
+                                        override.setJavaType(metaData.getJavaType());
+                                        hasValue = true;
+                                    }
+                                    if (StringUtil.isNotBlank(metaData.getJavaProperty()) &&
+                                            !CommonConstant.DEFAULT.equals(metaData.getJavaProperty())) {
+                                        override.setJavaProperty(metaData.getJavaProperty());
+                                        hasValue = true;
+                                    }
+                                    if (hasValue) {
+                                        param.addColumnOverride(override);
+                                    }
                                 } else {
                                     IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
                                     param.addIgnoredColumn(column);
                                 }
                             }
                         });
-
             } catch (Exception e) {
+                logger.error(e.getMessage(), e);
                 DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
             }
             return null;
         }));
 
-
         this.selectAllTable.setOnAction(event -> selectAll(this.tables.getItems()));
-
         this.invertSelectTable.setOnAction(event -> reverseSelect(this.tables.getItems()));
 
         this.targetRuntime.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -332,6 +357,8 @@ public class MainController extends BaseController {
                 this.projectDir.setText(file.getAbsolutePath());
             }
         });
+        this.sourceDir.setText(CommonConstant.DEFAULT_SOURCE_DIR);
+        this.resourcesDir.setText(CommonConstant.DEFAULT_RESOURCE_DIR);
         this.camelCase.setSelected(true);
         this.autoDelimitKeywords.setSelected(false);
         this.forceBigDecimals.setSelected(false);
@@ -374,10 +401,7 @@ public class MainController extends BaseController {
         this.methodNameCalculator.getSelectionModel().selectFirst();
         this.methodNameCalculator.disableProperty().bind(mybatis3Binding);
 
-
-        this.generatorService.messageProperty().addListener((observable, oldValue, newValue) -> {
-            logger.debug(newValue);
-        });
+        this.generatorService.messageProperty().addListener((observable, oldValue, newValue) -> logger.debug(newValue));
         this.generatorService.setOnFailed(event -> {
             Throwable e = this.generatorService.getException();
             logger.error(e.getMessage(), e);
@@ -406,15 +430,25 @@ public class MainController extends BaseController {
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
     }
 
-    protected Configuration createDefaultConfiguration(Context context) {
+    private Configuration loadConfiguration(String file) throws IOException, XMLParserException {
+        List<String> warnings = new ArrayList<>();
+        File configFile = new File(file);
+        ConfigurationParser cp = new ConfigurationParser(warnings);
+        Configuration configuration = cp.parseConfiguration(configFile);
+        if (!warnings.isEmpty()) {
+            logger.warn(StringUtil.join(warnings, "; "));
+        }
+        return configuration;
+    }
+
+    private Configuration createDefaultConfiguration(Context context) {
         Configuration configuration = new Configuration();
         configuration.addContext(context);
         return configuration;
     }
 
-    protected Context createDefaultContext() {
+    private Context createDefaultContext() {
 
-        IConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
         //---------上下文环境----------
         Context context = new Context(this.defaultModelType.getValue());
         context.setId("context");
@@ -422,8 +456,6 @@ public class MainController extends BaseController {
         context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, "`");
         context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, "`");
         context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, this.javaFileEncoding.getValue().value.name());
-//        context.addProperty("javaFormatter", DefaultJavaFormatter.class.getName());
-//        context.addProperty("xmlFormatter", DefaultXmlFormatter.class.getName());
 
         String projectDirText = this.projectDir.getText();
         String sourcePath = StringUtil.toPath(projectDirText, this.sourceDir.getText());
@@ -504,6 +536,8 @@ public class MainController extends BaseController {
         context.setSqlMapGeneratorConfiguration(sqlMapGenerator);
 
         //---------jdbc----------
+        IConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
+
         JDBCConnectionConfiguration jdbcConnection = new JDBCConnectionConfiguration();
         jdbcConnection.setDriverClass(connectionConfig.getType().driverClass);
         jdbcConnection.setConnectionURL(connectionConfig.getConnectionUrl());
@@ -512,36 +546,31 @@ public class MainController extends BaseController {
         context.setJdbcConnectionConfiguration(jdbcConnection);
 
         //---------tables----------
+
+        ColumnRenamingRule columnRenamingRule = null;
+        String searchStringText = this.searchString.getText();
+        if (StringUtil.isNotBlank(searchStringText)) {
+            columnRenamingRule = new ColumnRenamingRule();
+            columnRenamingRule.setSearchString(searchStringText);
+            columnRenamingRule.setReplaceString(this.replaceString.getText());
+        }
+
         boolean camelCaseSelected = this.camelCase.isSelected();
         String statement = this.metadataProvider.getConnectionConfig().getType().name;
-        String catalog = connectionConfig.getTableCatalog();
-        String schema = connectionConfig.getTableSchema();
-        tables.getItems().filtered(Selectable::isSelected).forEach(tableMetadata -> {
-            TableConfiguration table = new TableConfiguration(context);
-            table.setCatalog(catalog);
-            table.setSchema(schema);
-            table.setTableName(tableMetadata.getName());
-//                table.setSelectByExampleStatementEnabled(false);
-//                table.setDeleteByExampleStatementEnabled(false);
-//                table.setUpdateByExampleStatementEnabled(false);
-            table.addProperty(PropertyRegistry.TABLE_USE_ACTUAL_COLUMN_NAMES, Boolean.toString(!camelCaseSelected));
-            table.setGeneratedKey(new GeneratedKey("id", statement, true, ""));
-            if (!tableMetadata.getColumnOverrides().isEmpty()) {
-                for (ColumnOverride override : tableMetadata.getColumnOverrides()) {
-                    if (override != null) {
-                        table.addColumnOverride(override);
-                    }
+        for (ITableMetaData tableMetadata : tables.getItems()) {
+            if (tableMetadata.isSelected()){
+                TableConfiguration table = new TableConfiguration(context);
+                table.setTableName(tableMetadata.getName());
+                table.addProperty(PropertyRegistry.TABLE_USE_ACTUAL_COLUMN_NAMES, Boolean.toString(!camelCaseSelected));
+                table.setGeneratedKey(new GeneratedKey("id", statement, true, ""));
+                tableMetadata.getIgnoredColumns().forEach(table::addIgnoredColumn);
+                tableMetadata.getColumnOverrides().forEach(table::addColumnOverride);
+                if (columnRenamingRule != null) {
+                    table.setColumnRenamingRule(columnRenamingRule);
                 }
+                context.addTableConfiguration(table);
             }
-            if (!tableMetadata.getIgnoredColumns().isEmpty()) {
-                for (IgnoredColumn column : tableMetadata.getIgnoredColumns()) {
-                    if (column != null) {
-                        table.addIgnoredColumn(column);
-                    }
-                }
-            }
-            context.addTableConfiguration(table);
-        });
+        }
         return context;
     }
 

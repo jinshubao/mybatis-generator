@@ -2,6 +2,9 @@ package com.jean.mybatis.generator.support.connection;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 
+/**
+ * @author jinshubao
+ */
 public class ConnectionConfigFactory {
 
     public static AbstractConnectionConfig newInstance(DatabaseType type, String host, Integer port, String username, String password, String properties) {
@@ -12,15 +15,15 @@ public class ConnectionConfigFactory {
         } else if (type == DatabaseType.Oracle) {
             config = new OracleConnectionConfig();
         }
-        if (config != null) {
-            config.setType(type);
-            config.setHost(host);
-            config.setPort(port);
-            config.setUsername(username);
-            config.setPassword(password);
-            config.setProperties(properties);
-            return config;
+        if (config == null) {
+            throw new RuntimeException("暂不支持【" + type.name + "】数据库");
         }
-        throw new RuntimeException("暂不支持【" + type.name + "】数据库");
+        config.setType(type);
+        config.setHost(host);
+        config.setPort(port);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setProperties(properties);
+        return config;
     }
 }

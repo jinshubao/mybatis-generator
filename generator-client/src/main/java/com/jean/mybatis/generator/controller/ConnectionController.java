@@ -2,7 +2,6 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
-import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
 import com.jean.mybatis.generator.support.connection.ConnectionConfigFactory;
 import com.jean.mybatis.generator.support.connection.IConnectionConfig;
 import com.jean.mybatis.generator.utils.DialogUtil;
@@ -17,7 +16,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- *
  * @author jinshubao
  * @date 2017/4/8
  */
@@ -43,11 +41,20 @@ public class ConnectionController extends BaseController {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        this.dataBaseType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                this.properties.setText(newValue.properties);
+                this.properties.setPromptText(newValue.properties);
+            } else {
+                this.properties.setText(null);
+                this.properties.setPromptText(null);
+            }
+        });
         this.dataBaseType.getItems().addAll(DatabaseType.values());
         this.dataBaseType.getSelectionModel().selectFirst();
         this.encoding.getItems().addAll(EncodingEnum.values());
         this.encoding.getSelectionModel().selectFirst();
-        this.properties.setText("serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false");
+
         this.testConnection.setOnAction(event -> {
             try {
                 IConnectionConfig config = getConnectionConfig();
@@ -63,13 +70,13 @@ public class ConnectionController extends BaseController {
         });
     }
 
-   public IConnectionConfig getConnectionConfig(){
-       return ConnectionConfigFactory.newInstance(
-               this.dataBaseType.getValue(),
-               this.host.getText(),
-               Integer.parseInt(this.port.getText()),
-               this.username.getText(), this.password.getText(),
-               this.properties.getText());
+    public IConnectionConfig getConnectionConfig() {
+        return ConnectionConfigFactory.newInstance(
+                this.dataBaseType.getValue(),
+                this.host.getText(),
+                Integer.parseInt(this.port.getText()),
+                this.username.getText(), this.password.getText(),
+                this.properties.getText());
     }
 
 }

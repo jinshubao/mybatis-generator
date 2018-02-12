@@ -2,6 +2,9 @@ package com.jean.mybatis.generator.support.connection;
 
 import com.jean.mybatis.generator.utils.StringUtil;
 
+/**
+ * @author jinshubao
+ */
 public class MySQLConnectionConfig extends AbstractConnectionConfig {
 
     @Override
@@ -10,12 +13,7 @@ public class MySQLConnectionConfig extends AbstractConnectionConfig {
         if (StringUtil.isNotBlank(tableCatalog)) {
             url += ("/" + tableCatalog);
         }
-        return url;
-    }
-
-    @Override
-    public void setProperties(String properties) {
-        setProperties(StringUtil.parseProperties(properties));
+        return url + "?" + getProperties();
     }
 
     @Override
