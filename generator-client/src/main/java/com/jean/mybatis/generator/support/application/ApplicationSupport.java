@@ -30,21 +30,17 @@ public abstract class ApplicationSupport extends Application {
 
 
     public ApplicationSupport() {
-        notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_LOAD, this));
     }
 
     @Override
-    public void init() {
+    public void init() throws Exception {
+        super.init();
         notifyProgress(0d);
         applicationInit();
-        if (this.applicationContext == null) {
-            RuntimeException exception = new RuntimeException("applicationContext 不能为空");
-            notifyPreloader(new Preloader.ErrorNotification(null, "初始化上下文出错", exception));
-            throw exception;
-        }
+        notifyProgress(1d);
     }
 
-    protected abstract void applicationInit();
+    protected abstract void applicationInit() throws Exception;
 
     protected abstract void applicationStart(Stage stage);
 
@@ -58,7 +54,6 @@ public abstract class ApplicationSupport extends Application {
                     }
                 }));
         applicationStart(primaryStage);
-        notifyProgress(1d);
     }
 
     @Override

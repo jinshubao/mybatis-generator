@@ -34,15 +34,10 @@ public class MainApplication extends ApplicationSupport {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
         Parent root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
         CommonConstant.SCENES.put(StageType.MAIN, root);
-        notifyProgress(50d);
-        sleep();
         Parent databaseConnection = loadFxml("/fxml/Connection.fxml", "message.connection", locale);
         CommonConstant.SCENES.put(StageType.CONNECTION, databaseConnection);
-        notifyProgress(70d);
-        sleep();
         Parent customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
         CommonConstant.SCENES.put(StageType.CUSTOM_TABLE, customTable);
-        sleep();
 //        Parent configuration = loadFxml("/fxml/Configuration.fxml");
 //        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
         //Rectangle2D bounds = Screen.getPrimary().getBounds();
@@ -69,13 +64,5 @@ public class MainApplication extends ApplicationSupport {
      */
     static void main(String[] args) {
         launchApplication(MainApplication.class, args);
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(2000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }
