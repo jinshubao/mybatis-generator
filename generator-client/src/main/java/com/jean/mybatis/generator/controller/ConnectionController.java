@@ -2,7 +2,7 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
-import com.jean.mybatis.generator.support.connection.ConnectionConfigFactory;
+import com.jean.mybatis.generator.factory.ConnectionConfigFactory;
 import com.jean.mybatis.generator.support.connection.IConnectionConfig;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import javafx.fxml.FXML;

@@ -1,4 +1,4 @@
-package com.jean.mybatis.generator.support.meta;
+package com.jean.mybatis.generator.support.common;
 
 import javafx.beans.property.BooleanProperty;
 

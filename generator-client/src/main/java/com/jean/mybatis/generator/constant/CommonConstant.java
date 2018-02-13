@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by jinshubao on 2017/4/8.
+ *
+ * @author jinshubao
+ * @date 2017/4/8
  */
 public class CommonConstant {
 

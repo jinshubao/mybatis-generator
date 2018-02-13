@@ -1,11 +1,14 @@
-package com.jean.mybatis.generator.support.provider.oracle;
+package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
 import com.jean.mybatis.generator.support.meta.ITableMetaData;
-import com.jean.mybatis.generator.support.provider.AbstractMetadataProvider;
+import com.jean.mybatis.generator.support.meta.oracle.OracleCatalogMetaData;
+import com.jean.mybatis.generator.support.meta.oracle.OracleColumnMetaData;
+import com.jean.mybatis.generator.support.meta.oracle.OracleSchemaMetaData;
+import com.jean.mybatis.generator.support.meta.oracle.OracleTableMetaData;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,7 +18,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class OracleMetadataProvider extends AbstractMetadataProvider {
 
-
     @Override
     public boolean support(DatabaseType databaseType) {
         return databaseType == DatabaseType.Oracle;
@@ -23,21 +25,21 @@ public class OracleMetadataProvider extends AbstractMetadataProvider {
 
     @Override
     protected Class<? extends ICatalogMetaData> getCatalogMetaDataClass() {
-        return null;
+        return OracleCatalogMetaData.class;
     }
 
     @Override
     protected Class<? extends ISchemaMetaData> getSchemaMetaDataClass() {
-        return null;
+        return OracleSchemaMetaData.class;
     }
 
     @Override
     protected Class<? extends ITableMetaData> getTableMetaDataClass() {
-        return null;
+        return OracleTableMetaData.class;
     }
 
     @Override
     protected Class<? extends IColumnMetaData> getColumnMetaDataClass() {
-        return null;
+        return OracleColumnMetaData.class;
     }
 }

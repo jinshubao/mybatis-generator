@@ -1,5 +1,8 @@
 package com.jean.mybatis.generator.constant;
 
+/**
+ * @author jinshubao
+ */
 public enum JavaClientType {
     ANNOTATEDMAPPER("ANNOTATEDMAPPER"),
     MIXEDMAPPER("MIXEDMAPPER"),

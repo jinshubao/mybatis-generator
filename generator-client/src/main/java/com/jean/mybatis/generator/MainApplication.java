@@ -23,14 +23,14 @@ import java.util.Locale;
 public class MainApplication extends ApplicationSupport {
 
     @Override
-    protected void applicationInit() {
+    protected void applicationInit() throws Exception{
         ApplicationContext context = new AnnotationConfigApplicationContext(MainApplication.class);
         context.getAutowireCapableBeanFactory().autowireBean(this);
         setApplicationContext(context);
     }
 
     @Override
-    public void applicationStart(Stage stage) {
+    public void applicationStart(Stage stage) throws Exception {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
         Parent root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
         CommonConstant.SCENES.put(StageType.MAIN, root);
@@ -38,10 +38,6 @@ public class MainApplication extends ApplicationSupport {
         CommonConstant.SCENES.put(StageType.CONNECTION, databaseConnection);
         Parent customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
         CommonConstant.SCENES.put(StageType.CUSTOM_TABLE, customTable);
-//        Parent configuration = loadFxml("/fxml/Configuration.fxml");
-//        CommonConstant.SCENES.put(StageType.CONFIGURATION.toString(), configuration);
-        //Rectangle2D bounds = Screen.getPrimary().getBounds();
-        //Scene scene = new Scene(root, bounds.getWidth(), bounds.getHeight());
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         String name = "mybatis-generator-client";
@@ -62,7 +58,7 @@ public class MainApplication extends ApplicationSupport {
      *
      * @param args the command line arguments
      */
-    static void main(String[] args) {
+    public static void main(String[] args) {
         launchApplication(MainApplication.class, args);
     }
 }

@@ -1,10 +1,13 @@
 package com.jean.mybatis.generator.constant;
 
 /**
- * Created by jinshubao on 2017/4/9.
+ *
+ * @author jinshubao
+ * @date 2017/4/9
  */
 
 public enum DatabaseType {
+
     MySql("MySql", "com.mysql.jdbc.Driver", "serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false"),
     Oracle("Oracle", "oracle.jdbc.driver.OracleDriver", "");
 

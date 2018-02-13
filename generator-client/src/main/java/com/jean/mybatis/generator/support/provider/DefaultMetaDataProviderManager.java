@@ -4,6 +4,9 @@ import com.jean.mybatis.generator.constant.DatabaseType;
 
 import java.util.List;
 
+/**
+ * @author jinshubao
+ */
 public class DefaultMetaDataProviderManager implements IMetaDataProviderManager {
 
     protected final List<IMetadataProvider> metadataProviders;

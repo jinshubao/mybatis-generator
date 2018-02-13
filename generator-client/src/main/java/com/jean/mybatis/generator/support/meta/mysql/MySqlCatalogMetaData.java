@@ -5,7 +5,7 @@ import com.jean.mybatis.generator.support.meta.AbstractCatalogMetaData;
 /**
  * @author jinshubao
  */
-public class MySQLCatalogMetaData extends AbstractCatalogMetaData {
+public class MySqlCatalogMetaData extends AbstractCatalogMetaData {
 
     @Override
     public String toString() {

@@ -3,7 +3,9 @@ package com.jean.mybatis.generator.constant;
 import java.nio.charset.Charset;
 
 /**
- * Created by jinshubao on 2017/4/9.
+ *
+ * @author jinshubao
+ * @date 2017/4/9
  */
 public enum EncodingEnum {
 

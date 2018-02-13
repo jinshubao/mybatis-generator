@@ -1,6 +1,6 @@
 package com.jean.mybatis.generator.support.provider;
 
-import com.jean.mybatis.generator.support.ISupport;
+import com.jean.mybatis.generator.support.common.ISupport;
 import com.jean.mybatis.generator.support.connection.IConnectionConfig;
 import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;

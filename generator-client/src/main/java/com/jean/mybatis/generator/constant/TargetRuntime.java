@@ -1,5 +1,9 @@
 package com.jean.mybatis.generator.constant;
 
+/**
+ * @author jinshubao
+ */
+
 public enum TargetRuntime {
     MyBatis3("MyBatis3"),
     MyBatis3Simple("MyBatis3Simple"),

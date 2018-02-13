@@ -11,8 +11,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author jinshubao
@@ -58,20 +56,23 @@ public class PreloaderSupport extends Preloader {
 
     @Override
     public boolean handleErrorNotification(ErrorNotification info) {
-        this.stage.close();
-        return false;
+        return true;
     }
 
     @Override
     public void handleStateChangeNotification(StateChangeNotification info) {
         if (info.getType() == StateChangeNotification.Type.BEFORE_START) {
-            stage.close();
+            stage.hide();
         }
     }
 
     @Override
     public void handleProgressNotification(ProgressNotification info) {
         this.progressBar.setProgress(info.getProgress());
+    }
+
+    @Override
+    public void handleApplicationNotification(PreloaderNotification info) {
     }
 
     public Image getBackground() {

@@ -1,4 +1,4 @@
-package com.jean.mybatis.generator.configuration;
+package com.jean.mybatis.generator.config;
 
 
 import com.jean.mybatis.generator.support.provider.DefaultMetaDataProviderManager;
@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * @author jinshubao
+ */
 @Configuration
 public class Config {
 

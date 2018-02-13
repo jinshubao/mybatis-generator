@@ -1,5 +1,9 @@
 package com.jean.mybatis.generator.constant;
 
+/**
+ * @author jinshubao
+ */
+
 public enum TableType {
     TABLE("TABLE"),
     VIEW("VIEW"),

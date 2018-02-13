@@ -1,6 +1,7 @@
 package com.jean.mybatis.generator.support.connection;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
+import com.jean.mybatis.generator.support.common.ISupport;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * @author jinshubao
  */
-public interface IConnectionConfig {
+public interface IConnectionConfig extends ISupport {
 
     DatabaseType getType();
 

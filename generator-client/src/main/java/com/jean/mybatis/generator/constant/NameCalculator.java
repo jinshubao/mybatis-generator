@@ -1,5 +1,9 @@
 package com.jean.mybatis.generator.constant;
 
+/**
+ * @author jinshubao
+ */
+
 public enum NameCalculator {
 
     DEFAULT("default"),

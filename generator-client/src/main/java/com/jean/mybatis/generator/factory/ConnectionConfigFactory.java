@@ -1,6 +1,9 @@
-package com.jean.mybatis.generator.support.connection;
+package com.jean.mybatis.generator.factory;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
+import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
+import com.jean.mybatis.generator.support.connection.MySqlConnectionConfig;
+import com.jean.mybatis.generator.support.connection.OracleConnectionConfig;
 
 /**
  * @author jinshubao
@@ -11,7 +14,7 @@ public class ConnectionConfigFactory {
 
         AbstractConnectionConfig config = null;
         if (type == DatabaseType.MySql) {
-            config = new MySQLConnectionConfig();
+            config = new MySqlConnectionConfig();
         } else if (type == DatabaseType.Oracle) {
             config = new OracleConnectionConfig();
         }

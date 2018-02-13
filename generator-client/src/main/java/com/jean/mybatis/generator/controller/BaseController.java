@@ -1,6 +1,6 @@
 package com.jean.mybatis.generator.controller;
 
-import com.jean.mybatis.generator.support.meta.Selectable;
+import com.jean.mybatis.generator.support.common.Selectable;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import org.slf4j.Logger;

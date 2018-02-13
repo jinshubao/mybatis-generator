@@ -1,6 +1,6 @@
 package com.jean.mybatis.generator.factory;
 
-import com.jean.mybatis.generator.support.meta.Selectable;
+import com.jean.mybatis.generator.support.common.Selectable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;

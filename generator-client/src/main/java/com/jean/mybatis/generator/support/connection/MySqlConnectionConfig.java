@@ -1,11 +1,12 @@
 package com.jean.mybatis.generator.support.connection;
 
+import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.utils.StringUtil;
 
 /**
  * @author jinshubao
  */
-public class MySQLConnectionConfig extends AbstractConnectionConfig {
+public class MySqlConnectionConfig extends AbstractConnectionConfig {
 
     @Override
     public String getConnectionUrl() {
@@ -24,5 +25,10 @@ public class MySQLConnectionConfig extends AbstractConnectionConfig {
     @Override
     public boolean supportSchema() {
         return false;
+    }
+
+    @Override
+    public boolean support(DatabaseType type) {
+        return type == DatabaseType.MySql;
     }
 }
