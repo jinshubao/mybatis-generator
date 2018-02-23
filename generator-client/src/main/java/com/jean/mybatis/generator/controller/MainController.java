@@ -4,8 +4,7 @@ import com.jean.mybatis.generator.constant.*;
 import com.jean.mybatis.generator.core.GeneratorService;
 import com.jean.mybatis.generator.factory.HyperlinkTableCellFactory;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
-import com.jean.mybatis.generator.support.connection.AbstractConnectionConfig;
-import com.jean.mybatis.generator.support.connection.IConnectionConfig;
+import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.*;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
@@ -208,7 +207,7 @@ public class MainController extends BaseController {
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 this.tables.getItems().clear();
-                AbstractConnectionConfig config = (AbstractConnectionConfig) this.metadataProvider.getConnectionConfig();
+                ConnectionConfig config = this.metadataProvider.getConnectionConfig();
                 config.setTableCatalog(newValue == null ? null : newValue.getTableCatalog());
                 List<ITableMetaData> tables = this.metadataProvider.getTables();
                 this.tables.getItems().addAll(tables);
@@ -536,12 +535,12 @@ public class MainController extends BaseController {
         context.setSqlMapGeneratorConfiguration(sqlMapGenerator);
 
         //---------jdbc----------
-        IConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
+        ConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
 
         JDBCConnectionConfiguration jdbcConnection = new JDBCConnectionConfiguration();
         jdbcConnection.setDriverClass(connectionConfig.getType().driverClass);
-        jdbcConnection.setConnectionURL(connectionConfig.getConnectionUrl());
-        jdbcConnection.setUserId(connectionConfig.getUsername());
+        jdbcConnection.setConnectionURL(connectionConfig.getConnectionURL());
+        jdbcConnection.setUserId(connectionConfig.getUser());
         jdbcConnection.setPassword(connectionConfig.getPassword());
         context.setJdbcConnectionConfiguration(jdbcConnection);
 

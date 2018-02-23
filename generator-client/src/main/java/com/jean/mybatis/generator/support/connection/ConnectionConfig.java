@@ -3,15 +3,10 @@ package com.jean.mybatis.generator.support.connection;
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.utils.StringUtil;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
-
 /**
  * @author jinshubao
  */
-public abstract class AbstractConnectionConfig implements IConnectionConfig {
+public class ConnectionConfig {
 
     protected DatabaseType type;
 
@@ -19,7 +14,7 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
 
     protected Integer port;
 
-    protected String username;
+    protected String user;
 
     protected String password;
 
@@ -29,7 +24,21 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
 
     protected String properties;
 
-    @Override
+    public ConnectionConfig() {
+    }
+
+    public ConnectionConfig(DatabaseType type, String host, Integer port, String user, String password,
+                            String tableSchema, String tableCatalog, String properties) {
+        this.type = type;
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
+        this.tableSchema = tableSchema;
+        this.tableCatalog = tableCatalog;
+        this.properties = properties;
+    }
+
     public DatabaseType getType() {
         return type;
     }
@@ -38,7 +47,6 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
         this.type = type;
     }
 
-    @Override
     public String getHost() {
         return host;
     }
@@ -47,7 +55,6 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
         this.host = host;
     }
 
-    @Override
     public Integer getPort() {
         return port;
     }
@@ -56,16 +63,14 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
         this.port = port;
     }
 
-    @Override
-    public String getUsername() {
-        return username;
+    public String getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
@@ -74,7 +79,6 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
         this.password = password;
     }
 
-    @Override
     public String getTableSchema() {
         return tableSchema;
     }
@@ -83,7 +87,6 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
         this.tableSchema = tableSchema;
     }
 
-    @Override
     public String getTableCatalog() {
         return tableCatalog;
     }
@@ -92,7 +95,20 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
         this.tableCatalog = tableCatalog;
     }
 
-    @Override
+    public String getConnectionURL() {
+        String cm = "";
+        if (StringUtil.isNotBlank(tableCatalog) && StringUtil.isNotBlank(tableSchema)) {
+            cm = tableCatalog + "/" + tableSchema;
+        } else {
+            cm = StringUtil.isNotBlank(tableCatalog) ? tableCatalog : StringUtil.isNotBlank(tableSchema) ? tableSchema : "";
+        }
+        String url = String.format(type.urlTemplate, host, port, cm);
+        if (StringUtil.isNotBlank(properties)) {
+            url += "?" + properties;
+        }
+        return url;
+    }
+
     public String getProperties() {
         return properties;
     }
@@ -100,25 +116,4 @@ public abstract class AbstractConnectionConfig implements IConnectionConfig {
     public void setProperties(String properties) {
         this.properties = properties;
     }
-
-    @Override
-    public Connection getConnection() throws SQLException {
-        Properties properties = new Properties();
-        properties.putAll(StringUtil.parseMysqlProperties(getProperties()));
-        if (username != null) {
-            properties.setProperty("user", username);
-        }
-        if (password != null) {
-            properties.setProperty("password", password);
-        }
-        //设置可以获取remarks信息
-        properties.setProperty("remarks", Boolean.toString(true));
-        return DriverManager.getConnection(getConnectionUrl(), properties);
-    }
-
-    @Override
-    public boolean testConnection() throws SQLException {
-        return getConnection() != null;
-    }
-
 }

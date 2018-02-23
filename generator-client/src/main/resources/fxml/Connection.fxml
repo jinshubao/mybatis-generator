@@ -33,7 +33,7 @@
         <Label text="端口" GridPane.rowIndex="2" />
         <TextField fx:id="port" promptText="3306" text="3307" GridPane.columnIndex="1" GridPane.rowIndex="2" />
         <Label text="用户名" GridPane.rowIndex="3" />
-        <TextField fx:id="username" promptText="root" text="dev_sy8" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+        <TextField fx:id="user" promptText="root" text="dev_sy8" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         <Label text="密码" GridPane.rowIndex="4" />
         <PasswordField fx:id="password" text="w2kFS02fD8" GridPane.columnIndex="1" GridPane.rowIndex="4" />
         <Label text="其他参数" GridPane.rowIndex="5" />

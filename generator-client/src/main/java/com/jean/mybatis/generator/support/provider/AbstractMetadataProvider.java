@@ -1,7 +1,8 @@
 package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.constant.TableType;
-import com.jean.mybatis.generator.support.connection.IConnectionConfig;
+import com.jean.mybatis.generator.factory.ConnectionFactory;
+import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
@@ -19,20 +20,20 @@ import java.util.List;
  */
 public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
-    protected IConnectionConfig connectionConfig;
+    protected ConnectionConfig connectionConfig;
 
     @Override
-    public void setConnectionConfig(IConnectionConfig config) {
+    public void setConnectionConfig(ConnectionConfig config) {
         this.connectionConfig = config;
     }
 
     @Override
-    public IConnectionConfig getConnectionConfig() {
+    public ConnectionConfig getConnectionConfig() {
         return connectionConfig;
     }
 
     protected Connection getConnection() throws Exception {
-        return connectionConfig.getConnection();
+        return ConnectionFactory.getConnection(connectionConfig);
     }
 
     @Override

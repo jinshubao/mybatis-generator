@@ -1,7 +1,7 @@
 package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.support.common.ISupport;
-import com.jean.mybatis.generator.support.connection.IConnectionConfig;
+import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
@@ -15,9 +15,9 @@ import java.util.List;
  */
 public interface IMetadataProvider extends ISupport {
 
-    void setConnectionConfig(IConnectionConfig config);
+    void setConnectionConfig(ConnectionConfig config);
 
-    IConnectionConfig getConnectionConfig();
+    ConnectionConfig getConnectionConfig();
 
     List<ICatalogMetaData> getCatalogs() throws Exception;
 

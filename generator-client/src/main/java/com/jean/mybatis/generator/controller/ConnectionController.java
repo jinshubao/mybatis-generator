@@ -2,8 +2,8 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
-import com.jean.mybatis.generator.factory.ConnectionConfigFactory;
-import com.jean.mybatis.generator.support.connection.IConnectionConfig;
+import com.jean.mybatis.generator.factory.ConnectionFactory;
+import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -29,7 +29,7 @@ public class ConnectionController extends BaseController {
     @FXML
     private TextField port;
     @FXML
-    private TextField username;
+    private TextField user;
     @FXML
     private PasswordField password;
     @FXML
@@ -57,8 +57,7 @@ public class ConnectionController extends BaseController {
 
         this.testConnection.setOnAction(event -> {
             try {
-                IConnectionConfig config = getConnectionConfig();
-                if (config.testConnection()) {
+                if (ConnectionFactory.testConnection(getConnectionConfig())) {
                     DialogUtil.information("连接成功", null, "连接成功");
                 } else {
                     DialogUtil.information("连接失败", null, "连接失败");
@@ -70,12 +69,15 @@ public class ConnectionController extends BaseController {
         });
     }
 
-    public IConnectionConfig getConnectionConfig() {
-        return ConnectionConfigFactory.newInstance(
+    public ConnectionConfig getConnectionConfig() {
+        return new ConnectionConfig(
                 this.dataBaseType.getValue(),
                 this.host.getText(),
                 Integer.parseInt(this.port.getText()),
-                this.username.getText(), this.password.getText(),
+                this.user.getText(),
+                this.password.getText(),
+                null,
+                null,
                 this.properties.getText());
     }
 
