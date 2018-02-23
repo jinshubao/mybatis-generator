@@ -16,7 +16,6 @@ buildscript {
 dependencies {
     compile 'org.mybatis.generator:mybatis-generator-core:1.3.5'
     compile 'mysql:mysql-connector-java:5.1.41'
-    //compile 'org.controlsfx:controlsfx:8.40.12'
     compile 'org.springframework:spring-context:4.3.10.RELEASE'
     compile project(':generator-preloader')
 

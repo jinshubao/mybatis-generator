@@ -114,6 +114,7 @@
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                                       </rowConstraints>
                                                       <children>
@@ -139,14 +140,24 @@
                                                           <Label text="XML文件包名" wrapText="true" GridPane.rowIndex="5" />
                                                           <TextField fx:id="sqlMapperPackage" promptText="mapper(XML)，默认放在资源文件目录" text="mapper" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
-                                                          <Label text="Model类型" wrapText="true" GridPane.rowIndex="6" />
-                                                          <ComboBox fx:id="defaultModelType" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                          <Label text="界定符" GridPane.rowIndex="6" />
+                                                          <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                                              <children>
+                                                                  <Label text="开始" HBox.hgrow="NEVER" />
+                                                                  <TextField fx:id="beginningDelimiter" prefWidth="50.0" HBox.hgrow="ALWAYS" />
+                                                                  <Label text="结束" HBox.hgrow="NEVER" />
+                                                                  <TextField fx:id="endDelimiter" prefWidth="50.0" HBox.hgrow="ALWAYS" />
+                                                              </children>
+                                                          </HBox>
 
-                                                          <Label text="运行时目标" wrapText="true" GridPane.rowIndex="7" />
-                                                          <ComboBox fx:id="targetRuntime" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                                          <Label text="Model类型" wrapText="true" GridPane.rowIndex="7" />
+                                                          <ComboBox fx:id="defaultModelType" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
-                                                          <Label text="覆盖已有代码" wrapText="true" GridPane.rowIndex="8" />
-                                                          <CheckBox fx:id="overwrite" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                                          <Label text="运行时目标" wrapText="true" GridPane.rowIndex="8" />
+                                                          <ComboBox fx:id="targetRuntime" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                                                          <Label text="覆盖已有代码" wrapText="true" GridPane.rowIndex="9" />
+                                                          <CheckBox fx:id="overwrite" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="9" />
 
                                                       </children>
                                                       <padding>

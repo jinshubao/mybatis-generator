@@ -98,6 +98,10 @@ public class MainController extends BaseController {
     @FXML
     private TextField mapperPackage;
     @FXML
+    public TextField beginningDelimiter;
+    @FXML
+    public TextField endDelimiter;
+    @FXML
     private CheckBox overwrite;
     @FXML
     private ComboBox<ModelType> defaultModelType;
@@ -191,7 +195,7 @@ public class MainController extends BaseController {
     public void initialize(URL location, ResourceBundle resources) {
         metadataProvider = new SimpleObjectProperty<>();
         this.newConnectionMenuItem.setOnAction(event ->
-                DialogUtil.customizeDialog(resources.getString("dialog.newconnection.title"),
+                DialogUtil.customizeDialog(resources.getString("dialog.newConnection.title"),
                         null,
                         CommonConstant.SCENES.get(StageType.CONNECTION),
                         param -> {
@@ -211,9 +215,7 @@ public class MainController extends BaseController {
                     }
                 }));
 
-        this.exitMenuItem.setOnAction(event -> {
-            System.exit(0);
-        });
+        this.exitMenuItem.setOnAction(event -> System.exit(0));
         this.loadConfig.setOnAction(event -> {
             try {
                 Configuration configuration = loadConfiguration(this.loadConfig.getParentPopup().getOwnerWindow());
@@ -223,6 +225,9 @@ public class MainController extends BaseController {
             } catch (Exception e) {
                 showException(resources, e);
             }
+        });
+        this.helpMenu.setOnAction(event -> {
+            //
         });
 
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -247,7 +252,7 @@ public class MainController extends BaseController {
         column0.setCellValueFactory(param -> param.getValue().selectedProperty());
 
         TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex++);
-        column1.setText(resources.getString("tablename.text"));
+        column1.setText(resources.getString("tableName.text"));
         column1.setCellValueFactory(param -> {
             AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
             return value.tableNameProperty();
@@ -262,7 +267,7 @@ public class MainController extends BaseController {
 
         TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex);
         column3.setText(resources.getString("custom.text"));
-        column3.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customhtperlink.text"), param -> {
+        column3.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"), param -> {
 
             try {
                 IMetadataProvider provider = this.metadataProvider.getValue();
@@ -284,8 +289,8 @@ public class MainController extends BaseController {
                     }
                 }
                 customTableController.initColumns(columns);
-                DialogUtil.customizeDialog(resources.getString("customhtperlink.text"),
-                        resources.getString("dialog.customtable.header.text"),
+                DialogUtil.customizeDialog(resources.getString("customHtperlink.text"),
+                        resources.getString("dialog.customTable.header.text"),
                         CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
                         buttonType -> {
                             if (buttonType == ButtonType.OK) {
@@ -325,9 +330,9 @@ public class MainController extends BaseController {
             return null;
         }));
 
-        this.selectAll.setText(resources.getString("selectall.text"));
+        this.selectAll.setText(resources.getString("selectAll.text"));
         this.selectAll.setOnAction(event -> selectAll(this.tables.getItems()));
-        this.invertSelection.setText(resources.getString("invertselection.text"));
+        this.invertSelection.setText(resources.getString("invertSelection.text"));
         this.invertSelection.setOnAction(event -> reverseSelect(this.tables.getItems()));
 
         this.targetRuntime.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -359,6 +364,16 @@ public class MainController extends BaseController {
         this.useCommentPlugin.setSelected(true);
         this.useEqualsHashCodePlugin.setSelected(false);
         this.useToStringPlugin.setSelected(false);
+
+        metadataProvider.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                this.beginningDelimiter.setText(newValue.getBeginningDelimiter());
+                this.endDelimiter.setText(newValue.getEndDelimiter());
+            }else{
+                this.beginningDelimiter.setText(null);
+                this.endDelimiter.setText(null);
+            }
+        });
 
         //model
 
@@ -444,7 +459,7 @@ public class MainController extends BaseController {
             chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML", "*.xml"));
             chooser.setInitialFileName("configuration");
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-            chooser.setTitle(resources.getString("saveconfig.title"));
+            chooser.setTitle(resources.getString("saveConfig.title"));
             File dir = chooser.showSaveDialog(this.saveConfig.getScene().getWindow());
             if (dir != null) {
                 File config = new File(dir.getAbsolutePath());
@@ -518,8 +533,8 @@ public class MainController extends BaseController {
         Context context = new Context(this.defaultModelType.getValue());
         context.setId("context");
         context.setTargetRuntime(this.targetRuntime.getValue().getValue());
-        context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, "`");
-        context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, "`");
+        context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, this.beginningDelimiter.getText());
+        context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, this.endDelimiter.getText());
         context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, this.javaFileEncoding.getValue().value.name());
 
         String projectDirText = this.projectDir.getText();

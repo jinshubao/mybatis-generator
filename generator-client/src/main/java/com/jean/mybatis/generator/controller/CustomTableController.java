@@ -37,9 +37,9 @@ public class CustomTableController extends BaseController {
     @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
 
-        this.selectAll.setText(resources.getString("selectall.text"));
+        this.selectAll.setText(resources.getString("selectAll.text"));
         this.selectAll.setOnAction(event -> selectAll(this.columnTableView.getItems()));
-        this.invertSelection.setText(resources.getString("invertselection.text"));
+        this.invertSelection.setText(resources.getString("invertSelection.text"));
         this.invertSelection.setOnAction(event -> reverseSelect(this.columnTableView.getItems()));
 
         int columnIndex = 0;
@@ -51,11 +51,11 @@ public class CustomTableController extends BaseController {
         column0.setCellValueFactory(param -> param.getValue().selectedProperty());
 
         TableColumn<IColumnMetaData, String> column1 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column1.setText(resources.getString("columnname.text"));
+        column1.setText(resources.getString("column.name.text"));
         column1.setCellValueFactory(param -> param.getValue().columnNameProperty());
 
         TableColumn<IColumnMetaData, String> column2 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column2.setText(resources.getString("jdbctype.text"));
+        column2.setText(resources.getString("jdbcType.text"));
         column2.setCellValueFactory(param -> param.getValue().dataTypeNameProperty());
 
         StringConverter<String> converter = new StringConverter<String>() {
@@ -72,7 +72,7 @@ public class CustomTableController extends BaseController {
         };
 
         TableColumn<IColumnMetaData, String> column3 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column3.setText(resources.getString("javatype.text"));
+        column3.setText(resources.getString("javaType.text"));
         column3.setCellFactory(TableCellFactory.comboBoxForTableColumn(true,
                 converter,
                 CommonConstant.JavaType.AUTO,
@@ -88,7 +88,7 @@ public class CustomTableController extends BaseController {
         column3.setCellValueFactory(param -> param.getValue().javaTypeProperty());
 
         TableColumn<IColumnMetaData, String> column4 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column4.setText(resources.getString("javaproperty.text"));
+        column4.setText(resources.getString("javaProperty.text"));
         column4.setCellFactory(TextFieldTableCell.forTableColumn(converter));
         column4.setCellValueFactory(param -> param.getValue().javaPropertyProperty());
 

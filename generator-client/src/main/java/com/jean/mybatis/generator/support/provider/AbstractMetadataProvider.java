@@ -39,7 +39,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException, ClassNotFoundException {
         Properties props = new Properties();
         Properties properties = getConnectionProperties();
         if (properties != null && !properties.isEmpty()) {
@@ -51,6 +51,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         if (connectionConfig.getPassword() != null && !props.containsKey(PASSWORD)) {
             props.setProperty(PASSWORD, connectionConfig.getPassword());
         }
+        Class.forName(connectionConfig.getType().driverClass);
         //设置可以获取remarks信息
         props.setProperty(REMARKS, Boolean.toString(true));
         return DriverManager.getConnection(getConnectionURL(), props);
@@ -260,7 +261,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public boolean testConnection() throws SQLException {
+    public boolean testConnection() throws SQLException, ClassNotFoundException {
         Connection connection = null;
         try {
             connection = getConnection();

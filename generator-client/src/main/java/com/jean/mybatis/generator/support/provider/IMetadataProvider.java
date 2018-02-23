@@ -34,4 +34,8 @@ public interface IMetadataProvider extends ISupport {
 
     List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception;
 
+    String getBeginningDelimiter();
+
+    String getEndDelimiter();
+
 }

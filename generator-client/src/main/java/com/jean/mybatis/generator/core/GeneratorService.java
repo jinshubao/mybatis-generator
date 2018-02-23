@@ -11,6 +11,9 @@ import org.mybatis.generator.config.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author jinshubao
+ */
 @org.springframework.stereotype.Service
 public class GeneratorService extends Service<List<String>> {
 

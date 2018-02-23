@@ -65,4 +65,14 @@ public class OracleMetadataProvider extends AbstractMetadataProvider {
         }
         return urlBuilder.toString();
     }
+
+    @Override
+    public String getBeginningDelimiter() {
+        return "\"";
+    }
+
+    @Override
+    public String getEndDelimiter() {
+        return getBeginningDelimiter();
+    }
 }
