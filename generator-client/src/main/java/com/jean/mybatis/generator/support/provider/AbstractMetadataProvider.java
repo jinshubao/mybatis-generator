@@ -1,24 +1,27 @@
 package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.constant.TableType;
-import com.jean.mybatis.generator.factory.ConnectionFactory;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
 import com.jean.mybatis.generator.support.meta.ITableMetaData;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author jinshubao
  */
 public abstract class AbstractMetadataProvider implements IMetadataProvider {
+
+    private static final String USER = "user";
+
+    private static final String PASSWORD = "password";
+
+    private static final String REMARKS = "remarks";
 
     protected ConnectionConfig connectionConfig;
 
@@ -32,8 +35,21 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return connectionConfig;
     }
 
-    protected Connection getConnection() throws Exception {
-        return ConnectionFactory.getConnection(connectionConfig);
+    protected Connection getConnection() throws SQLException {
+        Properties props = new Properties();
+        Properties properties = getProperties();
+        if (properties != null && !properties.isEmpty()) {
+            props.putAll(properties);
+        }
+        if (connectionConfig.getUser() != null && !props.containsKey(USER)) {
+            props.setProperty(USER, connectionConfig.getUser());
+        }
+        if (connectionConfig.getPassword() != null && !props.containsKey(PASSWORD)) {
+            props.setProperty(PASSWORD, connectionConfig.getPassword());
+        }
+        //设置可以获取remarks信息
+        props.setProperty(REMARKS, Boolean.toString(true));
+        return DriverManager.getConnection(getConnectionURL(), props);
     }
 
     @Override
@@ -111,7 +127,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
                 columns.add(getColumnMetaData(rs));
             }
             return columns;
-        }finally {
+        } finally {
             close(connection, rs);
         }
     }
@@ -221,6 +237,23 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         }
     }
 
+
+    protected Properties getProperties() {
+        return null;
+    }
+
+    @Override
+    public boolean testConnection() throws SQLException {
+        Connection connection = null;
+        try {
+            connection = getConnection();
+            return connection != null;
+        } finally {
+            close(connection);
+        }
+    }
+
+    protected abstract String getConnectionURL();
 
     protected abstract Class<? extends ICatalogMetaData> getCatalogMetaDataClass();
 

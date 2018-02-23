@@ -2,14 +2,17 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.constant.EncodingEnum;
-import com.jean.mybatis.generator.factory.ConnectionFactory;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
+import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
+import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.mybatis.generator.api.ConnectionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.net.URL;
@@ -39,6 +42,11 @@ public class ConnectionController extends BaseController {
     @FXML
     private Button testConnection;
 
+    private IMetadataProvider metadataProvider;
+
+    @Autowired
+    private IMetaDataProviderManager providerManager;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.dataBaseType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -57,7 +65,10 @@ public class ConnectionController extends BaseController {
 
         this.testConnection.setOnAction(event -> {
             try {
-                if (ConnectionFactory.testConnection(getConnectionConfig())) {
+                ConnectionConfig config = getConnectionConfig();
+                IMetadataProvider provider = providerManager.getMetaDataProvider(config.getType());
+                provider.setConnectionConfig(config);
+                if (provider.testConnection()) {
                     DialogUtil.information("连接成功", null, "连接成功");
                 } else {
                     DialogUtil.information("连接失败", null, "连接失败");

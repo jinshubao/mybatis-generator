@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface IMetadataProvider extends ISupport {
 
+    boolean testConnection() throws Exception;
+
     void setConnectionConfig(ConnectionConfig config);
 
     ConnectionConfig getConnectionConfig();
