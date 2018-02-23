@@ -19,7 +19,6 @@ public class HyperlinkTableCellFactory {
 
         private final Hyperlink hyperlink;
         private final Callback<S, Object> callback;
-
         private EventHandler<ActionEvent> eventHandler;
         private S ref;
 
