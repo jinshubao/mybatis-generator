@@ -1,6 +1,7 @@
 package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.CommonConstant;
+import com.jean.mybatis.generator.factory.TableCellFactory;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.collections.ObservableList;
@@ -71,7 +72,8 @@ public class CustomTableController extends BaseController {
 
         TableColumn<IColumnMetaData, String> column3 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
         column3.setText(resources.getString("javatype.text"));
-        column3.setCellFactory(ComboBoxTableCell.forTableColumn(converter,
+        column3.setCellFactory(TableCellFactory.comboBoxForTableColumn(true,
+                converter,
                 CommonConstant.JavaType.AUTO,
                 CommonConstant.JavaType.STRING,
                 CommonConstant.JavaType.INTEGER,

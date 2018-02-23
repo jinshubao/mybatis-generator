@@ -1,7 +1,6 @@
 package com.jean.mybatis.generator.support.connection;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
-import com.jean.mybatis.generator.utils.StringUtil;
 
 /**
  * @author jinshubao
@@ -93,20 +92,6 @@ public class ConnectionConfig {
 
     public void setTableCatalog(String tableCatalog) {
         this.tableCatalog = tableCatalog;
-    }
-
-    public String getConnectionURL() {
-        String cm = "";
-        if (StringUtil.isNotBlank(tableCatalog) && StringUtil.isNotBlank(tableSchema)) {
-            cm = tableCatalog + "/" + tableSchema;
-        } else {
-            cm = StringUtil.isNotBlank(tableCatalog) ? tableCatalog : StringUtil.isNotBlank(tableSchema) ? tableSchema : "";
-        }
-        String url = String.format(type.urlTemplate, host, port, cm);
-        if (StringUtil.isNotBlank(properties)) {
-            url += "?" + properties;
-        }
-        return url;
     }
 
     public String getProperties() {

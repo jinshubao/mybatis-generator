@@ -2,7 +2,7 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.*;
 import com.jean.mybatis.generator.core.GeneratorService;
-import com.jean.mybatis.generator.factory.HyperlinkTableCellFactory;
+import com.jean.mybatis.generator.factory.TableCellFactory;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.*;
@@ -242,7 +242,7 @@ public class MainController extends BaseController {
 
         TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex);
         column3.setText(resources.getString("custom.text"));
-        column3.setCellFactory(HyperlinkTableCellFactory.forTableView(resources.getString("customhtperlink.text"), param -> {
+        column3.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customhtperlink.text"), param -> {
 
             try {
                 List<IColumnMetaData> columns = metadataProvider.getColumns(param.getTableName());
@@ -263,7 +263,8 @@ public class MainController extends BaseController {
                     }
                 }
                 customTableController.initColumns(columns);
-                DialogUtil.customizeDialog(resources.getString("customhtperlink.text"), resources.getString("dialog.customtable.header.text"),
+                DialogUtil.customizeDialog(resources.getString("customhtperlink.text"),
+                        resources.getString("dialog.customtable.header.text"),
                         CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
                         buttonType -> {
                             if (buttonType == ButtonType.OK) {
@@ -539,7 +540,7 @@ public class MainController extends BaseController {
 
         JDBCConnectionConfiguration jdbcConnection = new JDBCConnectionConfiguration();
         jdbcConnection.setDriverClass(connectionConfig.getType().driverClass);
-        jdbcConnection.setConnectionURL(connectionConfig.getConnectionURL());
+        jdbcConnection.setConnectionURL(this.metadataProvider.getConnectionURL());
         jdbcConnection.setUserId(connectionConfig.getUser());
         jdbcConnection.setPassword(connectionConfig.getPassword());
         context.setJdbcConnectionConfiguration(jdbcConnection);

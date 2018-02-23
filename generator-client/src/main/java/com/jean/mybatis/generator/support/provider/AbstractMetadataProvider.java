@@ -6,6 +6,8 @@ import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
 import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
 import com.jean.mybatis.generator.support.meta.ITableMetaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.Properties;
  * @author jinshubao
  */
 public abstract class AbstractMetadataProvider implements IMetadataProvider {
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String USER = "user";
 
@@ -23,7 +26,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     private static final String REMARKS = "remarks";
 
-    protected ConnectionConfig connectionConfig;
+    private ConnectionConfig connectionConfig;
 
     @Override
     public void setConnectionConfig(ConnectionConfig config) {
@@ -35,9 +38,10 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return connectionConfig;
     }
 
-    protected Connection getConnection() throws SQLException {
+    @Override
+    public Connection getConnection() throws SQLException {
         Properties props = new Properties();
-        Properties properties = getProperties();
+        Properties properties = getConnectionProperties();
         if (properties != null && !properties.isEmpty()) {
             props.putAll(properties);
         }
@@ -109,7 +113,6 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
             close(connection, rs);
         }
     }
-
 
     @Override
     public List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception {
@@ -237,11 +240,6 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         }
     }
 
-
-    protected Properties getProperties() {
-        return null;
-    }
-
     @Override
     public boolean testConnection() throws SQLException {
         Connection connection = null;
@@ -253,7 +251,10 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         }
     }
 
-    protected abstract String getConnectionURL();
+
+    protected Properties getConnectionProperties() {
+        return null;
+    }
 
     protected abstract Class<? extends ICatalogMetaData> getCatalogMetaDataClass();
 

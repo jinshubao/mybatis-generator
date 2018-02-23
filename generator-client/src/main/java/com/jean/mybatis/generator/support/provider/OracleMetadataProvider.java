@@ -48,7 +48,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider {
     }
 
     @Override
-    protected String getConnectionURL() {
+    public String getConnectionURL() {
         ConnectionConfig config = getConnectionConfig();
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(String.format("jdbc:oracle:thin:@//%s:%d", config.getHost(), config.getPort()));

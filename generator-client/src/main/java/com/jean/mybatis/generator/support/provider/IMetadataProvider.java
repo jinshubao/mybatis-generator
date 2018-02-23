@@ -7,6 +7,7 @@ import com.jean.mybatis.generator.support.meta.IColumnMetaData;
 import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
 import com.jean.mybatis.generator.support.meta.ITableMetaData;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -14,6 +15,10 @@ import java.util.List;
  * @date 2017/4/9
  */
 public interface IMetadataProvider extends ISupport {
+
+    String getConnectionURL();
+
+    Connection getConnection() throws Exception;
 
     boolean testConnection() throws Exception;
 
