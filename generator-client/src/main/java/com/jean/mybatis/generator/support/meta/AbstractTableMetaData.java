@@ -23,6 +23,8 @@ public abstract class AbstractTableMetaData extends AbstractSchemaMetaData imple
 
     protected List<IgnoredColumn> ignoredColumns = new ArrayList<>();
 
+    protected StringProperty primaryKeyColumn = new SimpleStringProperty();
+
     @Override
     public String getTableName() {
         return tableName.get();
@@ -112,4 +114,17 @@ public abstract class AbstractTableMetaData extends AbstractSchemaMetaData imple
         return getTableName();
     }
 
+    @Override
+    public String getPrimaryKeyColumn() {
+        return primaryKeyColumn.get();
+    }
+
+    public StringProperty primaryKeyColumnProperty() {
+        return primaryKeyColumn;
+    }
+
+    @Override
+    public void setPrimaryKeyColumn(String primaryKeyColumn) {
+        this.primaryKeyColumn.set(primaryKeyColumn);
+    }
 }

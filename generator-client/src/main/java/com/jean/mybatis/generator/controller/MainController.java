@@ -5,12 +5,17 @@ import com.jean.mybatis.generator.core.GeneratorService;
 import com.jean.mybatis.generator.factory.TableCellFactory;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
-import com.jean.mybatis.generator.support.meta.*;
+import com.jean.mybatis.generator.support.meta.AbstractTableMetaData;
+import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
+import com.jean.mybatis.generator.support.meta.IColumnMetaData;
+import com.jean.mybatis.generator.support.meta.ITableMetaData;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +23,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
@@ -29,7 +35,9 @@ import org.mybatis.generator.plugins.ToStringPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -56,7 +64,7 @@ public class MainController extends BaseController {
     @FXML
     private Menu configurationMenu;
     @FXML
-    private Menu configurationListMenu;
+    private MenuItem loadConfig;
     @FXML
     private Menu helpMenu;
     @FXML
@@ -69,9 +77,9 @@ public class MainController extends BaseController {
     @FXML
     private TableView<ITableMetaData> tables;
     @FXML
-    private Hyperlink selectAllTable;
+    private Hyperlink selectAll;
     @FXML
-    private Hyperlink invertSelectTable;
+    private Hyperlink invertSelection;
 
     //---------基本配置----------
 
@@ -173,16 +181,15 @@ public class MainController extends BaseController {
     @Autowired
     private GeneratorService generatorService;
 
-    private IMetadataProvider metadataProvider;
+    private ObjectProperty<IMetadataProvider> metadataProvider;
 
     @Autowired
     private IMetaDataProviderManager providerManager;
 
-    private ITableMetaData currentCustom;
-
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
+        metadataProvider = new SimpleObjectProperty<>();
         this.newConnectionMenuItem.setOnAction(event ->
                 DialogUtil.customizeDialog(resources.getString("dialog.newconnection.title"),
                         null,
@@ -194,26 +201,39 @@ public class MainController extends BaseController {
                             return null;
                         }).ifPresent(config -> {
                     try {
-                        this.metadataProvider = this.providerManager.getMetaDataProvider(config.getType());
-                        this.metadataProvider.setConnectionConfig(config);
+                        IMetadataProvider provider = this.providerManager.getMetaDataProvider(config.getType());
+                        provider.setConnectionConfig(config);
                         this.tableCatalog.getItems().clear();
-                        this.tableCatalog.getItems().addAll(metadataProvider.getCatalogs());
+                        this.tableCatalog.getItems().addAll(provider.getCatalogs());
+                        this.metadataProvider.set(provider);
                     } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                        DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
+                        showException(resources, e);
                     }
                 }));
 
+        this.exitMenuItem.setOnAction(event -> {
+            System.exit(0);
+        });
+        this.loadConfig.setOnAction(event -> {
+            try {
+                Configuration configuration = loadConfiguration(this.loadConfig.getParentPopup().getOwnerWindow());
+                if (configuration != null) {
+                    logger.debug(configuration.toDocument().getFormattedContent());
+                }
+            } catch (Exception e) {
+                showException(resources, e);
+            }
+        });
+
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                this.tables.getItems().clear();
-                ConnectionConfig config = this.metadataProvider.getConnectionConfig();
+                IMetadataProvider provider = this.metadataProvider.getValue();
+                ConnectionConfig config = provider.getConnectionConfig();
                 config.setTableCatalog(newValue == null ? null : newValue.getTableCatalog());
-                List<ITableMetaData> tables = this.metadataProvider.getTables();
-                this.tables.getItems().addAll(tables);
+                this.tables.getItems().clear();
+                this.tables.getItems().addAll(provider.getTables());
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
+                showException(resources, e);
             }
         });
 
@@ -245,7 +265,8 @@ public class MainController extends BaseController {
         column3.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customhtperlink.text"), param -> {
 
             try {
-                List<IColumnMetaData> columns = metadataProvider.getColumns(param.getTableName());
+                IMetadataProvider provider = this.metadataProvider.getValue();
+                List<IColumnMetaData> columns = provider.getColumns(param.getTableName());
                 for (IColumnMetaData columnMetaData : columns) {
                     columnMetaData.setSelected(true);
                     columnMetaData.setJavaType("");
@@ -299,14 +320,15 @@ public class MainController extends BaseController {
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
+                showException(resources, e);
             }
             return null;
         }));
 
-        this.selectAllTable.setOnAction(event -> selectAll(this.tables.getItems()));
-        this.invertSelectTable.setOnAction(event -> reverseSelect(this.tables.getItems()));
+        this.selectAll.setText(resources.getString("selectall.text"));
+        this.selectAll.setOnAction(event -> selectAll(this.tables.getItems()));
+        this.invertSelection.setText(resources.getString("invertselection.text"));
+        this.invertSelection.setOnAction(event -> reverseSelect(this.tables.getItems()));
 
         this.targetRuntime.valueProperty().addListener((observable, oldValue, newValue) -> {
             this.javaClientType.getItems().clear();
@@ -337,15 +359,6 @@ public class MainController extends BaseController {
         this.useCommentPlugin.setSelected(true);
         this.useEqualsHashCodePlugin.setSelected(false);
         this.useToStringPlugin.setSelected(false);
-
-        //绑定按钮状态
-        this.generate.disableProperty().bind(
-                this.generatorService.runningProperty()
-                        .or(projectDir.textProperty().isEmpty())
-                        .or(modelPackage.textProperty().isEmpty())
-                        .or(mapperPackage.textProperty().isEmpty())
-                        .or(sqlMapperPackage.textProperty().isEmpty()));
-
 
         //model
 
@@ -404,8 +417,7 @@ public class MainController extends BaseController {
         this.generatorService.messageProperty().addListener((observable, oldValue, newValue) -> logger.debug(newValue));
         this.generatorService.setOnFailed(event -> {
             Throwable e = this.generatorService.getException();
-            logger.error(e.getMessage(), e);
-            DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
+            showException(resources, e);
         });
 
         this.generatorService.setOnSucceeded(event -> {
@@ -413,15 +425,59 @@ public class MainController extends BaseController {
         });
 
         //生成代码
+        this.generate.disableProperty().bind(
+                this.metadataProvider.isNull()
+                        .or(this.generatorService.runningProperty())
+                        .or(this.projectDir.textProperty().isEmpty())
+                        .or(this.modelPackage.textProperty().isEmpty())
+                        .or(this.mapperPackage.textProperty().isEmpty())
+                        .or(this.sqlMapperPackage.textProperty().isEmpty()));
         this.generate.setOnAction((ActionEvent event) -> {
             Configuration configuration = createDefaultConfiguration(createDefaultContext());
             this.generatorService.restart(configuration, new DefaultShellCallback(overwrite.isSelected()));
         });
 
         //保存配置
+        this.saveConfig.disableProperty().bind(metadataProvider.isNull());
         this.saveConfig.setOnAction((ActionEvent event) -> {
-            Configuration configuration = createDefaultConfiguration(createDefaultContext());
-            logger.debug(configuration.toDocument().getFormattedContent());
+            FileChooser chooser = new FileChooser();
+            chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML", "*.xml"));
+            chooser.setInitialFileName("configuration");
+            chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            chooser.setTitle(resources.getString("saveconfig.title"));
+            File dir = chooser.showSaveDialog(this.saveConfig.getScene().getWindow());
+            if (dir != null) {
+                File config = new File(dir.getAbsolutePath());
+                FileOutputStream fs = null;
+                BufferedOutputStream bos = null;
+                try {
+                    fs = new FileOutputStream(config);
+                    bos = new BufferedOutputStream(fs);
+                    Configuration configuration = createDefaultConfiguration(createDefaultContext());
+                    String content = configuration.toDocument().getFormattedContent();
+                    bos.write(content.getBytes());
+                    bos.flush();
+                    logger.debug(content);
+                } catch (Exception e) {
+                    showException(resources, e);
+                } finally {
+                    if (fs != null) {
+                        try {
+                            fs.close();
+                        } catch (IOException e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                    if (bos != null) {
+                        try {
+                            bos.close();
+                        } catch (IOException e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+
         });
 
         // bottom
@@ -430,15 +486,22 @@ public class MainController extends BaseController {
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
     }
 
-    private Configuration loadConfiguration(String file) throws IOException, XMLParserException {
+    private Configuration loadConfiguration(final Window ownerWindow) throws IOException, XMLParserException {
         List<String> warnings = new ArrayList<>();
-        File configFile = new File(file);
-        ConfigurationParser cp = new ConfigurationParser(warnings);
-        Configuration configuration = cp.parseConfiguration(configFile);
-        if (!warnings.isEmpty()) {
-            logger.warn(StringUtil.join(warnings, "; "));
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+        chooser.setTitle("加载配置文件");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
+        File configFile = chooser.showOpenDialog(ownerWindow);
+        if (configFile != null && configFile.exists() && configFile.isFile()) {
+            ConfigurationParser cp = new ConfigurationParser(warnings);
+            Configuration configuration = cp.parseConfiguration(configFile);
+            if (!warnings.isEmpty()) {
+                logger.warn(StringUtil.join(warnings, "; "));
+            }
+            return configuration;
         }
-        return configuration;
+        return null;
     }
 
     private Configuration createDefaultConfiguration(Context context) {
@@ -448,6 +511,8 @@ public class MainController extends BaseController {
     }
 
     private Context createDefaultContext() {
+
+        IMetadataProvider provider = this.metadataProvider.getValue();
 
         //---------上下文环境----------
         Context context = new Context(this.defaultModelType.getValue());
@@ -536,11 +601,11 @@ public class MainController extends BaseController {
         context.setSqlMapGeneratorConfiguration(sqlMapGenerator);
 
         //---------jdbc----------
-        ConnectionConfig connectionConfig = this.metadataProvider.getConnectionConfig();
+        ConnectionConfig connectionConfig = provider.getConnectionConfig();
 
         JDBCConnectionConfiguration jdbcConnection = new JDBCConnectionConfiguration();
         jdbcConnection.setDriverClass(connectionConfig.getType().driverClass);
-        jdbcConnection.setConnectionURL(this.metadataProvider.getConnectionURL());
+        jdbcConnection.setConnectionURL(provider.getConnectionURL());
         jdbcConnection.setUserId(connectionConfig.getUser());
         jdbcConnection.setPassword(connectionConfig.getPassword());
         context.setJdbcConnectionConfiguration(jdbcConnection);
@@ -556,13 +621,15 @@ public class MainController extends BaseController {
         }
 
         boolean camelCaseSelected = this.camelCase.isSelected();
-        String statement = this.metadataProvider.getConnectionConfig().getType().name;
+        String statement = connectionConfig.getType().name;
         for (ITableMetaData tableMetadata : tables.getItems()) {
-            if (tableMetadata.isSelected()){
+            if (tableMetadata.isSelected()) {
                 TableConfiguration table = new TableConfiguration(context);
                 table.setTableName(tableMetadata.getName());
                 table.addProperty(PropertyRegistry.TABLE_USE_ACTUAL_COLUMN_NAMES, Boolean.toString(!camelCaseSelected));
-                table.setGeneratedKey(new GeneratedKey("id", statement, true, ""));
+                if (StringUtil.isNotBlank(tableMetadata.getPrimaryKeyColumn())) {
+                    table.setGeneratedKey(new GeneratedKey(tableMetadata.getPrimaryKeyColumn(), statement, true, "post"));
+                }
                 tableMetadata.getIgnoredColumns().forEach(table::addIgnoredColumn);
                 tableMetadata.getColumnOverrides().forEach(table::addColumnOverride);
                 if (columnRenamingRule != null) {
@@ -572,6 +639,11 @@ public class MainController extends BaseController {
             }
         }
         return context;
+    }
+
+    private void showException(ResourceBundle resources, Throwable e) {
+        logger.error(e.getMessage(), e);
+        DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
     }
 
 }

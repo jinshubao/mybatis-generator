@@ -10,7 +10,6 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 import org.springframework.stereotype.Controller;
@@ -31,15 +30,17 @@ public class CustomTableController extends BaseController {
     @FXML
     private Hyperlink selectAll;
     @FXML
-    private Hyperlink invertSelect;
+    private Hyperlink invertSelection;
 
 
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
 
+        this.selectAll.setText(resources.getString("selectall.text"));
         this.selectAll.setOnAction(event -> selectAll(this.columnTableView.getItems()));
-        this.invertSelect.setOnAction(event -> reverseSelect(this.columnTableView.getItems()));
+        this.invertSelection.setText(resources.getString("invertselection.text"));
+        this.invertSelection.setOnAction(event -> reverseSelect(this.columnTableView.getItems()));
 
         int columnIndex = 0;
         ObservableList<TableColumn<IColumnMetaData, ?>> tableColumns = this.columnTableView.getColumns();

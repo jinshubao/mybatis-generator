@@ -37,11 +37,13 @@ public interface ITableMetaData extends ISchemaMetaData {
 
     List<ColumnOverride> getColumnOverrides();
 
-     void addIgnoredColumn(IgnoredColumn ignoredColumn);
+    void addIgnoredColumn(IgnoredColumn ignoredColumn);
 
-     void clearIgnoredColumns();
+    void clearIgnoredColumns();
 
-     List<IgnoredColumn> getIgnoredColumns();
+    List<IgnoredColumn> getIgnoredColumns();
 
+    String getPrimaryKeyColumn();
 
+    void setPrimaryKeyColumn(String primaryKeyColumn);
 }

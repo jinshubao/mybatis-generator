@@ -1,5 +1,6 @@
 package com.jean.mybatis.generator.support.meta;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
@@ -72,11 +73,17 @@ public interface IColumnMetaData extends ITableMetaData {
 
     StringProperty javaTypeProperty();
 
-    void  setJavaType(String javaType);
+    void setJavaType(String javaType);
 
     String getJavaProperty();
 
     StringProperty javaPropertyProperty();
 
     void setJavaProperty(String javaProperty);
+
+    boolean isPrimaryKey();
+
+    BooleanProperty primaryKeyProperty();
+
+    void setPrimaryKey(boolean isPrimaryKey);
 }

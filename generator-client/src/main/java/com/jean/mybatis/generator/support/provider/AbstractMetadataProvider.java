@@ -106,8 +106,15 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
                     new String[]{TableType.TABLE.getValue()});
             List<ITableMetaData> tables = new ArrayList<>();
             while (rs.next()) {
-                tables.add(getTableMetaData(rs));
+                ITableMetaData tableMetaData = getTableMetaData(rs);
+                ResultSet primaryKeys = metaData.getPrimaryKeys(connectionConfig.getTableCatalog(), connectionConfig.getTableSchema(), tableMetaData.getTableName());
+                if (primaryKeys.next()) {
+                    tableMetaData.setPrimaryKeyColumn(primaryKeys.getString("COLUMN_NAME"));
+                    close(primaryKeys);
+                }
+                tables.add(tableMetaData);
             }
+
             return tables;
         } finally {
             close(connection, rs);
@@ -118,6 +125,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     public List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception {
         Connection connection = null;
         ResultSet rs = null;
+        ResultSet primaryKeys = null;
         try {
             connection = getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
@@ -129,8 +137,19 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
             while (rs.next()) {
                 columns.add(getColumnMetaData(rs));
             }
+            primaryKeys = metaData.getPrimaryKeys(connectionConfig.getTableCatalog(), connectionConfig.getTableSchema(), tableNamePattern);
+            List<String> names = new ArrayList<>();
+            while (primaryKeys.next()) {
+                names.add(primaryKeys.getString("COLUMN_NAME"));
+            }
+            for (IColumnMetaData column : columns) {
+                for (String name : names) {
+                    column.setPrimaryKey(column.getColumnName().equals(name));
+                }
+            }
             return columns;
         } finally {
+            close(primaryKeys);
             close(connection, rs);
         }
     }

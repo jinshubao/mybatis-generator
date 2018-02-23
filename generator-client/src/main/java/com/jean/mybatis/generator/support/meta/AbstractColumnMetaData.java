@@ -1,9 +1,6 @@
 package com.jean.mybatis.generator.support.meta;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 /**
  * @author jinshubao
@@ -59,6 +56,8 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
     protected StringProperty javaType = new SimpleStringProperty();
 
     protected StringProperty javaProperty = new SimpleStringProperty();
+
+    protected BooleanProperty primaryKey = new SimpleBooleanProperty(false);
 
     @Override
     public String getColumnName() {
@@ -238,5 +237,20 @@ public abstract class AbstractColumnMetaData extends AbstractTableMetaData imple
     @Override
     public void setJavaType(String javaType) {
         this.javaType.set(javaType);
+    }
+
+    @Override
+    public boolean isPrimaryKey() {
+        return primaryKey.get();
+    }
+
+    @Override
+    public BooleanProperty primaryKeyProperty() {
+        return primaryKey;
+    }
+
+    @Override
+    public void setPrimaryKey(boolean primaryKey) {
+        this.primaryKey.set(primaryKey);
     }
 }
