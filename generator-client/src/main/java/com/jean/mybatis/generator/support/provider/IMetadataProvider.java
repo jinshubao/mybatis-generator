@@ -2,10 +2,10 @@ package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.support.common.ISupport;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
-import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
-import com.jean.mybatis.generator.support.meta.IColumnMetaData;
-import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
-import com.jean.mybatis.generator.support.meta.ITableMetaData;
+import com.jean.mybatis.generator.support.meta.CatalogMetaData;
+import com.jean.mybatis.generator.support.meta.ColumnMetaData;
+import com.jean.mybatis.generator.support.meta.SchemaMetaData;
+import com.jean.mybatis.generator.support.meta.TableMetaData;
 
 import java.sql.Connection;
 import java.util.List;
@@ -26,13 +26,13 @@ public interface IMetadataProvider extends ISupport {
 
     ConnectionConfig getConnectionConfig();
 
-    List<ICatalogMetaData> getCatalogs() throws Exception;
+    List<CatalogMetaData> getCatalogs() throws Exception;
 
-    List<ISchemaMetaData> getSchemas() throws Exception;
+    List<SchemaMetaData> getSchemas() throws Exception;
 
-    List<ITableMetaData> getTables() throws Exception;
+    List<TableMetaData> getTables() throws Exception;
 
-    List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception;
+    List<ColumnMetaData> getColumns(String tableNamePattern) throws Exception;
 
     String getBeginningDelimiter();
 

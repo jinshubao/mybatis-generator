@@ -7,5 +7,11 @@ import com.jean.mybatis.generator.constant.DatabaseType;
  */
 public interface IMetaDataProviderManager {
 
+    /**
+     * 获取对应数据库的 MetaDataProvider
+     *
+     * @param type 数据库类型
+     * @return MetaDataProvider
+     */
     IMetadataProvider getMetaDataProvider(DatabaseType type);
 }

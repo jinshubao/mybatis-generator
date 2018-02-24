@@ -2,7 +2,7 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.factory.TableCellFactory;
-import com.jean.mybatis.generator.support.meta.IColumnMetaData;
+import com.jean.mybatis.generator.support.meta.ColumnMetaData;
 import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 public class CustomTableController extends BaseController {
 
     @FXML
-    private TableView<IColumnMetaData> columnTableView;
+    private TableView<ColumnMetaData> columnTableView;
     @FXML
     private Hyperlink selectAll;
     @FXML
@@ -44,18 +44,18 @@ public class CustomTableController extends BaseController {
         this.invertSelection.setOnAction(event -> reverseSelect(this.columnTableView.getItems()));
 
         int columnIndex = 0;
-        ObservableList<TableColumn<IColumnMetaData, ?>> tableColumns = this.columnTableView.getColumns();
+        ObservableList<TableColumn<ColumnMetaData, ?>> tableColumns = this.columnTableView.getColumns();
 
-        TableColumn<IColumnMetaData, Boolean> selectColumn = (TableColumn<IColumnMetaData, Boolean>) tableColumns.get(columnIndex++);
+        TableColumn<ColumnMetaData, Boolean> selectColumn = (TableColumn<ColumnMetaData, Boolean>) tableColumns.get(columnIndex++);
         selectColumn.setText(resources.getString("select.text"));
         selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
         selectColumn.setCellValueFactory(param -> param.getValue().selectedProperty());
 
-        TableColumn<IColumnMetaData, String> nameColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        TableColumn<ColumnMetaData, String> nameColumn = (TableColumn<ColumnMetaData, String>) tableColumns.get(columnIndex++);
         nameColumn.setText(resources.getString("column.name.text"));
         nameColumn.setCellValueFactory(param -> param.getValue().columnNameProperty());
 
-        TableColumn<IColumnMetaData, String> jdbcTypeColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        TableColumn<ColumnMetaData, String> jdbcTypeColumn = (TableColumn<ColumnMetaData, String>) tableColumns.get(columnIndex++);
         jdbcTypeColumn.setText(resources.getString("jdbcType.text"));
         jdbcTypeColumn.setCellValueFactory(param -> param.getValue().dataTypeNameProperty());
 
@@ -72,7 +72,7 @@ public class CustomTableController extends BaseController {
             }
         };
 
-        TableColumn<IColumnMetaData, String> javaTypeColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        TableColumn<ColumnMetaData, String> javaTypeColumn = (TableColumn<ColumnMetaData, String>) tableColumns.get(columnIndex++);
         javaTypeColumn.setText(resources.getString("javaType.text"));
         javaTypeColumn.setCellFactory(TableCellFactory.comboBoxForTableColumn(converter,
                 Arrays.asList(CommonConstant.JavaType.AUTO,
@@ -87,23 +87,23 @@ public class CustomTableController extends BaseController {
                         CommonConstant.JavaType.BYTE), true));
         javaTypeColumn.setCellValueFactory(param -> param.getValue().javaTypeProperty());
 
-        TableColumn<IColumnMetaData, String> javaPropertyColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        TableColumn<ColumnMetaData, String> javaPropertyColumn = (TableColumn<ColumnMetaData, String>) tableColumns.get(columnIndex++);
         javaPropertyColumn.setText(resources.getString("javaProperty.text"));
         javaPropertyColumn.setCellFactory(TextFieldTableCell.forTableColumn(converter));
         javaPropertyColumn.setCellValueFactory(param -> param.getValue().javaPropertyProperty());
 
-        TableColumn<IColumnMetaData, String> remarksColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex);
+        TableColumn<ColumnMetaData, String> remarksColumn = (TableColumn<ColumnMetaData, String>) tableColumns.get(columnIndex);
         remarksColumn.setText(resources.getString("remarks.text"));
         remarksColumn.setCellValueFactory(param -> param.getValue().remarksProperty());
 
     }
 
-    public void initColumns(List<IColumnMetaData> columns) {
+    public void initColumns(List<ColumnMetaData> columns) {
         this.columnTableView.getItems().clear();
         this.columnTableView.getItems().addAll(columns);
     }
 
-    public List<IColumnMetaData> getColumns() {
+    public List<ColumnMetaData> getColumns() {
         return new ArrayList<>(this.columnTableView.getItems());
     }
 

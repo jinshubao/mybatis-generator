@@ -23,9 +23,9 @@ import java.util.ResourceBundle;
  * @date 2017/4/8
  */
 public abstract class ApplicationSupport extends Application {
-    protected static final Logger logger = LoggerFactory.getLogger(ApplicationSupport.class);
-    protected ApplicationContext applicationContext;
-    protected Stage primaryStage;
+    static final Logger logger = LoggerFactory.getLogger(ApplicationSupport.class);
+    ApplicationContext applicationContext;
+    Stage primaryStage;
 
 
     public ApplicationSupport() {

@@ -69,11 +69,11 @@ public class MainController extends BaseController {
     //left
 
     @FXML
-    private ComboBox<ICatalogMetaData> tableCatalog;
+    private ComboBox<CatalogMetaData> tableCatalog;
     @FXML
-    private ComboBox<ISchemaMetaData> tableSchema;
+    private ComboBox<SchemaMetaData> tableSchema;
     @FXML
-    private TableView<ITableMetaData> tables;
+    private TableView<TableMetaData> tables;
     @FXML
     private Hyperlink selectAll;
     @FXML
@@ -254,35 +254,29 @@ public class MainController extends BaseController {
         });
 
         int columnIndex = 0;
-        ObservableList<TableColumn<ITableMetaData, ?>> tableColumns = tables.getColumns();
+        ObservableList<TableColumn<TableMetaData, ?>> tableColumns = tables.getColumns();
 
 
-        TableColumn<ITableMetaData, Boolean> column0 = (TableColumn<ITableMetaData, Boolean>) tableColumns.get(columnIndex++);
+        TableColumn<TableMetaData, Boolean> column0 = (TableColumn<TableMetaData, Boolean>) tableColumns.get(columnIndex++);
         column0.setText(resources.getString("select.text"));
         column0.setCellFactory(CheckBoxTableCell.forTableColumn(column0));
         column0.setCellValueFactory(param -> param.getValue().selectedProperty());
 
-        TableColumn<ITableMetaData, String> column1 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex++);
+        TableColumn<TableMetaData, String> column1 = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex++);
         column1.setText(resources.getString("tableName.text"));
-        column1.setCellValueFactory(param -> {
-            AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
-            return value.tableNameProperty();
-        });
+        column1.setCellValueFactory(param -> param.getValue().tableNameProperty());
 
-        TableColumn<ITableMetaData, String> column2 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex++);
+        TableColumn<TableMetaData, String> column2 = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex++);
         column2.setText(resources.getString("remarks.text"));
-        column2.setCellValueFactory(param -> {
-            AbstractTableMetaData value = (AbstractTableMetaData) param.getValue();
-            return value.remarksProperty();
-        });
+        column2.setCellValueFactory(param -> param.getValue().remarksProperty());
 
-        TableColumn<ITableMetaData, String> column3 = (TableColumn<ITableMetaData, String>) tableColumns.get(columnIndex);
+        TableColumn<TableMetaData, String> column3 = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex);
         column3.setText(resources.getString("custom.text"));
         column3.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"), param -> {
             try {
                 IMetadataProvider provider = this.metadataProvider.getValue();
-                List<IColumnMetaData> columns = provider.getColumns(param.getTableName());
-                for (IColumnMetaData columnMetaData : columns) {
+                List<ColumnMetaData> columns = provider.getColumns(param.getTableName());
+                for (ColumnMetaData columnMetaData : columns) {
                     columnMetaData.setSelected(true);
                     columnMetaData.setJavaType("");
                     columnMetaData.setJavaType("");
@@ -309,9 +303,9 @@ public class MainController extends BaseController {
                             return null;
                         })
                         .ifPresent(value -> {
-                            param.clearColumnOverrides();
-                            param.clearIgnoredColumns();
-                            for (IColumnMetaData metaData : value) {
+                            param.getColumnOverrides().clear();
+                            param.getIgnoredColumns().clear();
+                            for (ColumnMetaData metaData : value) {
                                 if (metaData.isSelected()) {
                                     boolean hasValue = false;
                                     ColumnOverride override = new ColumnOverride(metaData.getColumnName());
@@ -326,11 +320,11 @@ public class MainController extends BaseController {
                                         hasValue = true;
                                     }
                                     if (hasValue) {
-                                        param.addColumnOverride(override);
+                                        param.getColumnOverrides().add(override);
                                     }
                                 } else {
                                     IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
-                                    param.addIgnoredColumn(column);
+                                    param.getIgnoredColumns().add(column);
                                 }
                             }
                         });
@@ -679,10 +673,10 @@ public class MainController extends BaseController {
 
         boolean camelCaseSelected = this.camelCase.isSelected();
         String statement = connectionConfig.getType().name;
-        for (ITableMetaData tableMetadata : tables.getItems()) {
+        for (TableMetaData tableMetadata : tables.getItems()) {
             if (tableMetadata.isSelected()) {
                 TableConfiguration table = new TableConfiguration(context);
-                table.setTableName(tableMetadata.getName());
+                table.setTableName(tableMetadata.getTableName());
                 table.addProperty(PropertyRegistry.TABLE_USE_ACTUAL_COLUMN_NAMES, Boolean.toString(!camelCaseSelected));
                 if (StringUtil.isNotBlank(tableMetadata.getPrimaryKeyColumn())) {
                     table.setGeneratedKey(new GeneratedKey(tableMetadata.getPrimaryKeyColumn(), statement, true, "post"));

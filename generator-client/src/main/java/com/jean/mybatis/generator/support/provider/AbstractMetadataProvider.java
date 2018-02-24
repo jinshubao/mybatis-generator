@@ -3,10 +3,10 @@ package com.jean.mybatis.generator.support.provider;
 import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.constant.TableType;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
-import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
-import com.jean.mybatis.generator.support.meta.IColumnMetaData;
-import com.jean.mybatis.generator.support.meta.ISchemaMetaData;
-import com.jean.mybatis.generator.support.meta.ITableMetaData;
+import com.jean.mybatis.generator.support.meta.CatalogMetaData;
+import com.jean.mybatis.generator.support.meta.ColumnMetaData;
+import com.jean.mybatis.generator.support.meta.SchemaMetaData;
+import com.jean.mybatis.generator.support.meta.TableMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +60,14 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public List<ICatalogMetaData> getCatalogs() throws Exception {
+    public List<CatalogMetaData> getCatalogs() throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         try {
             connection = getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
             rs = metaData.getCatalogs();
-            List<ICatalogMetaData> catalogs = new ArrayList<>();
+            List<CatalogMetaData> catalogs = new ArrayList<>();
             while (rs.next()) {
                 catalogs.add(getCatalogMetaData(rs));
             }
@@ -78,14 +78,14 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public List<ISchemaMetaData> getSchemas() throws Exception {
+    public List<SchemaMetaData> getSchemas() throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         try {
             connection = getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
             rs = metaData.getSchemas(connectionConfig.getTableCatalog(), null);
-            List<ISchemaMetaData> schemas = new ArrayList<>();
+            List<SchemaMetaData> schemas = new ArrayList<>();
             while (rs.next()) {
                 schemas.add(getSchemaMetaData(rs));
             }
@@ -97,7 +97,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
 
     @Override
-    public List<ITableMetaData> getTables() throws Exception {
+    public List<TableMetaData> getTables() throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         try {
@@ -107,9 +107,9 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
                     connectionConfig.getTableSchema(),
                     null,
                     new String[]{TableType.TABLE.getValue()});
-            List<ITableMetaData> tables = new ArrayList<>();
+            List<TableMetaData> tables = new ArrayList<>();
             while (rs.next()) {
-                ITableMetaData tableMetaData = getTableMetaData(rs);
+                TableMetaData tableMetaData = getTableMetaData(rs);
                 ResultSet primaryKeys = metaData.getPrimaryKeys(connectionConfig.getTableCatalog(), connectionConfig.getTableSchema(), tableMetaData.getTableName());
                 if (primaryKeys.next()) {
                     tableMetaData.setPrimaryKeyColumn(primaryKeys.getString(CommonConstant.MetaDataType.COLUMN_NAME));
@@ -125,7 +125,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public List<IColumnMetaData> getColumns(String tableNamePattern) throws Exception {
+    public List<ColumnMetaData> getColumns(String tableNamePattern) throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         ResultSet primaryKeys = null;
@@ -136,7 +136,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
                     connectionConfig.getTableSchema(),
                     tableNamePattern,
                     null);
-            List<IColumnMetaData> columns = new ArrayList<>();
+            List<ColumnMetaData> columns = new ArrayList<>();
             while (rs.next()) {
                 columns.add(getColumnMetaData(rs));
             }
@@ -145,7 +145,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
             while (primaryKeys.next()) {
                 names.add(primaryKeys.getString(CommonConstant.MetaDataType.COLUMN_NAME));
             }
-            for (IColumnMetaData column : columns) {
+            for (ColumnMetaData column : columns) {
                 for (String name : names) {
                     column.setPrimaryKey(column.getColumnName().equals(name));
                 }
@@ -157,26 +157,26 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         }
     }
 
-    protected ICatalogMetaData getCatalogMetaData(ResultSet resultSet) throws Exception {
+    CatalogMetaData getCatalogMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
         String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
-        ICatalogMetaData catalogMetaData = getCatalogMetaDataClass().newInstance();
+        CatalogMetaData catalogMetaData = new CatalogMetaData();
         catalogMetaData.setTableCatalog(tableCat);
         return catalogMetaData;
     }
 
-    protected ISchemaMetaData getSchemaMetaData(ResultSet resultSet) throws Exception {
+    SchemaMetaData getSchemaMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
         String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
         String tableSchema = resultSet.getString(CommonConstant.MetaDataType.TABLE_SCHEM);
-        ISchemaMetaData schemaMetaData = getSchemaMetaDataClass().newInstance();
+        SchemaMetaData schemaMetaData = new SchemaMetaData();
         schemaMetaData.setTableCatalog(tableCat);
         schemaMetaData.setTableSchema(tableSchema);
         return schemaMetaData;
     }
 
-    protected ITableMetaData getTableMetaData(ResultSet resultSet) throws Exception {
+    TableMetaData getTableMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
         String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
@@ -187,7 +187,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         String tableType = resultSet.getString(CommonConstant.MetaDataType.TABLE_TYPE);
         //表备注
         String remarks = resultSet.getString(CommonConstant.MetaDataType.REMARKS);
-        ITableMetaData data = getTableMetaDataClass().newInstance();
+        TableMetaData data = new TableMetaData();
         data.setTableCatalog(tableCat);
         data.setTableSchema(tableSchema);
         data.setTableName(tableName);
@@ -196,7 +196,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return data;
     }
 
-    protected IColumnMetaData getColumnMetaData(ResultSet resultSet) throws Exception {
+    ColumnMetaData getColumnMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
         String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
@@ -227,7 +227,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
          * YES,NO,""
          */
         String isNullAble = resultSet.getString(CommonConstant.MetaDataType.IS_NULLABLE);
-        IColumnMetaData data = getColumnMetaDataClass().newInstance();
+        ColumnMetaData data = new ColumnMetaData();
         data.setTableCatalog(tableCat);
         data.setTableSchema(tableSchema);
         data.setTableName(tableName);
@@ -245,12 +245,12 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return data;
     }
 
-    protected void close(Connection connection, ResultSet resultSet) {
+    void close(Connection connection, ResultSet resultSet) {
         close(connection);
         close(resultSet);
     }
 
-    protected void close(Connection connection) {
+    void close(Connection connection) {
         try {
             if (connection != null) {
                 connection.close();
@@ -261,7 +261,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     }
 
-    protected void close(ResultSet resultSet) {
+    void close(ResultSet resultSet) {
         try {
             if (resultSet != null) {
                 resultSet.close();
@@ -286,33 +286,5 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     protected Properties getConnectionProperties() {
         return null;
     }
-
-    /**
-     * CatalogMetaData Class
-     *
-     * @return ICatalogMetaData
-     */
-    protected abstract Class<? extends ICatalogMetaData> getCatalogMetaDataClass();
-
-    /**
-     * SchemaMetaData Class
-     *
-     * @return ISchemaMetaData
-     */
-    protected abstract Class<? extends ISchemaMetaData> getSchemaMetaDataClass();
-
-    /**
-     * TableMetaData Class
-     *
-     * @return ITableMetaData
-     */
-    protected abstract Class<? extends ITableMetaData> getTableMetaDataClass();
-
-    /**
-     * ColumnMetaData Class
-     *
-     * @return IColumnMetaData
-     */
-    protected abstract Class<? extends IColumnMetaData> getColumnMetaDataClass();
 
 }

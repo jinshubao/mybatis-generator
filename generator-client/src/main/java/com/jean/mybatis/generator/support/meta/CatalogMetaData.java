@@ -1,19 +1,33 @@
 package com.jean.mybatis.generator.support.meta;
 
+import com.jean.mybatis.generator.support.common.Selectable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
+ * Catalog信息
+ *
  * @author jinshubao
  */
-public abstract class AbstractCatalogMetaData implements ICatalogMetaData {
+public class CatalogMetaData implements Selectable {
 
-    protected StringProperty tableCatalog = new SimpleStringProperty();
+    private StringProperty tableCatalog = new SimpleStringProperty();
 
-    protected BooleanProperty selected = new SimpleBooleanProperty();
+    private BooleanProperty selected = new SimpleBooleanProperty();
 
+    public String getTableCatalog() {
+        return tableCatalog.get();
+    }
+
+    public StringProperty tableCatalogProperty() {
+        return tableCatalog;
+    }
+
+    public void setTableCatalog(String tableCatalog) {
+        this.tableCatalog.set(tableCatalog);
+    }
 
     @Override
     public boolean isSelected() {
@@ -31,22 +45,7 @@ public abstract class AbstractCatalogMetaData implements ICatalogMetaData {
     }
 
     @Override
-    public String getTableCatalog() {
-        return tableCatalog.get();
-    }
-
-    @Override
-    public StringProperty tableCatalogProperty() {
-        return tableCatalog;
-    }
-
-    @Override
-    public void setTableCatalog(String tableCatalog) {
-        this.tableCatalog.set(tableCatalog);
-    }
-
-    @Override
-    public String getName() {
+    public String toString() {
         return getTableCatalog();
     }
 }

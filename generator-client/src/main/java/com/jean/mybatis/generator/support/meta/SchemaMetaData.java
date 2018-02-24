@@ -4,24 +4,28 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
+ * Schema信息
+ *
  * @author jinshubao
  */
-public abstract class AbstractSchemaMetaData extends AbstractCatalogMetaData implements ISchemaMetaData {
+public class SchemaMetaData extends CatalogMetaData {
 
-    protected StringProperty tableSchema = new SimpleStringProperty();
+    private StringProperty tableSchema = new SimpleStringProperty();
 
-    @Override
     public String getTableSchema() {
         return tableSchema.get();
     }
 
-    @Override
     public StringProperty tableSchemaProperty() {
         return tableSchema;
     }
 
-    @Override
     public void setTableSchema(String tableSchema) {
         this.tableSchema.set(tableSchema);
+    }
+
+    @Override
+    public String toString() {
+        return getTableSchema();
     }
 }
