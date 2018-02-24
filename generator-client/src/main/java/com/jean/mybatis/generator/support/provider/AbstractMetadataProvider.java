@@ -1,5 +1,6 @@
 package com.jean.mybatis.generator.support.provider;
 
+import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.constant.TableType;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.ICatalogMetaData;
@@ -18,7 +19,8 @@ import java.util.Properties;
  * @author jinshubao
  */
 public abstract class AbstractMetadataProvider implements IMetadataProvider {
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String USER = "user";
 
@@ -110,7 +112,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
                 ITableMetaData tableMetaData = getTableMetaData(rs);
                 ResultSet primaryKeys = metaData.getPrimaryKeys(connectionConfig.getTableCatalog(), connectionConfig.getTableSchema(), tableMetaData.getTableName());
                 if (primaryKeys.next()) {
-                    tableMetaData.setPrimaryKeyColumn(primaryKeys.getString("COLUMN_NAME"));
+                    tableMetaData.setPrimaryKeyColumn(primaryKeys.getString(CommonConstant.MetaDataType.COLUMN_NAME));
                     close(primaryKeys);
                 }
                 tables.add(tableMetaData);
@@ -141,7 +143,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
             primaryKeys = metaData.getPrimaryKeys(connectionConfig.getTableCatalog(), connectionConfig.getTableSchema(), tableNamePattern);
             List<String> names = new ArrayList<>();
             while (primaryKeys.next()) {
-                names.add(primaryKeys.getString("COLUMN_NAME"));
+                names.add(primaryKeys.getString(CommonConstant.MetaDataType.COLUMN_NAME));
             }
             for (IColumnMetaData column : columns) {
                 for (String name : names) {
@@ -157,7 +159,7 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     protected ICatalogMetaData getCatalogMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
-        String tableCat = resultSet.getString("TABLE_CAT");
+        String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         ICatalogMetaData catalogMetaData = getCatalogMetaDataClass().newInstance();
         catalogMetaData.setTableCatalog(tableCat);
         return catalogMetaData;
@@ -165,9 +167,9 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     protected ISchemaMetaData getSchemaMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
-        String tableCat = resultSet.getString("TABLE_CAT");
+        String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
-        String tableSchema = resultSet.getString("TABLE_SCHEM");
+        String tableSchema = resultSet.getString(CommonConstant.MetaDataType.TABLE_SCHEM);
         ISchemaMetaData schemaMetaData = getSchemaMetaDataClass().newInstance();
         schemaMetaData.setTableCatalog(tableCat);
         schemaMetaData.setTableSchema(tableSchema);
@@ -176,15 +178,15 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     protected ITableMetaData getTableMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
-        String tableCat = resultSet.getString("TABLE_CAT");
+        String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
-        String tableSchema = resultSet.getString("TABLE_SCHEM");
+        String tableSchema = resultSet.getString(CommonConstant.MetaDataType.TABLE_SCHEM);
         //表名
-        String tableName = resultSet.getString("TABLE_NAME");
+        String tableName = resultSet.getString(CommonConstant.MetaDataType.TABLE_NAME);
         //表类型,典型的类型是 "TABLE"、"VIEW"、"SYSTEM TABLE"、"GLOBAL TEMPORARY"、"LOCAL TEMPORARY"、"ALIAS" 和 "SYNONYM"。
-        String tableType = resultSet.getString("TABLE_TYPE");
+        String tableType = resultSet.getString(CommonConstant.MetaDataType.TABLE_TYPE);
         //表备注
-        String remarks = resultSet.getString("REMARKS");
+        String remarks = resultSet.getString(CommonConstant.MetaDataType.REMARKS);
         ITableMetaData data = getTableMetaDataClass().newInstance();
         data.setTableCatalog(tableCat);
         data.setTableSchema(tableSchema);
@@ -196,35 +198,35 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     protected IColumnMetaData getColumnMetaData(ResultSet resultSet) throws Exception {
         //表类别（可能为空）
-        String tableCat = resultSet.getString("TABLE_CAT");
+        String tableCat = resultSet.getString(CommonConstant.MetaDataType.TABLE_CAT);
         //表模式（可能为空）,在oracle中获取的是命名空间,其它数据库未知
-        String tableSchema = resultSet.getString("TABLE_SCHEM");
+        String tableSchema = resultSet.getString(CommonConstant.MetaDataType.TABLE_SCHEM);
         //表名
-        String tableName = resultSet.getString("TABLE_NAME");
+        String tableName = resultSet.getString(CommonConstant.MetaDataType.TABLE_NAME);
         //列名
-        String columnName = resultSet.getString("COLUMN_NAME");
+        String columnName = resultSet.getString(CommonConstant.MetaDataType.COLUMN_NAME);
         //对应的java.sql.Types的SQL类型(列类型ID)
-        int dataType = resultSet.getInt("DATA_TYPE");
+        int dataType = resultSet.getInt(CommonConstant.MetaDataType.DATA_TYPE);
         //java.sql.Types类型名称(列类型名称)
-        String dataTypeName = resultSet.getString("TYPE_NAME");
+        String dataTypeName = resultSet.getString(CommonConstant.MetaDataType.TYPE_NAME);
         //列大小
-        int columnSize = resultSet.getInt("COLUMN_SIZE");
+        int columnSize = resultSet.getInt(CommonConstant.MetaDataType.COLUMN_SIZE);
         //小数位数
-        int decimalDigits = resultSet.getInt("DECIMAL_DIGITS");
+        int decimalDigits = resultSet.getInt(CommonConstant.MetaDataType.DECIMAL_DIGITS);
         //基数（通常是10或2） --未知
-        int numPrecRadix = resultSet.getInt("NUM_PREC_RADIX");
+        int numPrecRadix = resultSet.getInt(CommonConstant.MetaDataType.NUM_PREC_RADIX);
         //是否允许为null
-        int nullAble = resultSet.getInt("NULLABLE");
+        int nullAble = resultSet.getInt(CommonConstant.MetaDataType.NULLABLE);
         //列描述
-        String remarks = resultSet.getString("REMARKS");
+        String remarks = resultSet.getString(CommonConstant.MetaDataType.REMARKS);
         //默认值
-        String columnDef = resultSet.getString("COLUMN_DEF");
+        String columnDef = resultSet.getString(CommonConstant.MetaDataType.COLUMN_DEF);
         // 对于 char 类型，该长度是列中的最大字节数
-        int charOctetLength = resultSet.getInt("CHAR_OCTET_LENGTH");
+        int charOctetLength = resultSet.getInt(CommonConstant.MetaDataType.CHAR_OCTET_LENGTH);
         /*
          * YES,NO,""
          */
-        String isNullAble = resultSet.getString("IS_NULLABLE");
+        String isNullAble = resultSet.getString(CommonConstant.MetaDataType.IS_NULLABLE);
         IColumnMetaData data = getColumnMetaDataClass().newInstance();
         data.setTableCatalog(tableCat);
         data.setTableSchema(tableSchema);
@@ -243,25 +245,34 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return data;
     }
 
-    protected void close(Connection connection, ResultSet resultSet) throws SQLException {
+    protected void close(Connection connection, ResultSet resultSet) {
         close(connection);
         close(resultSet);
     }
 
-    protected void close(Connection connection) throws SQLException {
-        if (connection != null) {
-            connection.close();
+    protected void close(Connection connection) {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
         }
+
     }
 
-    protected void close(ResultSet resultSet) throws SQLException {
-        if (resultSet != null) {
-            resultSet.close();
+    protected void close(ResultSet resultSet) {
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean testConnection() throws SQLException, ClassNotFoundException {
+    public boolean testConnection() throws Exception {
         Connection connection = null;
         try {
             connection = getConnection();
@@ -276,12 +287,32 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         return null;
     }
 
+    /**
+     * CatalogMetaData Class
+     *
+     * @return ICatalogMetaData
+     */
     protected abstract Class<? extends ICatalogMetaData> getCatalogMetaDataClass();
 
+    /**
+     * SchemaMetaData Class
+     *
+     * @return ISchemaMetaData
+     */
     protected abstract Class<? extends ISchemaMetaData> getSchemaMetaDataClass();
 
+    /**
+     * TableMetaData Class
+     *
+     * @return ITableMetaData
+     */
     protected abstract Class<? extends ITableMetaData> getTableMetaDataClass();
 
+    /**
+     * ColumnMetaData Class
+     *
+     * @return IColumnMetaData
+     */
     protected abstract Class<? extends IColumnMetaData> getColumnMetaDataClass();
 
 }

@@ -13,6 +13,8 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
+import java.util.List;
+
 /**
  * @author jinshubao
  */
@@ -44,6 +46,7 @@ public class TableCellFactory {
                 setGraphic(null);
                 setText(null);
             } else {
+                hyperlink.setVisited(false);
                 ref = getTableView().getItems().get(getTableRow().getIndex());
                 eventHandler = event -> {
                     if (callback != null){
@@ -58,14 +61,17 @@ public class TableCellFactory {
     }
 
     public static <S extends Selectable, T> Callback<TableColumn<S, T>, TableCell<S, T>> hyperlinkForTableView(String label, Callback<S, Object> callback) {
-        return param -> new TableCellFactory.HyperlinkTableCell<S, T>(label, callback);
+        return param -> new TableCellFactory.HyperlinkTableCell<>(label, callback);
     }
 
-    public static <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> comboBoxForTableColumn(boolean editable,
-            final StringConverter<T> converter,
-            T... items) {
+    public static <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> comboBoxForTableColumn(
+            final StringConverter<T> converter, List<T> items, boolean editable) {
         return list -> {
-            ComboBoxTableCell<S, T> tableCell = new ComboBoxTableCell<>(converter, FXCollections.observableArrayList(items));
+            ObservableList<T> objects = FXCollections.observableArrayList();
+            if (items != null){
+                objects.addAll(items);
+            }
+            ComboBoxTableCell<S, T> tableCell = new ComboBoxTableCell<>(converter, objects);
             tableCell.setComboBoxEditable(editable);
             return tableCell;
         };

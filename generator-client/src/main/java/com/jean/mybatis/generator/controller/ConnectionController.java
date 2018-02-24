@@ -6,12 +6,12 @@ import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
+import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.mybatis.generator.api.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -24,6 +24,11 @@ import java.util.ResourceBundle;
  */
 @Controller
 public class ConnectionController extends BaseController {
+
+    private static final String DEFAULT_HOST = "10.52.2.110";
+    private static final Integer DEFAULT_PORT = 3307;
+    private static final String DEFAULT_USER = "dev_sy8";
+    private static final String DEFAULT_PASSWORD = "w2kFS02fD8";
 
     @FXML
     private ComboBox<DatabaseType> dataBaseType;
@@ -42,8 +47,6 @@ public class ConnectionController extends BaseController {
     @FXML
     private Button testConnection;
 
-    private IMetadataProvider metadataProvider;
-
     @Autowired
     private IMetaDataProviderManager providerManager;
 
@@ -58,7 +61,12 @@ public class ConnectionController extends BaseController {
                 this.properties.setPromptText(null);
             }
         });
-        this.dataBaseType.getItems().addAll(DatabaseType.values());
+        this.host.setText(DEFAULT_HOST);
+        this.port.setText(DEFAULT_PORT.toString());
+        this.user.setText(DEFAULT_USER);
+        this.password.setText(DEFAULT_PASSWORD);
+        //其他数据库暂时不支持
+        this.dataBaseType.getItems().addAll(DatabaseType.MySql);
         this.dataBaseType.getSelectionModel().selectFirst();
         this.encoding.getItems().addAll(EncodingEnum.values());
         this.encoding.getSelectionModel().selectFirst();
@@ -69,22 +77,35 @@ public class ConnectionController extends BaseController {
                 IMetadataProvider provider = providerManager.getMetaDataProvider(config.getType());
                 provider.setConnectionConfig(config);
                 if (provider.testConnection()) {
-                    DialogUtil.information("连接成功", null, "连接成功");
+                    String success = resources.getString("test.connection.success");
+                    DialogUtil.information(success, null, success);
                 } else {
-                    DialogUtil.information("连接失败", null, "连接失败");
+                    String failed = resources.getString("test.connection.failed");
+                    DialogUtil.information(failed, null, failed);
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                DialogUtil.exceptionDialog(e);
+                showException(resources, e);
             }
         });
     }
 
     public ConnectionConfig getConnectionConfig() {
+        String host = DEFAULT_HOST;
+        int port = DEFAULT_PORT;
+        if (StringUtil.isNotBlank(this.host.getText())) {
+            host = this.host.getText();
+        }
+        if (StringUtil.isNotBlank(this.port.getText())) {
+            try {
+                port = Integer.parseInt(this.port.getText());
+            } catch (NumberFormatException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
         return new ConnectionConfig(
                 this.dataBaseType.getValue(),
-                this.host.getText(),
-                Integer.parseInt(this.port.getText()),
+                host,
+                port,
                 this.user.getText(),
                 this.password.getText(),
                 null,

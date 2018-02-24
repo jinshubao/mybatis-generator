@@ -2,6 +2,9 @@ apply plugin: 'application'
 
 //插件地址 https://github.com/FibreFoX/javafx-gradle-plugin
 apply plugin: 'javafx-gradle-plugin'
+
+mainClassName = "com.jean.mybatis.generator.MainApplication"
+
 buildscript {
     dependencies {
         classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
@@ -21,9 +24,8 @@ dependencies {
 
 }
 
-
 jfx {
-    mainClass = 'com.jean.mybatis.generator.MainApplication'
+    mainClass = mainClassName
 //    jfxMainAppJarName = project.name + ".jar"
     preLoader = 'com.jean.preloader.support.PreloaderSupport' // String
     vendor = 'jinshubao'

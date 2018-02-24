@@ -1,22 +1,24 @@
 package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.support.common.Selectable;
+import com.jean.mybatis.generator.utils.DialogUtil;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ResourceBundle;
+
 
 /**
- *
  * @author jinshubao
  * @date 2017/4/8
  */
-public abstract class BaseController implements Initializable {
+abstract class BaseController implements Initializable {
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected void selectAll(ObservableList<? extends Selectable> items) {
+    void selectAll(ObservableList<? extends Selectable> items) {
         if (!items.isEmpty()) {
             boolean selectedAll = true;
             for (Selectable item : items) {
@@ -31,12 +33,18 @@ public abstract class BaseController implements Initializable {
         }
     }
 
-    protected void reverseSelect(ObservableList<? extends Selectable> items) {
+    void reverseSelect(ObservableList<? extends Selectable> items) {
         if (!items.isEmpty()) {
             for (Selectable item : items) {
                 item.setSelected(!item.isSelected());
             }
         }
+    }
+
+
+    void showException(ResourceBundle resources, Throwable e) {
+        logger.error(e.getMessage(), e);
+        DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
     }
 
 }

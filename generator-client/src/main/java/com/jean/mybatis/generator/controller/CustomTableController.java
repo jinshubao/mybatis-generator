@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -45,18 +46,18 @@ public class CustomTableController extends BaseController {
         int columnIndex = 0;
         ObservableList<TableColumn<IColumnMetaData, ?>> tableColumns = this.columnTableView.getColumns();
 
-        TableColumn<IColumnMetaData, Boolean> column0 = (TableColumn<IColumnMetaData, Boolean>) tableColumns.get(columnIndex++);
-        column0.setText(resources.getString("select.text"));
-        column0.setCellFactory(CheckBoxTableCell.forTableColumn(column0));
-        column0.setCellValueFactory(param -> param.getValue().selectedProperty());
+        TableColumn<IColumnMetaData, Boolean> selectColumn = (TableColumn<IColumnMetaData, Boolean>) tableColumns.get(columnIndex++);
+        selectColumn.setText(resources.getString("select.text"));
+        selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
+        selectColumn.setCellValueFactory(param -> param.getValue().selectedProperty());
 
-        TableColumn<IColumnMetaData, String> column1 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column1.setText(resources.getString("column.name.text"));
-        column1.setCellValueFactory(param -> param.getValue().columnNameProperty());
+        TableColumn<IColumnMetaData, String> nameColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        nameColumn.setText(resources.getString("column.name.text"));
+        nameColumn.setCellValueFactory(param -> param.getValue().columnNameProperty());
 
-        TableColumn<IColumnMetaData, String> column2 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column2.setText(resources.getString("jdbcType.text"));
-        column2.setCellValueFactory(param -> param.getValue().dataTypeNameProperty());
+        TableColumn<IColumnMetaData, String> jdbcTypeColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        jdbcTypeColumn.setText(resources.getString("jdbcType.text"));
+        jdbcTypeColumn.setCellValueFactory(param -> param.getValue().dataTypeNameProperty());
 
         StringConverter<String> converter = new StringConverter<String>() {
 
@@ -71,30 +72,29 @@ public class CustomTableController extends BaseController {
             }
         };
 
-        TableColumn<IColumnMetaData, String> column3 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column3.setText(resources.getString("javaType.text"));
-        column3.setCellFactory(TableCellFactory.comboBoxForTableColumn(true,
-                converter,
-                CommonConstant.JavaType.AUTO,
-                CommonConstant.JavaType.STRING,
-                CommonConstant.JavaType.INTEGER,
-                CommonConstant.JavaType.LONG,
-                CommonConstant.JavaType.BIGDECIMAL,
-                CommonConstant.JavaType.DOUBLE,
-                CommonConstant.JavaType.FLOAT,
-                CommonConstant.JavaType.BOOLEAN,
-                CommonConstant.JavaType.SHORT,
-                CommonConstant.JavaType.BYTE));
-        column3.setCellValueFactory(param -> param.getValue().javaTypeProperty());
+        TableColumn<IColumnMetaData, String> javaTypeColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        javaTypeColumn.setText(resources.getString("javaType.text"));
+        javaTypeColumn.setCellFactory(TableCellFactory.comboBoxForTableColumn(converter,
+                Arrays.asList(CommonConstant.JavaType.AUTO,
+                        CommonConstant.JavaType.STRING,
+                        CommonConstant.JavaType.INTEGER,
+                        CommonConstant.JavaType.LONG,
+                        CommonConstant.JavaType.BIG_DECIMAL,
+                        CommonConstant.JavaType.DOUBLE,
+                        CommonConstant.JavaType.FLOAT,
+                        CommonConstant.JavaType.BOOLEAN,
+                        CommonConstant.JavaType.SHORT,
+                        CommonConstant.JavaType.BYTE), true));
+        javaTypeColumn.setCellValueFactory(param -> param.getValue().javaTypeProperty());
 
-        TableColumn<IColumnMetaData, String> column4 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
-        column4.setText(resources.getString("javaProperty.text"));
-        column4.setCellFactory(TextFieldTableCell.forTableColumn(converter));
-        column4.setCellValueFactory(param -> param.getValue().javaPropertyProperty());
+        TableColumn<IColumnMetaData, String> javaPropertyColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex++);
+        javaPropertyColumn.setText(resources.getString("javaProperty.text"));
+        javaPropertyColumn.setCellFactory(TextFieldTableCell.forTableColumn(converter));
+        javaPropertyColumn.setCellValueFactory(param -> param.getValue().javaPropertyProperty());
 
-        TableColumn<IColumnMetaData, String> column5 = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex);
-        column5.setText(resources.getString("remarks.text"));
-        column5.setCellValueFactory(param -> param.getValue().remarksProperty());
+        TableColumn<IColumnMetaData, String> remarksColumn = (TableColumn<IColumnMetaData, String>) tableColumns.get(columnIndex);
+        remarksColumn.setText(resources.getString("remarks.text"));
+        remarksColumn.setCellValueFactory(param -> param.getValue().remarksProperty());
 
     }
 

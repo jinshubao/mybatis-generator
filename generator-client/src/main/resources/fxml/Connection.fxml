@@ -9,7 +9,10 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.ConnectionController">
+<GridPane prefWidth="400.0"
+          xmlns="http://javafx.com/javafx/8.0.151"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.jean.mybatis.generator.controller.ConnectionController">
     <columnConstraints>
         <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" percentWidth="25.0" />
         <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" percentWidth="75.0" />

@@ -68,7 +68,14 @@
             <items>
                 <VBox alignment="TOP_CENTER">
                     <children>
-                      <ComboBox fx:id="tableCatalog" maxWidth="1.7976931348623157E308" />
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Label text="CATALOG" />
+                            <ComboBox fx:id="tableCatalog" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <Label text="SCHEMA" />
+                        <ComboBox fx:id="tableSchema" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
                       <TableView fx:id="tables" editable="true" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" resizable="false" text="选择" />

@@ -6,10 +6,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Created by jinshubao on 2017/4/16.
+ *
+ * @author jinshubao
+ * @date 2017/4/16
  */
 @Controller
 public class ConfigurationController extends BaseController {
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
