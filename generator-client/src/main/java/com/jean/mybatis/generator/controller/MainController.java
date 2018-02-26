@@ -274,65 +274,13 @@ public class MainController extends BaseController {
 
         TableColumn<TableMetaData, String> customColumn = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex);
         customColumn.setText(resources.getString("custom.text"));
-        customColumn.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"), param -> {
-            taskFactory.getColumns(param.getTableName(),
-                    columns -> {
-                        for (ColumnMetaData columnMetaData : columns) {
-                            columnMetaData.setSelected(true);
-                            columnMetaData.setJavaType("");
-                            columnMetaData.setJavaType("");
-                            for (ColumnOverride override : param.getColumnOverrides()) {
-                                if (override.getColumnName().equals(columnMetaData.getColumnName())) {
-                                    columnMetaData.setJavaType(override.getJavaType());
-                                    columnMetaData.setJavaProperty(override.getJavaProperty());
-                                }
-                            }
-                            for (IgnoredColumn ignoredColumn : param.getIgnoredColumns()) {
-                                if (ignoredColumn.getColumnName().equals(columnMetaData.getColumnName())) {
-                                    columnMetaData.setSelected(false);
-                                }
-                            }
-                        }
-                        customTableController.initColumns(columns);
-                        DialogUtil.customizeDialog(resources.getString("customHtperlink.text"),
-                                resources.getString("dialog.customTable.header"),
-                                CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
-                                buttonType -> {
-                                    if (buttonType == ButtonType.OK) {
-                                        return customTableController.getColumns();
-                                    }
-                                    return null;
-                                })
-                                .ifPresent(value -> {
-                                    param.getColumnOverrides().clear();
-                                    param.getIgnoredColumns().clear();
-                                    for (ColumnMetaData metaData : value) {
-                                        if (metaData.isSelected()) {
-                                            boolean hasValue = false;
-                                            ColumnOverride override = new ColumnOverride(metaData.getColumnName());
-                                            if (StringUtil.isNotBlank(metaData.getJavaType())
-                                                    && !CommonConstant.DEFAULT.equals(metaData.getJavaType())) {
-                                                override.setJavaType(metaData.getJavaType());
-                                                hasValue = true;
-                                            }
-                                            if (StringUtil.isNotBlank(metaData.getJavaProperty()) &&
-                                                    !CommonConstant.DEFAULT.equals(metaData.getJavaProperty())) {
-                                                override.setJavaProperty(metaData.getJavaProperty());
-                                                hasValue = true;
-                                            }
-                                            if (hasValue) {
-                                                param.getColumnOverrides().add(override);
-                                            }
-                                        } else {
-                                            IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
-                                            param.getIgnoredColumns().add(column);
-                                        }
-                                    }
-                                });
-                    },
-                    ex -> showExceptionDialog(resources, ex));
-            return null;
-        }));
+        customColumn.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"),
+                param -> {
+                    taskFactory.getColumns(param.getTableName(),
+                            columns -> customColumns(param, columns),
+                            ex -> showExceptionDialog(resources, ex));
+                    return null;
+                }));
 
         this.selectAll.setText(resources.getString("selectAll.text"));
         this.selectAll.setOnAction(event -> selectAll(this.tables.getItems()));
@@ -471,6 +419,61 @@ public class MainController extends BaseController {
 
         this.message.textProperty().bind(this.generatorService.messageProperty());
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
+    }
+
+    private void customColumns(TableMetaData param, List<ColumnMetaData> columns) {
+        for (ColumnMetaData columnMetaData : columns) {
+            columnMetaData.setSelected(true);
+            columnMetaData.setJavaType("");
+            columnMetaData.setJavaType("");
+            for (ColumnOverride override : param.getColumnOverrides()) {
+                if (override.getColumnName().equals(columnMetaData.getColumnName())) {
+                    columnMetaData.setJavaType(override.getJavaType());
+                    columnMetaData.setJavaProperty(override.getJavaProperty());
+                }
+            }
+            for (IgnoredColumn ignoredColumn : param.getIgnoredColumns()) {
+                if (ignoredColumn.getColumnName().equals(columnMetaData.getColumnName())) {
+                    columnMetaData.setSelected(false);
+                }
+            }
+        }
+        customTableController.initColumns(columns);
+        DialogUtil.customizeDialog(resources.getString("customHtperlink.text"),
+                resources.getString("dialog.customTable.header"),
+                CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
+                buttonType -> {
+                    if (buttonType == ButtonType.OK) {
+                        return customTableController.getColumns();
+                    }
+                    return null;
+                })
+                .ifPresent(value -> {
+                    param.getColumnOverrides().clear();
+                    param.getIgnoredColumns().clear();
+                    for (ColumnMetaData metaData : value) {
+                        if (metaData.isSelected()) {
+                            boolean hasValue = false;
+                            ColumnOverride override = new ColumnOverride(metaData.getColumnName());
+                            if (StringUtil.isNotBlank(metaData.getJavaType())
+                                    && !CommonConstant.DEFAULT.equals(metaData.getJavaType())) {
+                                override.setJavaType(metaData.getJavaType());
+                                hasValue = true;
+                            }
+                            if (StringUtil.isNotBlank(metaData.getJavaProperty()) &&
+                                    !CommonConstant.DEFAULT.equals(metaData.getJavaProperty())) {
+                                override.setJavaProperty(metaData.getJavaProperty());
+                                hasValue = true;
+                            }
+                            if (hasValue) {
+                                param.getColumnOverrides().add(override);
+                            }
+                        } else {
+                            IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
+                            param.getIgnoredColumns().add(column);
+                        }
+                    }
+                });
     }
 
     private void refreshTableCatalog() {
