@@ -2,6 +2,8 @@ package com.jean.mybatis.generator.config;
 
 
 import com.jean.mybatis.generator.core.GeneratorService;
+import com.jean.mybatis.generator.factory.DefaultTaskFactory;
+import com.jean.mybatis.generator.factory.ITaskFactory;
 import com.jean.mybatis.generator.support.provider.DefaultMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
@@ -39,6 +41,11 @@ public class Config {
         return new ThreadPoolExecutor(2, 5, 600, TimeUnit.SECONDS,
                 new SynchronousQueue<>(),
                 new DefaultManagedAwareThreadFactory());
+    }
+
+    @Bean
+    ITaskFactory taskFactory(@Qualifier("generate-executor") Executor executor,IMetaDataProviderManager providerManager){
+        return new DefaultTaskFactory(executor, providerManager);
     }
 
 }

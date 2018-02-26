@@ -2,6 +2,7 @@ package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.constant.*;
 import com.jean.mybatis.generator.core.GeneratorService;
+import com.jean.mybatis.generator.factory.ITaskFactory;
 import com.jean.mybatis.generator.factory.TableCellFactory;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
@@ -17,7 +18,6 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -34,7 +34,6 @@ import org.mybatis.generator.plugins.EqualsHashCodePlugin;
 import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 
 import java.io.BufferedOutputStream;
@@ -45,7 +44,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executor;
 
 /**
  * @author jinshubao
@@ -180,10 +178,8 @@ public class MainController extends BaseController {
 
     //私有变量
 
-    private ObjectProperty<IMetadataProvider> metadataProvider = new SimpleObjectProperty<>(this, "metadataProvider");
-
     private final FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("XML", "*.xml");
-
+    private final ObjectProperty<ConnectionConfig> connectionConfigProperty = new SimpleObjectProperty<>(this, "connectionConfigProperty");
     @Autowired
     private ConnectionController connectionController;
 
@@ -197,13 +193,14 @@ public class MainController extends BaseController {
     private IMetaDataProviderManager providerManager;
 
     @Autowired
-    @Qualifier("generate-executor")
-    private Executor executor;
+    private ITaskFactory taskFactory;
+
+    private ResourceBundle resources;
 
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
-
+        this.resources = resources;
         this.newConnectionMenuItem.setOnAction(event ->
                 DialogUtil.customizeDialog(resources.getString("dialog.newConnection.title"),
                         null,
@@ -214,14 +211,9 @@ public class MainController extends BaseController {
                             }
                             return null;
                         }).ifPresent(config -> {
-                    try {
-                        IMetadataProvider provider = this.providerManager.getMetaDataProvider(config.getType());
-                        provider.setConnectionConfig(config);
-                        this.metadataProvider.set(provider);
-                        refreshTableCatalog(provider);
-                    } catch (Exception e) {
-                        showExceptionDialog(resources, e);
-                    }
+
+                    connectionConfigProperty.set(config);
+                    refreshTableCatalog();
                 }));
 
         this.exitMenuItem.setOnAction(event -> System.exit(0));
@@ -239,14 +231,16 @@ public class MainController extends BaseController {
             //
         });
 
+        this.aboutMenuItem.setOnAction(event -> {
+        });
+
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                IMetadataProvider provider = this.metadataProvider.getValue();
-                ConnectionConfig config = provider.getConnectionConfig();
+                ConnectionConfig config = connectionConfigProperty.get();
                 config.setTableCatalog(newValue == null ? null : newValue.getTableCatalog());
                 config.setTableSchema(null);
-                refreshTableSchema(provider);
-                refreshTableItem(provider);
+                refreshTableSchema();
+                refreshTableItem();
             } catch (Exception e) {
                 showExceptionDialog(resources, e);
             }
@@ -254,10 +248,9 @@ public class MainController extends BaseController {
 
         this.tableSchema.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                IMetadataProvider provider = this.metadataProvider.getValue();
-                ConnectionConfig config = provider.getConnectionConfig();
+                ConnectionConfig config = connectionConfigProperty.get();
                 config.setTableSchema(newValue == null ? null : newValue.getTableSchema());
-                refreshTableItem(provider);
+                refreshTableItem();
             } catch (Exception e) {
                 showExceptionDialog(resources, e);
             }
@@ -266,81 +259,78 @@ public class MainController extends BaseController {
         int columnIndex = 0;
         ObservableList<TableColumn<TableMetaData, ?>> tableColumns = tables.getColumns();
 
+        TableColumn<TableMetaData, Boolean> selectColumn = (TableColumn<TableMetaData, Boolean>) tableColumns.get(columnIndex++);
+        selectColumn.setText(resources.getString("select.text"));
+        selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
+        selectColumn.setCellValueFactory(param -> param.getValue().selectedProperty());
 
-        TableColumn<TableMetaData, Boolean> column0 = (TableColumn<TableMetaData, Boolean>) tableColumns.get(columnIndex++);
-        column0.setText(resources.getString("select.text"));
-        column0.setCellFactory(CheckBoxTableCell.forTableColumn(column0));
-        column0.setCellValueFactory(param -> param.getValue().selectedProperty());
+        TableColumn<TableMetaData, String> tableNameColumn = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex++);
+        tableNameColumn.setText(resources.getString("tableName.text"));
+        tableNameColumn.setCellValueFactory(param -> param.getValue().tableNameProperty());
 
-        TableColumn<TableMetaData, String> column1 = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex++);
-        column1.setText(resources.getString("tableName.text"));
-        column1.setCellValueFactory(param -> param.getValue().tableNameProperty());
+        TableColumn<TableMetaData, String> remarksColumn = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex++);
+        remarksColumn.setText(resources.getString("remarks.text"));
+        remarksColumn.setCellValueFactory(param -> param.getValue().remarksProperty());
 
-        TableColumn<TableMetaData, String> column2 = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex++);
-        column2.setText(resources.getString("remarks.text"));
-        column2.setCellValueFactory(param -> param.getValue().remarksProperty());
-
-        TableColumn<TableMetaData, String> column3 = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex);
-        column3.setText(resources.getString("custom.text"));
-        column3.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"), param -> {
-            try {
-                IMetadataProvider provider = this.metadataProvider.getValue();
-                List<ColumnMetaData> columns = provider.getColumns(param.getTableName());
-                for (ColumnMetaData columnMetaData : columns) {
-                    columnMetaData.setSelected(true);
-                    columnMetaData.setJavaType("");
-                    columnMetaData.setJavaType("");
-                    for (ColumnOverride override : param.getColumnOverrides()) {
-                        if (override.getColumnName().equals(columnMetaData.getColumnName())) {
-                            columnMetaData.setJavaType(override.getJavaType());
-                            columnMetaData.setJavaProperty(override.getJavaProperty());
-                        }
-                    }
-                    for (IgnoredColumn ignoredColumn : param.getIgnoredColumns()) {
-                        if (ignoredColumn.getColumnName().equals(columnMetaData.getColumnName())) {
-                            columnMetaData.setSelected(false);
-                        }
-                    }
-                }
-                customTableController.initColumns(columns);
-                DialogUtil.customizeDialog(resources.getString("customHtperlink.text"),
-                        resources.getString("dialog.customTable.header"),
-                        CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
-                        buttonType -> {
-                            if (buttonType == ButtonType.OK) {
-                                return customTableController.getColumns();
-                            }
-                            return null;
-                        })
-                        .ifPresent(value -> {
-                            param.getColumnOverrides().clear();
-                            param.getIgnoredColumns().clear();
-                            for (ColumnMetaData metaData : value) {
-                                if (metaData.isSelected()) {
-                                    boolean hasValue = false;
-                                    ColumnOverride override = new ColumnOverride(metaData.getColumnName());
-                                    if (StringUtil.isNotBlank(metaData.getJavaType())
-                                            && !CommonConstant.DEFAULT.equals(metaData.getJavaType())) {
-                                        override.setJavaType(metaData.getJavaType());
-                                        hasValue = true;
-                                    }
-                                    if (StringUtil.isNotBlank(metaData.getJavaProperty()) &&
-                                            !CommonConstant.DEFAULT.equals(metaData.getJavaProperty())) {
-                                        override.setJavaProperty(metaData.getJavaProperty());
-                                        hasValue = true;
-                                    }
-                                    if (hasValue) {
-                                        param.getColumnOverrides().add(override);
-                                    }
-                                } else {
-                                    IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
-                                    param.getIgnoredColumns().add(column);
+        TableColumn<TableMetaData, String> customColumn = (TableColumn<TableMetaData, String>) tableColumns.get(columnIndex);
+        customColumn.setText(resources.getString("custom.text"));
+        customColumn.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"), param -> {
+            taskFactory.getColumns(param.getTableName(),
+                    columns -> {
+                        for (ColumnMetaData columnMetaData : columns) {
+                            columnMetaData.setSelected(true);
+                            columnMetaData.setJavaType("");
+                            columnMetaData.setJavaType("");
+                            for (ColumnOverride override : param.getColumnOverrides()) {
+                                if (override.getColumnName().equals(columnMetaData.getColumnName())) {
+                                    columnMetaData.setJavaType(override.getJavaType());
+                                    columnMetaData.setJavaProperty(override.getJavaProperty());
                                 }
                             }
-                        });
-            } catch (Exception e) {
-                showExceptionDialog(resources, e);
-            }
+                            for (IgnoredColumn ignoredColumn : param.getIgnoredColumns()) {
+                                if (ignoredColumn.getColumnName().equals(columnMetaData.getColumnName())) {
+                                    columnMetaData.setSelected(false);
+                                }
+                            }
+                        }
+                        customTableController.initColumns(columns);
+                        DialogUtil.customizeDialog(resources.getString("customHtperlink.text"),
+                                resources.getString("dialog.customTable.header"),
+                                CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
+                                buttonType -> {
+                                    if (buttonType == ButtonType.OK) {
+                                        return customTableController.getColumns();
+                                    }
+                                    return null;
+                                })
+                                .ifPresent(value -> {
+                                    param.getColumnOverrides().clear();
+                                    param.getIgnoredColumns().clear();
+                                    for (ColumnMetaData metaData : value) {
+                                        if (metaData.isSelected()) {
+                                            boolean hasValue = false;
+                                            ColumnOverride override = new ColumnOverride(metaData.getColumnName());
+                                            if (StringUtil.isNotBlank(metaData.getJavaType())
+                                                    && !CommonConstant.DEFAULT.equals(metaData.getJavaType())) {
+                                                override.setJavaType(metaData.getJavaType());
+                                                hasValue = true;
+                                            }
+                                            if (StringUtil.isNotBlank(metaData.getJavaProperty()) &&
+                                                    !CommonConstant.DEFAULT.equals(metaData.getJavaProperty())) {
+                                                override.setJavaProperty(metaData.getJavaProperty());
+                                                hasValue = true;
+                                            }
+                                            if (hasValue) {
+                                                param.getColumnOverrides().add(override);
+                                            }
+                                        } else {
+                                            IgnoredColumn column = new IgnoredColumn(metaData.getColumnName());
+                                            param.getIgnoredColumns().add(column);
+                                        }
+                                    }
+                                });
+                    },
+                    ex -> showExceptionDialog(resources, ex));
             return null;
         }));
 
@@ -379,13 +369,15 @@ public class MainController extends BaseController {
         this.useEqualsHashCodePlugin.setSelected(false);
         this.useToStringPlugin.setSelected(false);
 
-        metadataProvider.addListener((observable, oldValue, newValue) -> {
+        this.connectionConfigProperty.addListener((observable, oldValue, newValue) -> {
+            this.beginningDelimiter.setText(null);
+            this.endDelimiter.setText(null);
             if (newValue != null) {
-                this.beginningDelimiter.setText(newValue.getBeginningDelimiter());
-                this.endDelimiter.setText(newValue.getEndDelimiter());
-            } else {
-                this.beginningDelimiter.setText(null);
-                this.endDelimiter.setText(null);
+                IMetadataProvider provider = providerManager.getMetaDataProvider(newValue.getType());
+                if (provider != null) {
+                    this.beginningDelimiter.setText(provider.getBeginningDelimiter());
+                    this.endDelimiter.setText(provider.getEndDelimiter());
+                }
             }
         });
 
@@ -455,7 +447,7 @@ public class MainController extends BaseController {
 
         //生成代码
         this.generate.disableProperty().bind(
-                this.metadataProvider.isNull()
+                this.connectionConfigProperty.isNull()
                         .or(this.generatorService.runningProperty())
                         .or(this.projectDir.textProperty().isEmpty())
                         .or(this.modelPackage.textProperty().isEmpty())
@@ -466,7 +458,7 @@ public class MainController extends BaseController {
                         new DefaultShellCallback(overwrite.isSelected())));
 
         //保存配置
-        this.saveConfig.disableProperty().bind(metadataProvider.isNull());
+        this.saveConfig.disableProperty().bind(connectionConfigProperty.isNull());
         this.saveConfig.setOnAction((ActionEvent event) -> {
             try {
                 saveConfiguration(resources, event);
@@ -481,23 +473,27 @@ public class MainController extends BaseController {
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
     }
 
-    private void refreshTableCatalog(IMetadataProvider provider) throws Exception {
+    private void refreshTableCatalog() {
         this.tableCatalog.getSelectionModel().clearSelection();
         this.tableCatalog.getItems().clear();
-        this.tableCatalog.getItems().addAll(provider.getCatalogs());
+        taskFactory.setConnectionConfig(connectionConfigProperty.get());
+        taskFactory.getCatalogs(value -> tableCatalog.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
+
     }
 
-    private void refreshTableSchema(IMetadataProvider provider) throws Exception {
+    private void refreshTableSchema() {
         this.tableSchema.getSelectionModel().clearSelection();
         this.tableSchema.getItems().clear();
-        this.tableSchema.getItems().addAll(provider.getSchemas());
+        taskFactory.setConnectionConfig(connectionConfigProperty.get());
+        taskFactory.getSchemas(value -> tableSchema.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
     }
 
 
-    private void refreshTableItem(IMetadataProvider provider) throws Exception {
+    private void refreshTableItem() {
         this.tables.getSelectionModel().clearSelection();
         this.tables.getItems().clear();
-        this.tables.getItems().addAll(provider.getTables());
+        taskFactory.setConnectionConfig(connectionConfigProperty.get());
+        taskFactory.getTables(value -> tables.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
     }
 
     /**
@@ -573,7 +569,7 @@ public class MainController extends BaseController {
 
     private Context createDefaultContext() {
 
-        IMetadataProvider provider = this.metadataProvider.getValue();
+        IMetadataProvider provider = providerManager.getMetaDataProvider(connectionConfigProperty.get().getType());
 
         //---------上下文环境----------
         Context context = new Context(this.defaultModelType.getValue());

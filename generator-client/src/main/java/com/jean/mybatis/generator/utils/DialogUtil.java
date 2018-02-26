@@ -197,7 +197,6 @@ public class DialogUtil {
         ObservableList<ButtonType> buttonTypes = dialog.getDialogPane().getButtonTypes();
         buttonTypes.add(ButtonType.CANCEL);
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue.name());
             switch (newValue) {
                 case READY:
                 case RUNNING:
