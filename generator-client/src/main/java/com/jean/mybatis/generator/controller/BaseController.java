@@ -42,9 +42,9 @@ abstract class BaseController implements Initializable {
     }
 
 
-    void showException(ResourceBundle resources, Throwable e) {
+    void showExceptionDialog(ResourceBundle resources, Throwable e) {
         logger.error(e.getMessage(), e);
-        DialogUtil.exceptionDialog(resources.getString("dialog.exception.title"), e);
+        DialogUtil.error(resources.getString("dialog.exception.title"), e);
     }
 
 }

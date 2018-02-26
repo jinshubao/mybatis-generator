@@ -1,18 +1,20 @@
 package com.jean.mybatis.generator.utils;
 
 import com.jean.mybatis.generator.constant.CommonConstant;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 /**
  * 弹框工具类
@@ -30,64 +32,33 @@ public class DialogUtil {
         return alert(Alert.AlertType.CONFIRMATION, title, headerText, contentText, ButtonType.CANCEL, ButtonType.OK);
     }
 
-    public static Optional<ButtonType> error(String title, String headerText, String contentText) {
-        return alert(Alert.AlertType.ERROR, title, headerText, contentText, ButtonType.OK);
-    }
-
     public static Optional<ButtonType> information(String title, String headerText, String text) {
         return alert(Alert.AlertType.INFORMATION, title, headerText, text, ButtonType.CLOSE);
     }
 
-    public static Image getLogImage() {
-        return new Image(DialogUtil.class.getResourceAsStream(CommonConstant.LOGO_IMAGE));
+    public static void error(String title, Throwable ex) {
+        error(title, null, ex.getMessage(), ex, ButtonType.CLOSE);
     }
 
-
-    public static Optional<ButtonType> alert(Alert.AlertType alertType, String title, String headerText, String contentText, ButtonType... buttonTypes) {
-        Alert alert = new Alert(alertType, contentText, buttonTypes);
-        alert.setTitle(title);
-        alert.setHeaderText(headerText);
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(getLogImage());
-        return alert.showAndWait();
+    public static void error(String title, String headerText, Throwable ex) {
+        error(title, headerText, ex.getMessage(), ex, ButtonType.CLOSE);
     }
 
-    public static void exceptionDialog(String title, String headerText, Throwable ex) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(headerText);
-        alert.setContentText(ex.getMessage());
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(getLogImage());
-        StringWriter sw = new StringWriter();
-        ex.printStackTrace(new PrintWriter(sw));
-        String exceptionText = sw.toString();
-        TextArea textArea = new TextArea(exceptionText);
-        textArea.setEditable(false);
-        textArea.setWrapText(true);
-        textArea.setMaxWidth(Double.MAX_VALUE);
-        textArea.setMaxHeight(Double.MAX_VALUE);
-        alert.getDialogPane().setExpandableContent(textArea);
-        alert.showAndWait();
-    }
 
     /**
-     * 通用对话框
+     * 自定义对话框
      *
      * @param title
      * @param headerText
-     * @param contentText
-     * @param buttonTypes
+     * @param node
+     * @param resultConverter
+     * @return
      */
-    public static Optional<ButtonType> dialog(String title, String headerText, String contentText, ButtonType... buttonTypes) {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle(title);
-        dialog.setHeaderText(headerText);
-        dialog.setContentText(contentText);
-        dialog.getDialogPane().getButtonTypes().addAll(buttonTypes);
-        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(getLogImage());
-        return dialog.showAndWait();
+    public static <T> Optional<T> customizeDialog(String title,
+                                                  String headerText,
+                                                  Node node,
+                                                  Callback<ButtonType, T> resultConverter) {
+        return customizeDialog(title, headerText, null, node, resultConverter, null, ButtonType.OK, ButtonType.CANCEL);
     }
 
     /**
@@ -99,8 +70,43 @@ public class DialogUtil {
      * @param resultConverter
      * @return
      */
-    public static <T> Optional<T> customizeDialog(String title, String headerText, Node node, Callback<ButtonType, T> resultConverter) {
-        return customizeDialog(title, headerText, node, resultConverter, ButtonType.OK, ButtonType.CANCEL);
+    public static <T> Optional<T> customizeDialog(String title,
+                                                  String headerText,
+                                                  String contentText,
+                                                  Node node,
+                                                  Callback<ButtonType, T> resultConverter) {
+        return customizeDialog(title, headerText, contentText, node, resultConverter, null, ButtonType.OK, ButtonType.CANCEL);
+    }
+
+
+    private static Optional<ButtonType> alert(Alert.AlertType alertType, String title, String headerText, String contentText, ButtonType... buttonTypes) {
+        Alert alert = new Alert(alertType, contentText, buttonTypes);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(getLogImage());
+        return alert.showAndWait();
+    }
+
+
+    private static void error(String title, String headerText, String contentText, Throwable ex, ButtonType... buttonTypes) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, contentText, buttonTypes);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(getLogImage());
+        if (ex != null) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionText = sw.toString();
+            TextArea textArea = new TextArea(exceptionText);
+            textArea.setEditable(false);
+            textArea.setWrapText(true);
+            textArea.setMaxWidth(Double.MAX_VALUE);
+            textArea.setMaxHeight(Double.MAX_VALUE);
+            alert.getDialogPane().setExpandableContent(textArea);
+        }
+        alert.showAndWait();
     }
 
     /**
@@ -114,12 +120,40 @@ public class DialogUtil {
      * @param <T>
      * @return
      */
-    public static <T> Optional<T> customizeDialog(String title, String headerText, Node node,
-                                                  Callback<ButtonType, T> resultConverter,
-                                                  ButtonType... buttonTypes) {
+    private static <T> Optional<T> customizeDialog(String title,
+                                                   String headerText,
+                                                   String contentText,
+                                                   Node node,
+                                                   Callback<ButtonType, T> resultConverter,
+                                                   EventHandler<DialogEvent> eventHandler,
+                                                   ButtonType... buttonTypes) {
+        return createCustomizeDialog(title, headerText, contentText, node, resultConverter, eventHandler, buttonTypes).showAndWait();
+    }
+
+
+    /**
+     * 自定义对话框
+     *
+     * @param title
+     * @param headerText
+     * @param node
+     * @param resultConverter
+     * @param buttonTypes
+     * @param <T>
+     * @return
+     */
+    private static <T> Dialog<T> createCustomizeDialog(String title,
+                                                       String headerText,
+                                                       String contentText,
+                                                       Node node,
+                                                       Callback<ButtonType, T> resultConverter,
+                                                       EventHandler<DialogEvent> eventHandler,
+                                                       ButtonType... buttonTypes) {
         Dialog<T> dialog = new Dialog<>();
         dialog.setTitle(title);
         dialog.setHeaderText(headerText);
+        dialog.setContentText(contentText);
+        dialog.setOnCloseRequest(eventHandler);
         dialog.getDialogPane().setContent(node);
         dialog.getDialogPane().getButtonTypes().addAll(buttonTypes);
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -127,14 +161,68 @@ public class DialogUtil {
         if (resultConverter != null) {
             dialog.setResultConverter(resultConverter);
         }
+        return dialog;
+    }
+
+    /**
+     * 进度条对话框
+     *
+     * @param title      title
+     * @param headerText header
+     * @param task       task
+     * @param executor   executor
+     * @param <T>        任务返回类型
+     * @return 任务执行成功，点击完成按钮返回task的执行结果，其他情况返回null
+     */
+    public static <T> Optional<T> progressDialog(String title, String headerText, Task<T> task, Executor executor) {
+
+        Label msg = new Label();
+        msg.textProperty().bind(task.messageProperty());
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.setPrefWidth(400d);
+        progressBar.progressProperty().bind(task.progressProperty());
+        VBox box = new VBox(msg, progressBar);
+        box.setSpacing(10d);
+        Dialog<T> dialog = createCustomizeDialog(title, headerText, null, box, buttonType -> {
+            if (buttonType == ButtonType.FINISH) {
+                return task.isDone() && !task.isCancelled() ? task.getValue() : null;
+            } else {
+                if (task.isRunning()) {
+                    task.cancel();
+                }
+            }
+            return null;
+        }, null);
+
+        ObservableList<ButtonType> buttonTypes = dialog.getDialogPane().getButtonTypes();
+        buttonTypes.add(ButtonType.CANCEL);
+        task.stateProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue.name());
+            switch (newValue) {
+                case READY:
+                case RUNNING:
+                case SCHEDULED:
+                    //
+                    break;
+                case FAILED:
+                case CANCELLED:
+                    buttonTypes.clear();
+                    buttonTypes.add(ButtonType.CLOSE);
+                    break;
+                case SUCCEEDED:
+                    buttonTypes.clear();
+                    buttonTypes.add(ButtonType.FINISH);
+                    break;
+                default:
+                    break;
+            }
+
+        });
+        executor.execute(task);
         return dialog.showAndWait();
     }
 
-    public static void exceptionDialog(Throwable ex) {
-        exceptionDialog("", ex.getMessage(), ex);
-    }
-
-    public static void exceptionDialog(String title, Throwable ex) {
-        exceptionDialog(title, ex.getMessage(), ex);
+    private static Image getLogImage() {
+        return new Image(DialogUtil.class.getResourceAsStream(CommonConstant.LOGO_IMAGE));
     }
 }

@@ -5,7 +5,10 @@ import com.jean.mybatis.generator.core.GeneratorService;
 import com.jean.mybatis.generator.factory.TableCellFactory;
 import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
-import com.jean.mybatis.generator.support.meta.*;
+import com.jean.mybatis.generator.support.meta.CatalogMetaData;
+import com.jean.mybatis.generator.support.meta.ColumnMetaData;
+import com.jean.mybatis.generator.support.meta.SchemaMetaData;
+import com.jean.mybatis.generator.support.meta.TableMetaData;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
@@ -14,6 +17,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -30,6 +34,7 @@ import org.mybatis.generator.plugins.EqualsHashCodePlugin;
 import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 
 import java.io.BufferedOutputStream;
@@ -40,6 +45,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
 
 /**
  * @author jinshubao
@@ -190,6 +196,10 @@ public class MainController extends BaseController {
     @Autowired
     private IMetaDataProviderManager providerManager;
 
+    @Autowired
+    @Qualifier("generate-executor")
+    private Executor executor;
+
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
@@ -198,8 +208,8 @@ public class MainController extends BaseController {
                 DialogUtil.customizeDialog(resources.getString("dialog.newConnection.title"),
                         null,
                         CommonConstant.SCENES.get(StageType.CONNECTION),
-                        param -> {
-                            if (param.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                        buttonType -> {
+                            if (buttonType == ButtonType.OK) {
                                 return connectionController.getConnectionConfig();
                             }
                             return null;
@@ -210,7 +220,7 @@ public class MainController extends BaseController {
                         this.metadataProvider.set(provider);
                         refreshTableCatalog(provider);
                     } catch (Exception e) {
-                        showException(resources, e);
+                        showExceptionDialog(resources, e);
                     }
                 }));
 
@@ -222,7 +232,7 @@ public class MainController extends BaseController {
                     logger.debug(configuration.toDocument().getFormattedContent());
                 }
             } catch (Exception e) {
-                showException(resources, e);
+                showExceptionDialog(resources, e);
             }
         });
         this.helpMenu.setOnAction(event -> {
@@ -238,7 +248,7 @@ public class MainController extends BaseController {
                 refreshTableSchema(provider);
                 refreshTableItem(provider);
             } catch (Exception e) {
-                showException(resources, e);
+                showExceptionDialog(resources, e);
             }
         });
 
@@ -249,7 +259,7 @@ public class MainController extends BaseController {
                 config.setTableSchema(newValue == null ? null : newValue.getTableSchema());
                 refreshTableItem(provider);
             } catch (Exception e) {
-                showException(resources, e);
+                showExceptionDialog(resources, e);
             }
         });
 
@@ -329,7 +339,7 @@ public class MainController extends BaseController {
                             }
                         });
             } catch (Exception e) {
-                showException(resources, e);
+                showExceptionDialog(resources, e);
             }
             return null;
         }));
@@ -436,7 +446,7 @@ public class MainController extends BaseController {
         this.generatorService.messageProperty().addListener((observable, oldValue, newValue) -> logger.debug(newValue));
         this.generatorService.setOnFailed(event -> {
             Throwable e = this.generatorService.getException();
-            showException(resources, e);
+            showExceptionDialog(resources, e);
         });
 
         this.generatorService.setOnSucceeded(event -> {
@@ -461,7 +471,7 @@ public class MainController extends BaseController {
             try {
                 saveConfiguration(resources, event);
             } catch (IOException e) {
-                showException(resources, e);
+                showExceptionDialog(resources, e);
             }
         });
 

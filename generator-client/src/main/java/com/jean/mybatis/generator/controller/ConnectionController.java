@@ -84,7 +84,7 @@ public class ConnectionController extends BaseController {
                     DialogUtil.information(failed, null, failed);
                 }
             } catch (Exception e) {
-                showException(resources, e);
+                showExceptionDialog(resources, e);
             }
         });
     }
