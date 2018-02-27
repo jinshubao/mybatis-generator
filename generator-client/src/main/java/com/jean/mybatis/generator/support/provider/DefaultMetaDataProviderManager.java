@@ -1,6 +1,7 @@
 package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
+import com.jean.mybatis.generator.exception.DatabaseNotSupportException;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
  */
 public class DefaultMetaDataProviderManager implements IMetaDataProviderManager {
 
-    protected final List<IMetadataProvider> metadataProviders;
+    private List<IMetadataProvider> metadataProviders;
 
     public DefaultMetaDataProviderManager(List<IMetadataProvider> metadataProviders) {
         this.metadataProviders = metadataProviders;
@@ -22,6 +23,6 @@ public class DefaultMetaDataProviderManager implements IMetaDataProviderManager 
                 return provider;
             }
         }
-        return null;
+        throw new DatabaseNotSupportException("不支持数据库类型[" + type.name + "]");
     }
 }

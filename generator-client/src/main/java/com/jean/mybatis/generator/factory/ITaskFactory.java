@@ -23,7 +23,8 @@ public interface ITaskFactory {
 
     void getColumns(String tableNamePattern, Callback<List<ColumnMetaData>> handler, Callback<Throwable> error);
 
-    public static interface Callback<T> {
+    interface Callback<T> {
+
         void call(T value);
     }
 }
