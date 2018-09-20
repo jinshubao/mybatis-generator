@@ -6,7 +6,7 @@
 ### 使用方式
 
 1. 克隆源码
-2. 在项目根目录下执行命令 `gradlew jfxJar` 打包
+2. 在项目根目录下执行命令 `gradlew clean jfxJar` 打包
 3. 找到 `generator-client/build/jfx/app/generator-client.jar`文件
 4. 执行命令 `java -jar generator-client.jar`启动
 
