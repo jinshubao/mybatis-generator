@@ -11,6 +11,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author jinshubao
@@ -33,7 +35,7 @@ public class PreloaderSupport extends Preloader {
         root.setMinHeight(Region.USE_COMPUTED_SIZE);
         root.setMinWidth(Region.USE_COMPUTED_SIZE);
 
-        ImageView imageView = new ImageView(getBackground());
+        ImageView imageView = new ImageView(getBackgroundImage());
         imageView.setFitWidth(600D);
         imageView.setFitHeight(400D);
         imageView.setPickOnBounds(true);
@@ -55,27 +57,25 @@ public class PreloaderSupport extends Preloader {
     }
 
     @Override
-    public boolean handleErrorNotification(ErrorNotification info) {
-        return true;
-    }
-
-    @Override
     public void handleStateChangeNotification(StateChangeNotification info) {
         if (info.getType() == StateChangeNotification.Type.BEFORE_START) {
             stage.hide();
         }
     }
 
-    @Override
-    public void handleProgressNotification(ProgressNotification info) {
+
+    public void handleProgress(ProgressNotification info) {
         this.progressBar.setProgress(info.getProgress());
     }
 
     @Override
     public void handleApplicationNotification(PreloaderNotification info) {
+        if (info instanceof ProgressNotification) {
+            handleProgress((ProgressNotification) info);
+        }
     }
 
-    public Image getBackground() {
-        return new Image(this.getClass().getResourceAsStream("/image/background.jpg"));
+    public Image getBackgroundImage() {
+        return new Image(this.getClass().getResourceAsStream("/image/mybatis-logo-large.png"));
     }
 }

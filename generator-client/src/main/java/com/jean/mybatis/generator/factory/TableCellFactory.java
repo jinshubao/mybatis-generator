@@ -21,6 +21,12 @@ import java.util.List;
 public class TableCellFactory {
 
 
+    /**
+     * 链接标签
+     *
+     * @param <S>
+     * @param <T>
+     */
     private static class HyperlinkTableCell<S extends Selectable, T> extends TableCell<S, T> {
 
         private final Hyperlink hyperlink;
@@ -49,7 +55,7 @@ public class TableCellFactory {
                 hyperlink.setVisited(false);
                 ref = getTableView().getItems().get(getTableRow().getIndex());
                 eventHandler = event -> {
-                    if (callback != null){
+                    if (callback != null) {
                         callback.call(ref);
                     }
                 };
@@ -60,15 +66,35 @@ public class TableCellFactory {
         }
     }
 
-    public static <S extends Selectable, T> Callback<TableColumn<S, T>, TableCell<S, T>> hyperlinkForTableView(String label, Callback<S, Object> callback) {
+    /**
+     * 表格中的连接标签
+     *
+     * @param label
+     * @param callback
+     * @param <S>
+     * @param <T>
+     * @return
+     */
+    public static <S extends Selectable, T> Callback<TableColumn<S, T>, TableCell<S, T>>
+    hyperlinkForTableView(String label, Callback<S, Object> callback) {
         return param -> new TableCellFactory.HyperlinkTableCell<>(label, callback);
     }
 
-    public static <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> comboBoxForTableColumn(
+    /**
+     * 表格中的下拉框
+     *
+     * @param converter
+     * @param items
+     * @param editable
+     * @param <S>
+     * @param <T>
+     * @return
+     */
+    public static <S, T> Callback<TableColumn<S, T>, TableCell<S, T>> comboBoxForTableColumn(
             final StringConverter<T> converter, List<T> items, boolean editable) {
         return list -> {
             ObservableList<T> objects = FXCollections.observableArrayList();
-            if (items != null){
+            if (items != null) {
                 objects.addAll(items);
             }
             ComboBoxTableCell<S, T> tableCell = new ComboBoxTableCell<>(converter, objects);

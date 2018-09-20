@@ -22,22 +22,39 @@ import java.util.Locale;
 @ComponentScan
 public class MainApplication extends ApplicationSupport {
 
+    private Locale locale = Locale.SIMPLIFIED_CHINESE;
+
+    private Parent root = null;
+    Parent databaseConnection = null;
+    Parent customTable = null;
+
     @Override
-    protected void applicationInit() throws Exception{
+    public void init() throws Exception {
+        notifyProgress(0D);
+
         ApplicationContext context = new AnnotationConfigApplicationContext(MainApplication.class);
         context.getAutowireCapableBeanFactory().autowireBean(this);
         setApplicationContext(context);
+        notifyProgress(0.2);
+
+        root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
+        notifyProgress(0.4);
+
+        databaseConnection = loadFxml("/fxml/Connection.fxml", "message.connection", locale);
+        notifyProgress(0.6);
+
+        customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
+        notifyProgress(0.8);
+
+        CommonConstant.SCENES.put(StageType.MAIN, root);
+        CommonConstant.SCENES.put(StageType.CONNECTION, databaseConnection);
+        CommonConstant.SCENES.put(StageType.CUSTOM_TABLE, customTable);
+
+        notifyProgress(1D);
     }
 
     @Override
-    public void applicationStart(Stage stage) throws Exception {
-        Locale locale = Locale.SIMPLIFIED_CHINESE;
-        Parent root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
-        CommonConstant.SCENES.put(StageType.MAIN, root);
-        Parent databaseConnection = loadFxml("/fxml/Connection.fxml", "message.connection", locale);
-        CommonConstant.SCENES.put(StageType.CONNECTION, databaseConnection);
-        Parent customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
-        CommonConstant.SCENES.put(StageType.CUSTOM_TABLE, customTable);
+    public void applicationStart(Stage stage) {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         String name = "mybatis-generator-client";
@@ -45,9 +62,18 @@ public class MainApplication extends ApplicationSupport {
         String author = "jinshubao";
         String title = StringUtil.join(Arrays.asList(name, version, author), " --");
         stage.setTitle(title);
-        stage.getIcons().add(new Image(getClass().getResourceAsStream(CommonConstant.LOGO_IMAGE)));
+        stage.getIcons().add(getIcon());
         stage.setScene(scene);
         stage.show();
+    }
+
+    /**
+     * 应用图标
+     *
+     * @return
+     */
+    private Image getIcon() {
+        return new Image(getClass().getResourceAsStream(CommonConstant.LOGO_IMAGE));
     }
 
     /**

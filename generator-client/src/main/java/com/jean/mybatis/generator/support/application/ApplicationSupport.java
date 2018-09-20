@@ -1,7 +1,9 @@
 package com.jean.mybatis.generator.support.application;
 
 import com.jean.mybatis.generator.utils.DialogUtil;
+import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.application.Application;
+import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.ButtonType;
@@ -12,7 +14,6 @@ import org.springframework.context.ApplicationContext;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -23,37 +24,37 @@ import java.util.ResourceBundle;
  * @date 2017/4/8
  */
 public abstract class ApplicationSupport extends Application {
+
     static final Logger logger = LoggerFactory.getLogger(ApplicationSupport.class);
-    ApplicationContext applicationContext;
-    Stage primaryStage;
+
+    protected ApplicationContext applicationContext;
+
+    protected Stage stage;
 
 
     public ApplicationSupport() {
     }
 
-    @Override
-    public void init() throws Exception {
-        applicationInit();
-    }
-
     /**
-     * 应用初始化，界面还没有初始化
+     * 初始化进度通知
      *
-     * @throws Exception
+     * @param progress
      */
-    protected abstract void applicationInit() throws Exception;
+    protected final void notifyProgress(double progress) {
+        notifyPreloader(new Preloader.ProgressNotification(progress));
+    }
 
     /**
      * 初始化界面
      *
-     * @param stage
+     * @param stage 主界面
      * @throws Exception
      */
-    protected abstract void applicationStart(Stage stage) throws Exception;
+    protected abstract void applicationStart(Stage stage);
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
+    public void start(Stage primaryStage) {
+        this.stage = primaryStage;
         applicationStart(primaryStage);
         primaryStage.setOnCloseRequest(event -> DialogUtil.confirmation("退出提示", null, "确认退出？")
                 .ifPresent(button -> {
@@ -64,15 +65,23 @@ public abstract class ApplicationSupport extends Application {
     }
 
     @Override
-    public void stop() throws IOException {
+    public void stop() {
         if (applicationContext instanceof Closeable) {
             Closeable context = (Closeable) applicationContext;
-            context.close();
+            try {
+                context.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
+    /**
+     * @param applicationClass
+     * @param args
+     */
     protected static void launchApplication(Class<? extends ApplicationSupport> applicationClass, String... args) {
-        logger.info("launch with parameters {}", Arrays.toString(args));
+        logger.info("launch with parameters {}", StringUtil.join(args, ", "));
         launch(applicationClass, args);
     }
 
@@ -101,5 +110,9 @@ public abstract class ApplicationSupport extends Application {
 
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 }

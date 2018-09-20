@@ -85,7 +85,7 @@ public class DefaultTaskFactory implements ITaskFactory {
     }
 
     private IMetadataProvider metadataProvider() {
-        IMetadataProvider provider = providerManager.getMetaDataProvider(connectionConfig.getType());
+        IMetadataProvider provider = providerManager.getSupportedMetaDataProvider(connectionConfig.getType());
         provider.setConnectionConfig(connectionConfig);
         return provider;
     }

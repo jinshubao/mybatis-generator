@@ -25,10 +25,10 @@ import java.util.ResourceBundle;
 @Controller
 public class ConnectionController extends BaseController {
 
-    private static final String DEFAULT_HOST = "10.52.2.110";
-    private static final Integer DEFAULT_PORT = 3307;
-    private static final String DEFAULT_USER = "dev_sy8";
-    private static final String DEFAULT_PASSWORD = "w2kFS02fD8";
+    private static final String DEFAULT_HOST = "10.52.2.51";
+    private static final Integer DEFAULT_PORT = 3306;
+    private static final String DEFAULT_USER = "dev";
+    private static final String DEFAULT_PASSWORD = "F238Fjc29fhJF";
 
     @FXML
     private ComboBox<DatabaseType> dataBaseType;
@@ -74,7 +74,7 @@ public class ConnectionController extends BaseController {
         this.testConnection.setOnAction(event -> {
             try {
                 ConnectionConfig config = getConnectionConfig();
-                IMetadataProvider provider = providerManager.getMetaDataProvider(config.getType());
+                IMetadataProvider provider = providerManager.getSupportedMetaDataProvider(config.getType());
                 provider.setConnectionConfig(config);
                 if (provider.testConnection()) {
                     String success = resources.getString("test.connection.success");

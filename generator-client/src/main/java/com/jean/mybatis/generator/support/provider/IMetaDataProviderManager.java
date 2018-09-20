@@ -13,5 +13,5 @@ public interface IMetaDataProviderManager {
      * @param type 数据库类型
      * @return MetaDataProvider
      */
-    IMetadataProvider getMetaDataProvider(DatabaseType type);
+    IMetadataProvider getSupportedMetaDataProvider(DatabaseType type);
 }

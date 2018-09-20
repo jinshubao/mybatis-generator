@@ -1,6 +1,5 @@
 package com.jean.mybatis.generator.core;
 
-import com.jean.mybatis.generator.utils.StringUtil;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.mybatis.generator.api.MyBatisGenerator;
@@ -86,13 +85,7 @@ public class GeneratorService extends Service<List<String>> {
 
         @Override
         protected void succeeded() {
-            List<String> warnings = getValue();
-            if (warnings.isEmpty()) {
-                updateMessage("SUCCESS");
-            } else {
-                String msg = StringUtil.join(warnings, ". ");
-                updateMessage("WARN:" + msg);
-            }
+            updateMessage("SUCCESS");
         }
 
         @Override

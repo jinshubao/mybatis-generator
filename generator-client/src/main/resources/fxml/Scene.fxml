@@ -26,7 +26,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.MainController">
+<BorderPane minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.MainController">
     <top>
         <VBox>
             <children>
@@ -341,6 +341,7 @@
                         </Label>
                     </children>
                 </HBox>
+            <Hyperlink fx:id="warning" text="Hyperlink" />
                 <ProgressIndicator fx:id="progressIndicator" HBox.hgrow="NEVER" />
             </children>
         </HBox>

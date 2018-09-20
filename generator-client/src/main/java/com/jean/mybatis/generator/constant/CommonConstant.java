@@ -27,6 +27,8 @@ public class CommonConstant {
 
     public static final String CONFIGURATION_NAME = "mybatis-configuration";
 
+    public static String NEW_LINE = System.getProperty("line.separator");
+
     /**
      * java type
      */

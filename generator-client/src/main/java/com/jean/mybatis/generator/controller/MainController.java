@@ -14,8 +14,10 @@ import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
 import com.jean.mybatis.generator.utils.DialogUtil;
 import com.jean.mybatis.generator.utils.StringUtil;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -35,6 +38,7 @@ import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -170,11 +174,13 @@ public class MainController extends BaseController {
 
     //---------bottom----------
 
-    @FXML
-    private ProgressIndicator progressIndicator;
+
     @FXML
     private Label message;
-
+    @FXML
+    private Hyperlink warning;
+    @FXML
+    private ProgressIndicator progressIndicator;
 
     //私有变量
 
@@ -222,6 +228,7 @@ public class MainController extends BaseController {
                 Configuration configuration = loadConfiguration(resources, event);
                 if (configuration != null) {
                     logger.debug(configuration.toDocument().getFormattedContent());
+                    //TODO 载入已有配置
                 }
             } catch (Exception e) {
                 showExceptionDialog(resources, e);
@@ -232,6 +239,7 @@ public class MainController extends BaseController {
         });
 
         this.aboutMenuItem.setOnAction(event -> {
+
         });
 
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -321,7 +329,7 @@ public class MainController extends BaseController {
             this.beginningDelimiter.setText(null);
             this.endDelimiter.setText(null);
             if (newValue != null) {
-                IMetadataProvider provider = providerManager.getMetaDataProvider(newValue.getType());
+                IMetadataProvider provider = providerManager.getSupportedMetaDataProvider(newValue.getType());
                 if (provider != null) {
                     this.beginningDelimiter.setText(provider.getBeginningDelimiter());
                     this.endDelimiter.setText(provider.getEndDelimiter());
@@ -347,33 +355,19 @@ public class MainController extends BaseController {
         this.javaFileEncoding.getItems().addAll(EncodingEnum.values());
         this.javaFileEncoding.getSelectionModel().select(EncodingEnum.UTF8);
         this.constructorBased.setSelected(false);
-        this.constructorBased.disableProperty().bind(new BooleanBinding() {
-            {
-                super.bind(targetRuntime.valueProperty());
-            }
-
-            @Override
-            protected boolean computeValue() {
-                return targetRuntime.getValue() != TargetRuntime.MyBatis3
-                        && targetRuntime.getValue() != TargetRuntime.MyBatis3Simple;
-            }
-        });
+        final ObjectProperty<TargetRuntime> targetRuntimeProperty = targetRuntime.valueProperty();
+        this.constructorBased.disableProperty().bind(Bindings.createBooleanBinding(() ->
+                        targetRuntimeProperty.get() != TargetRuntime.MyBatis3 &&
+                                targetRuntimeProperty.get() != TargetRuntime.MyBatis3Simple,
+                targetRuntimeProperty));
 
         this.enableModelSubPackages.setSelected(false);
         this.immutable.setSelected(false);
         this.trimStrings.setSelected(false);
 
         //mapper
-        BooleanBinding mybatis3Binding = new BooleanBinding() {
-            {
-                super.bind(targetRuntime.valueProperty());
-            }
-
-            @Override
-            protected boolean computeValue() {
-                return targetRuntime.getValue() == TargetRuntime.MyBatis3;
-            }
-        };
+        BooleanBinding mybatis3Binding = Bindings.createBooleanBinding(() ->
+                targetRuntimeProperty.get() == TargetRuntime.MyBatis3, targetRuntimeProperty);
         this.enableMapperSubPackages.setSelected(false);
         this.implementationPackage.disableProperty().bind(this.enableMapperSubPackages.selectedProperty().not());
         this.exampleMethodVisibility.getItems().addAll(MethodVisibility.values());
@@ -416,8 +410,14 @@ public class MainController extends BaseController {
         });
 
         // bottom
-
+        final ReadOnlyObjectProperty<List<String>> valueProperty = generatorService.valueProperty();
         this.message.textProperty().bind(this.generatorService.messageProperty());
+        //警告数量
+        this.warning.textFillProperty().bind(Bindings.createObjectBinding(() -> CollectionUtils.isEmpty(valueProperty.get()) ? null : Color.RED, valueProperty));
+        this.warning.textProperty().bind(Bindings.createStringBinding(() -> "WARNING(" + (CollectionUtils.isEmpty(valueProperty.get()) ? 0 : valueProperty.get().size()) + ")", valueProperty));
+        //没有警告隐藏标签
+        this.warning.visibleProperty().bind(Bindings.createBooleanBinding(() -> !CollectionUtils.isEmpty(valueProperty.get()), valueProperty));
+        this.warning.setOnAction(event -> DialogUtil.warning("WARNING", "", StringUtil.join(valueProperty.get(), CommonConstant.NEW_LINE)));
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
     }
 
@@ -514,7 +514,14 @@ public class MainController extends BaseController {
         chooser.setTitle(resources.getString("loadConfiguration.chooser.title"));
         chooser.setInitialDirectory(new File(System.getProperty(CommonConstant.USER_HOME)));
         chooser.getExtensionFilters().add(extensionFilter);
-        File configFile = chooser.showOpenDialog(((ButtonBase) event.getSource()).getScene().getWindow());
+        Object source = event.getSource();
+        Window window = null;
+        if (source instanceof MenuItem) {
+            window = ((MenuItem) source).getParentPopup().getScene().getWindow();
+        } else if (source instanceof Node) {
+            window = ((Node) source).getScene().getWindow();
+        }
+        File configFile = chooser.showOpenDialog(window);
         if (configFile != null && configFile.exists() && configFile.isFile()) {
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration configuration = cp.parseConfiguration(configFile);
@@ -572,7 +579,7 @@ public class MainController extends BaseController {
 
     private Context createDefaultContext() {
 
-        IMetadataProvider provider = providerManager.getMetaDataProvider(connectionConfigProperty.get().getType());
+        IMetadataProvider provider = providerManager.getSupportedMetaDataProvider(connectionConfigProperty.get().getType());
 
         //---------上下文环境----------
         Context context = new Context(this.defaultModelType.getValue());

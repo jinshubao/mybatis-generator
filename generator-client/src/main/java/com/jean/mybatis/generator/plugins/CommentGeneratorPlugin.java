@@ -9,7 +9,10 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import java.util.Properties;
 
 /**
- * Created by jinshubao on 2017/4/14.
+ * mybatis 注释插件
+ *
+ * @author jinshubao
+ * @date 2017/4/14
  */
 public class CommentGeneratorPlugin implements CommentGenerator {
 
