@@ -3,6 +3,13 @@
 
 生成代码工具
 
+### 使用方式
+
+1. 克隆源码
+2. 在项目根目录下执行命令 `gradlew jfxJar` 打包
+3. 找到 `generator-client/build/jfx/app/generator-client.jar`文件
+4. 执行命令 `java -jar generator-client.jar`启动
+
 ### 新建连接
 ![image](sample/21.png)
 ### 基础配置

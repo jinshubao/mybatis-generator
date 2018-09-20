@@ -26,7 +26,7 @@ dependencies {
 
 jfx {
     mainClass = mainClassName
-//    jfxMainAppJarName = project.name + ".jar"
+    jfxMainAppJarName = project.name + ".jar"
     preLoader = 'com.jean.preloader.support.PreloaderSupport' // String
     vendor = 'jinshubao'
 }
