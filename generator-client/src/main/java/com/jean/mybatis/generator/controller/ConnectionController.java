@@ -5,8 +5,9 @@ import com.jean.mybatis.generator.constant.EncodingEnum;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
-import com.jean.mybatis.generator.utils.DialogUtil;
-import com.jean.mybatis.generator.utils.StringUtil;
+import com.jean.mybatis.generator.utils.DialogUtils;
+import com.jean.mybatis.generator.utils.NumberUtils;
+import com.jean.mybatis.generator.utils.StringUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -78,10 +79,10 @@ public class ConnectionController extends BaseController {
                 provider.setConnectionConfig(config);
                 if (provider.testConnection()) {
                     String success = resources.getString("test.connection.success");
-                    DialogUtil.information(success, null, success);
+                    DialogUtils.information(success, null, success);
                 } else {
                     String failed = resources.getString("test.connection.failed");
-                    DialogUtil.information(failed, null, failed);
+                    DialogUtils.information(failed, null, failed);
                 }
             } catch (Exception e) {
                 showExceptionDialog(resources, e);
@@ -92,14 +93,15 @@ public class ConnectionController extends BaseController {
     public ConnectionConfig getConnectionConfig() {
         String host = DEFAULT_HOST;
         int port = DEFAULT_PORT;
-        if (StringUtil.isNotBlank(this.host.getText())) {
-            host = this.host.getText();
+        if (StringUtils.hasText(this.host.getText())) {
+            host = StringUtils.trimWhitespace(this.host.getText());
         }
-        if (StringUtil.isNotBlank(this.port.getText())) {
+        if (StringUtils.hasText(this.port.getText())) {
             try {
-                port = Integer.parseInt(this.port.getText());
-            } catch (NumberFormatException e) {
+                port = NumberUtils.parseNumber(this.port.getText(), Integer.class);
+            } catch (IllegalArgumentException e) {
                 logger.error(e.getMessage(), e);
+                DialogUtils.error("ERROR", e);
             }
         }
         return new ConnectionConfig(

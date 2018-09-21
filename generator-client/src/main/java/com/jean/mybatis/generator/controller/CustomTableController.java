@@ -3,7 +3,7 @@ package com.jean.mybatis.generator.controller;
 import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.factory.TableCellFactory;
 import com.jean.mybatis.generator.support.meta.ColumnMetaData;
-import com.jean.mybatis.generator.utils.StringUtil;
+import com.jean.mybatis.generator.utils.StringUtils;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Hyperlink;
@@ -63,7 +63,7 @@ public class CustomTableController extends BaseController {
 
             @Override
             public String toString(String object) {
-                return StringUtil.isBlank(object) ? CommonConstant.DEFAULT : object;
+                return !StringUtils.hasText(object) ? CommonConstant.DEFAULT : object;
             }
 
             @Override

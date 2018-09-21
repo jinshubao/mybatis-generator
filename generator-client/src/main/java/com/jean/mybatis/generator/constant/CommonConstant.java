@@ -1,11 +1,10 @@
 package com.jean.mybatis.generator.constant;
 
 import javafx.scene.Parent;
-import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactory;
 
 import java.io.File;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author jinshubao
@@ -17,6 +16,7 @@ public class CommonConstant {
 
     public static final String LOGO_IMAGE = "/image/mybatis-logo.png";
 
+    public static final String DEFAULT_WORKSPACE = File.separator + "workspace" + File.separator + "example";
     public static final String DEFAULT_RESOURCE_DIR = "src" + File.separator + "main" + File.separator + "resources";
     public static final String DEFAULT_SOURCE_DIR = "src" + File.separator + "main" + File.separator + "java";
 

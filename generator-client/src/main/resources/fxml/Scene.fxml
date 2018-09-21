@@ -26,7 +26,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.MainController">
+<BorderPane minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jean.mybatis.generator.controller.MainController">
     <top>
         <VBox>
             <children>
@@ -71,7 +71,7 @@
                   <HBox alignment="CENTER_LEFT" spacing="10.0">
                      <children>
                         <Label text="CATALOG" />
-                            <ComboBox fx:id="tableCatalog" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="tableCatalog" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                         <Label text="SCHEMA" />
                         <ComboBox fx:id="tableSchema" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                      </children>
@@ -108,21 +108,21 @@
                                              <content>
                                                   <GridPane>
                                                       <columnConstraints>
-                                                          <ColumnConstraints maxWidth="200.0" minWidth="100.0" prefWidth="150.0" />
+                                                          <ColumnConstraints maxWidth="200.0" minWidth="100.0" prefWidth="180.0" />
                                                           <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" />
                                                       </columnConstraints>
                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="ALWAYS" />
                                                       </rowConstraints>
                                                       <children>
                                                           <Label text="项目文件夹" wrapText="true" />
@@ -181,25 +181,28 @@
                                          <content>
                                               <GridPane>
                                                   <columnConstraints>
-                                                      <ColumnConstraints maxWidth="200.0" minWidth="100.0" prefWidth="150.0" />
+                                                      <ColumnConstraints maxWidth="200.0" minWidth="100.0" prefWidth="180.0" />
                                                       <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" />
                                                   </columnConstraints>
                                                   <rowConstraints>
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints />
                                                   </rowConstraints>
                                                   <children>
                                                       <Label text="Model父类" wrapText="true" />
@@ -244,11 +247,23 @@
                                                       <Label text="生成注释" wrapText="true" GridPane.rowIndex="11" />
                                                       <CheckBox fx:id="useCommentPlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="11" />
 
-                                                      <Label text="生成equals和hashCode方法" wrapText="true" GridPane.rowIndex="12" />
-                                                      <CheckBox fx:id="useEqualsHashCodePlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                                                      <Label text="生成字段注释" wrapText="true" GridPane.rowIndex="12" />
+                                                      <CheckBox fx:id="generateFiledComment" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="12" />
 
-                                                      <Label text="生成toString方法" GridPane.rowIndex="13" />
-                                                      <CheckBox fx:id="useToStringPlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                                                      <Label text="生成日期注释" wrapText="true" GridPane.rowIndex="13" />
+                                                      <CheckBox fx:id="generateDateComment" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+
+                                                      <Label text="注释日期格式" wrapText="true" GridPane.rowIndex="14" />
+                                                      <TextField fx:id="commentDateFormat" promptText="yyyy/MM/dd" GridPane.columnIndex="1" GridPane.rowIndex="14" />
+
+                                                      <Label text="注释生成插件" wrapText="true" GridPane.rowIndex="15" />
+                                                      <ComboBox fx:id="commentPlugins" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" />
+
+                                                      <Label text="生成equals和hashCode方法" wrapText="true" GridPane.rowIndex="16" />
+                                                      <CheckBox fx:id="useEqualsHashCodePlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="16" />
+
+                                                      <Label text="生成toString方法" GridPane.rowIndex="17" />
+                                                      <CheckBox fx:id="useToStringPlugin" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="17" />
 
                                                   </children>
                                                   <padding>
@@ -265,19 +280,19 @@
                                          <content>
                                             <GridPane>
                                                 <columnConstraints>
-                                                    <ColumnConstraints maxWidth="200.0" minWidth="100.0" prefWidth="150.0" />
+                                                    <ColumnConstraints maxWidth="200.0" minWidth="100.0" prefWidth="180.0" />
                                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" />
                                                 </columnConstraints>
                                               <rowConstraints>
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                                  <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="ALWAYS" />
                                               </rowConstraints>
                                                <padding>
                                                   <Insets left="10.0" right="10.0" top="10.0" />
@@ -290,8 +305,8 @@
                                                    <Label text="实现类包名" wrapText="true" GridPane.rowIndex="1" />
                                                    <TextField fx:id="implementationPackage" promptText="com.example.mapper.impl" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                                   <ComboBox fx:id="javaClientType" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                    <Label text="Mapper生成方式" wrapText="true" GridPane.rowIndex="2" />
+                                                   <ComboBox fx:id="javaClientType" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                                                    <Label text="Example方法可见性" wrapText="true" GridPane.rowIndex="3" />
                                                    <ComboBox fx:id="exampleMethodVisibility" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
@@ -341,7 +356,7 @@
                         </Label>
                     </children>
                 </HBox>
-            <Hyperlink fx:id="warning" text="Hyperlink" />
+            <Hyperlink fx:id="warning" text="--" />
                 <ProgressIndicator fx:id="progressIndicator" HBox.hgrow="NEVER" />
             </children>
         </HBox>

@@ -3,7 +3,7 @@ package com.jean.mybatis.generator;
 import com.jean.mybatis.generator.constant.CommonConstant;
 import com.jean.mybatis.generator.constant.StageType;
 import com.jean.mybatis.generator.support.application.ApplicationSupport;
-import com.jean.mybatis.generator.utils.StringUtil;
+import com.jean.mybatis.generator.utils.StringUtils;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -60,7 +60,7 @@ public class MainApplication extends ApplicationSupport {
         String name = "mybatis-generator-client";
         String version = "0.1-snapshot";
         String author = "jinshubao";
-        String title = StringUtil.join(Arrays.asList(name, version, author), " --");
+        String title = StringUtils.collectionToDelimitedString(Arrays.asList(name, version, author), " --");
         stage.setTitle(title);
         stage.getIcons().add(getIcon());
         stage.setScene(scene);

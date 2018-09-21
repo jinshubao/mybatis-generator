@@ -4,7 +4,7 @@ import com.jean.mybatis.generator.constant.*;
 import com.jean.mybatis.generator.core.GeneratorService;
 import com.jean.mybatis.generator.factory.ITaskFactory;
 import com.jean.mybatis.generator.factory.TableCellFactory;
-import com.jean.mybatis.generator.plugins.CommentGeneratorPlugin;
+import com.jean.mybatis.generator.plugins.CustomerCommentGenerator;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
 import com.jean.mybatis.generator.support.meta.CatalogMetaData;
 import com.jean.mybatis.generator.support.meta.ColumnMetaData;
@@ -12,8 +12,9 @@ import com.jean.mybatis.generator.support.meta.SchemaMetaData;
 import com.jean.mybatis.generator.support.meta.TableMetaData;
 import com.jean.mybatis.generator.support.provider.IMetaDataProviderManager;
 import com.jean.mybatis.generator.support.provider.IMetadataProvider;
-import com.jean.mybatis.generator.utils.DialogUtil;
-import com.jean.mybatis.generator.utils.StringUtil;
+import com.jean.mybatis.generator.utils.CollectionUtils;
+import com.jean.mybatis.generator.utils.DialogUtils;
+import com.jean.mybatis.generator.utils.StringUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
@@ -29,16 +30,17 @@ import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.XMLParserException;
+import org.mybatis.generator.internal.DefaultCommentGenerator;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.plugins.EqualsHashCodePlugin;
 import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.CollectionUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -115,6 +117,14 @@ public class MainController extends BaseController {
     private ComboBox<TargetRuntime> targetRuntime;
     @FXML
     private CheckBox useCommentPlugin;
+    @FXML
+    private CheckBox generateFiledComment;
+    @FXML
+    private CheckBox generateDateComment;
+    @FXML
+    public TextField commentDateFormat;
+    @FXML
+    private ComboBox<Class<? extends CommentGenerator>> commentPlugins;
     @FXML
     private CheckBox useSerializerPlugin;
     @FXML
@@ -208,7 +218,7 @@ public class MainController extends BaseController {
     public void initialize(URL location, ResourceBundle resources) {
         this.resources = resources;
         this.newConnectionMenuItem.setOnAction(event ->
-                DialogUtil.customizeDialog(resources.getString("dialog.newConnection.title"),
+                DialogUtils.customizeDialog(resources.getString("dialog.newConnection.title"),
                         null,
                         CommonConstant.SCENES.get(StageType.CONNECTION),
                         buttonType -> {
@@ -321,7 +331,23 @@ public class MainController extends BaseController {
         this.defaultModelType.getItems().addAll(ModelType.values());
         this.defaultModelType.getSelectionModel().select(ModelType.CONDITIONAL);
         this.useSerializerPlugin.setSelected(true);
+
         this.useCommentPlugin.setSelected(true);
+
+        this.generateFiledComment.setSelected(true);
+        this.generateFiledComment.disableProperty().bind(this.useCommentPlugin.selectedProperty().not());
+
+        this.generateDateComment.setSelected(false);
+        this.generateDateComment.disableProperty().bind(this.useCommentPlugin.selectedProperty().not());
+
+        this.commentDateFormat.setText("yyyy/MM/dd");
+        this.commentDateFormat.disableProperty().bind(this.useCommentPlugin.selectedProperty().not().or(generateDateComment.selectedProperty().not()));
+
+        this.commentPlugins.getItems().addAll(CustomerCommentGenerator.class, DefaultCommentGenerator.class);
+
+        this.commentPlugins.getSelectionModel().selectFirst();
+        this.commentPlugins.disableProperty().bind(this.useCommentPlugin.selectedProperty().not());
+
         this.useEqualsHashCodePlugin.setSelected(false);
         this.useToStringPlugin.setSelected(false);
 
@@ -347,8 +373,11 @@ public class MainController extends BaseController {
                 this.projectDir.setText(file.getAbsolutePath());
             }
         });
+        this.projectDir.setPromptText(CommonConstant.DEFAULT_WORKSPACE);
         this.sourceDir.setText(CommonConstant.DEFAULT_SOURCE_DIR);
+        this.sourceDir.setPromptText(CommonConstant.DEFAULT_SOURCE_DIR);
         this.resourcesDir.setText(CommonConstant.DEFAULT_RESOURCE_DIR);
+        this.resourcesDir.setPromptText(CommonConstant.DEFAULT_SOURCE_DIR);
         this.camelCase.setSelected(true);
         this.autoDelimitKeywords.setSelected(false);
         this.forceBigDecimals.setSelected(false);
@@ -417,7 +446,7 @@ public class MainController extends BaseController {
         this.warning.textProperty().bind(Bindings.createStringBinding(() -> "WARNING(" + (CollectionUtils.isEmpty(valueProperty.get()) ? 0 : valueProperty.get().size()) + ")", valueProperty));
         //没有警告隐藏标签
         this.warning.visibleProperty().bind(Bindings.createBooleanBinding(() -> !CollectionUtils.isEmpty(valueProperty.get()), valueProperty));
-        this.warning.setOnAction(event -> DialogUtil.warning("WARNING", "", StringUtil.join(valueProperty.get(), CommonConstant.NEW_LINE)));
+        this.warning.setOnAction(event -> DialogUtils.warning("WARNING", "", StringUtils.collectionToDelimitedString(valueProperty.get(), CommonConstant.NEW_LINE)));
         this.progressIndicator.visibleProperty().bind(this.generatorService.runningProperty());
     }
 
@@ -439,7 +468,7 @@ public class MainController extends BaseController {
             }
         }
         customTableController.initColumns(columns);
-        DialogUtil.customizeDialog(resources.getString("customHtperlink.text"),
+        DialogUtils.customizeDialog(resources.getString("customHtperlink.text"),
                 resources.getString("dialog.customTable.header"),
                 CommonConstant.SCENES.get(StageType.CUSTOM_TABLE),
                 buttonType -> {
@@ -455,14 +484,14 @@ public class MainController extends BaseController {
                         if (metaData.isSelected()) {
                             boolean hasValue = false;
                             ColumnOverride override = new ColumnOverride(metaData.getColumnName());
-                            if (StringUtil.isNotBlank(metaData.getJavaType())
+                            if (StringUtils.hasText(metaData.getJavaType())
                                     && !CommonConstant.DEFAULT.equals(metaData.getJavaType())) {
-                                override.setJavaType(metaData.getJavaType());
+                                override.setJavaType(StringUtils.trimWhitespace(metaData.getJavaType()));
                                 hasValue = true;
                             }
-                            if (StringUtil.isNotBlank(metaData.getJavaProperty()) &&
+                            if (StringUtils.hasText(metaData.getJavaProperty()) &&
                                     !CommonConstant.DEFAULT.equals(metaData.getJavaProperty())) {
-                                override.setJavaProperty(metaData.getJavaProperty());
+                                override.setJavaProperty(StringUtils.trimWhitespace(metaData.getJavaProperty()));
                                 hasValue = true;
                             }
                             if (hasValue) {
@@ -526,7 +555,7 @@ public class MainController extends BaseController {
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration configuration = cp.parseConfiguration(configFile);
             if (!warnings.isEmpty()) {
-                logger.warn(StringUtil.join(warnings, "; "));
+                logger.warn(StringUtils.collectionToDelimitedString(warnings, "; "));
             }
             return configuration;
         }
@@ -588,10 +617,13 @@ public class MainController extends BaseController {
         context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, this.beginningDelimiter.getText());
         context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, this.endDelimiter.getText());
         context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, this.javaFileEncoding.getValue().value.name());
+        //自定义代码格式化 CONTEXT_JAVA_FORMATTER
+        //自定义XML格式化 CONTEXT_XML_FORMATTER
 
         String projectDirText = this.projectDir.getText();
-        String sourcePath = StringUtil.toPath(projectDirText, this.sourceDir.getText());
-        String resourcePath = StringUtil.toPath(projectDirText, this.resourcesDir.getText());
+
+        String sourcePath = projectDirText + File.separator + this.sourceDir.getText();
+        String resourcePath = projectDirText + File.separator + this.resourcesDir.getText();
 
         //---------插件----------
         if (this.useSerializerPlugin.isSelected()) {
@@ -612,12 +644,18 @@ public class MainController extends BaseController {
 
         //---------注释----------
         CommentGeneratorConfiguration commentGenerator = new CommentGeneratorConfiguration();
-        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS, Boolean.toString(false));
-        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS, Boolean.toString(true));
-        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, Boolean.toString(false));
-        if (this.useCommentPlugin.isSelected()) {
-            commentGenerator.setConfigurationType(CommentGeneratorPlugin.class.getName());
+        //是否生成注释
+        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS, Boolean.toString(!this.generateFiledComment.isSelected()));
+        //是否生成日期信息
+        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, Boolean.toString(!this.generateDateComment.isSelected()));
+        //是否生成字段注释
+        commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS, Boolean.toString(this.useCommentPlugin.isSelected()));
+        //日期格式
+        if (StringUtils.hasText(this.commentDateFormat.getText())) {
+            commentGenerator.addProperty(PropertyRegistry.COMMENT_GENERATOR_DATE_FORMAT, StringUtils.trimWhitespace(this.commentDateFormat.getText()));
         }
+        //自定义注释插件
+        commentGenerator.setConfigurationType(commentPlugins.getSelectionModel().getSelectedItem().getName());
         context.setCommentGeneratorConfiguration(commentGenerator);
 
         //---------类型转换----------
@@ -630,8 +668,8 @@ public class MainController extends BaseController {
         javaModelGenerator.setTargetProject(sourcePath);
         javaModelGenerator.setTargetPackage(this.modelPackage.getText());
         String rootClassText = this.rootClass.getText();
-        if (StringUtil.isNotBlank(rootClassText)) {
-            javaModelGenerator.addProperty(PropertyRegistry.ANY_ROOT_CLASS, rootClassText);
+        if (StringUtils.hasText(rootClassText)) {
+            javaModelGenerator.addProperty(PropertyRegistry.ANY_ROOT_CLASS, StringUtils.trimWhitespace(rootClassText));
         }
         javaModelGenerator.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, Boolean.toString(this.constructorBased.isSelected()));
         javaModelGenerator.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, Boolean.toString(this.enableModelSubPackages.isSelected()));
@@ -648,15 +686,15 @@ public class MainController extends BaseController {
         javaClientGenerator.addProperty(PropertyRegistry.DAO_EXAMPLE_METHOD_VISIBILITY, this.exampleMethodVisibility.getValue().getValue());
         javaClientGenerator.addProperty(PropertyRegistry.DAO_METHOD_NAME_CALCULATOR, this.methodNameCalculator.getValue().getValue());
         String rootInterfaceText = this.rootInterface.getText();
-        if (StringUtil.isNotBlank(rootClassText)) {
-            javaClientGenerator.addProperty(PropertyRegistry.ANY_ROOT_INTERFACE, rootInterfaceText);
+        if (StringUtils.hasText(rootInterfaceText)) {
+            javaClientGenerator.addProperty(PropertyRegistry.ANY_ROOT_INTERFACE, StringUtils.trimWhitespace(rootInterfaceText));
         }
         javaClientGenerator.addProperty(PropertyRegistry.CLIENT_USE_LEGACY_BUILDER, Boolean.toString(this.useLegacyBuilder.isSelected()));
         javaClientGenerator.addProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES, Boolean.toString(subPackagesSelected));
         if (subPackagesSelected) {
             String packageText = this.implementationPackage.getText();
-            if (StringUtil.isNotBlank(packageText)) {
-                javaClientGenerator.setImplementationPackage(packageText);
+            if (StringUtils.hasText(packageText)) {
+                javaClientGenerator.setImplementationPackage(StringUtils.trimWhitespace(packageText));
             }
         }
         context.setJavaClientGeneratorConfiguration(javaClientGenerator);
@@ -681,9 +719,9 @@ public class MainController extends BaseController {
 
         ColumnRenamingRule columnRenamingRule = null;
         String searchStringText = this.searchString.getText();
-        if (StringUtil.isNotBlank(searchStringText)) {
+        if (StringUtils.hasText(searchStringText)) {
             columnRenamingRule = new ColumnRenamingRule();
-            columnRenamingRule.setSearchString(searchStringText);
+            columnRenamingRule.setSearchString(StringUtils.trimWhitespace(searchStringText));
             columnRenamingRule.setReplaceString(this.replaceString.getText());
         }
 
@@ -693,9 +731,12 @@ public class MainController extends BaseController {
             if (tableMetadata.isSelected()) {
                 TableConfiguration table = new TableConfiguration(context);
                 table.setTableName(tableMetadata.getTableName());
+                //是否使用真实列名（真实列名）
+                //是否使用列名与注释的混合字段名（真实列名+_+注释首字母大写的驼峰命名。如：列名为user_id, 注释为user_id, 结果为user_id_UserId）
+
                 table.addProperty(PropertyRegistry.TABLE_USE_ACTUAL_COLUMN_NAMES, Boolean.toString(!camelCaseSelected));
-                if (StringUtil.isNotBlank(tableMetadata.getPrimaryKeyColumn())) {
-                    table.setGeneratedKey(new GeneratedKey(tableMetadata.getPrimaryKeyColumn(), statement, true, "post"));
+                if (StringUtils.hasText(tableMetadata.getPrimaryKeyColumn())) {
+                    table.setGeneratedKey(new GeneratedKey(StringUtils.trimWhitespace(tableMetadata.getPrimaryKeyColumn()), statement, true, "post"));
                 }
                 tableMetadata.getIgnoredColumns().forEach(table::addIgnoredColumn);
                 tableMetadata.getColumnOverrides().forEach(table::addColumnOverride);

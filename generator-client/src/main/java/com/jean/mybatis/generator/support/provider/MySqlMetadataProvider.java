@@ -2,7 +2,7 @@ package com.jean.mybatis.generator.support.provider;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
 import com.jean.mybatis.generator.support.connection.ConnectionConfig;
-import com.jean.mybatis.generator.utils.StringUtil;
+import com.jean.mybatis.generator.utils.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Properties;
@@ -22,13 +22,13 @@ public class MySqlMetadataProvider extends AbstractMetadataProvider {
     @Override
     protected Properties getConnectionProperties() {
         String properties = getConnectionConfig().getProperties();
-        if (StringUtil.isBlank(properties)) {
+        if (!StringUtils.hasText(properties)) {
             return null;
         }
         String[] props = properties.split("&");
         Properties p = new Properties();
         for (String pro : props) {
-            if (StringUtil.isNotBlank(pro)) {
+            if (StringUtils.hasText(pro)) {
                 String[] split = pro.split("=");
                 if (split.length == 2) {
                     p.put(split[0], split[1]);
@@ -46,11 +46,11 @@ public class MySqlMetadataProvider extends AbstractMetadataProvider {
         ConnectionConfig config = getConnectionConfig();
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(String.format("jdbc:mysql://%s:%d", config.getHost(), config.getPort()));
-        if (StringUtil.isNotBlank(config.getTableCatalog()) || StringUtil.isNotBlank(config.getTableSchema())) {
+        if (StringUtils.hasText(config.getTableCatalog()) || StringUtils.hasText(config.getTableSchema())) {
             urlBuilder.append("/");
-            if (StringUtil.isNotBlank(config.getTableCatalog())) {
+            if (StringUtils.hasText(config.getTableCatalog())) {
                 urlBuilder.append(config.getTableCatalog());
-                if (StringUtil.isNotBlank(config.getTableSchema())) {
+                if (StringUtils.hasText(config.getTableSchema())) {
                     urlBuilder.append("/").append(config.getTableSchema());
                 }
             } else {

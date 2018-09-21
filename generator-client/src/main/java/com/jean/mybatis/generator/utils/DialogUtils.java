@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
  * @author jinshubao
  * @date 2017/4/8
  */
-public class DialogUtil {
+public class DialogUtils {
 
     public static Optional<ButtonType> warning(String title, String headerText, String contentText) {
         return alert(Alert.AlertType.WARNING, title, headerText, contentText, ButtonType.OK);
@@ -48,10 +48,10 @@ public class DialogUtil {
     /**
      * 自定义对话框
      *
-     * @param title
-     * @param headerText
-     * @param node
-     * @param resultConverter
+     * @param title           标题
+     * @param headerText      头部信息
+     * @param node            自定义控件
+     * @param resultConverter 数据转换器
      * @return
      */
     public static <T> Optional<T> customizeDialog(String title,
@@ -64,10 +64,11 @@ public class DialogUtil {
     /**
      * 自定义对话框
      *
-     * @param title
-     * @param headerText
-     * @param node
-     * @param resultConverter
+     * @param title 标题
+     * @param headerText 头部信息
+     * @param contentText 内容
+     * @param node 自定义控件
+     * @param resultConverter 数据转换器
      * @return
      */
     public static <T> Optional<T> customizeDialog(String title,
@@ -222,6 +223,6 @@ public class DialogUtil {
     }
 
     private static Image getLogImage() {
-        return new Image(DialogUtil.class.getResourceAsStream(CommonConstant.LOGO_IMAGE));
+        return new Image(DialogUtils.class.getResourceAsStream(CommonConstant.LOGO_IMAGE));
     }
 }

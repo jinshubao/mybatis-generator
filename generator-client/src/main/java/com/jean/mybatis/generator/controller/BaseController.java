@@ -1,7 +1,7 @@
 package com.jean.mybatis.generator.controller;
 
 import com.jean.mybatis.generator.support.common.Selectable;
-import com.jean.mybatis.generator.utils.DialogUtil;
+import com.jean.mybatis.generator.utils.DialogUtils;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ abstract class BaseController implements Initializable {
 
     void showExceptionDialog(ResourceBundle resources, Throwable e) {
         logger.error(e.getMessage(), e);
-        DialogUtil.error(resources.getString("dialog.exception.title"), e);
+        DialogUtils.error(resources.getString("dialog.exception.title"), e);
     }
 
 }

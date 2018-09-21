@@ -1,7 +1,7 @@
 package com.jean.mybatis.generator.support.application;
 
-import com.jean.mybatis.generator.utils.DialogUtil;
-import com.jean.mybatis.generator.utils.StringUtil;
+import com.jean.mybatis.generator.utils.DialogUtils;
+import com.jean.mybatis.generator.utils.StringUtils;
 import javafx.application.Application;
 import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
@@ -56,7 +56,7 @@ public abstract class ApplicationSupport extends Application {
     public void start(Stage primaryStage) {
         this.stage = primaryStage;
         applicationStart(primaryStage);
-        primaryStage.setOnCloseRequest(event -> DialogUtil.confirmation("退出提示", null, "确认退出？")
+        primaryStage.setOnCloseRequest(event -> DialogUtils.confirmation("退出提示", null, "确认退出？")
                 .ifPresent(button -> {
                     if (button != ButtonType.OK) {
                         event.consume();
@@ -81,7 +81,7 @@ public abstract class ApplicationSupport extends Application {
      * @param args
      */
     protected static void launchApplication(Class<? extends ApplicationSupport> applicationClass, String... args) {
-        logger.info("launch with parameters {}", StringUtil.join(args, ", "));
+        logger.info("launch with parameters {}", StringUtils.arrayToDelimitedString(args, ", "));
         launch(applicationClass, args);
     }
 
