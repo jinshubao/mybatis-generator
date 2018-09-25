@@ -14,44 +14,41 @@ import java.util.List;
 public interface ITaskFactory {
 
     /**
-     * 设置连接
-     *
-     * @param connectionConfig
-     */
-    void setConnectionConfig(ConnectionConfig connectionConfig);
-
-    /**
      * getCatalogs
      *
+     * @param connectionConfig
      * @param handler
      * @param error
      */
-    void getCatalogs(Callback<List<CatalogMetaData>> handler, Callback<Throwable> error);
+    void getCatalogs(ConnectionConfig connectionConfig, Callback<List<CatalogMetaData>> handler, Callback<Throwable> error);
 
     /**
      * getSchemas
      *
+     * @param connectionConfig
      * @param handler
      * @param error
      */
-    void getSchemas(Callback<List<SchemaMetaData>> handler, Callback<Throwable> error);
+    void getSchemas(ConnectionConfig connectionConfig, Callback<List<SchemaMetaData>> handler, Callback<Throwable> error);
 
     /**
      * getTables
      *
+     * @param connectionConfig
      * @param handler
      * @param error
      */
-    void getTables(Callback<List<TableMetaData>> handler, Callback<Throwable> error);
+    void getTables(ConnectionConfig connectionConfig, Callback<List<TableMetaData>> handler, Callback<Throwable> error);
 
     /**
      * getColumns
      *
+     * @param connectionConfig
      * @param tableNamePattern
      * @param handler
      * @param error
      */
-    void getColumns(String tableNamePattern, Callback<List<ColumnMetaData>> handler, Callback<Throwable> error);
+    void getColumns(ConnectionConfig connectionConfig, String tableNamePattern, Callback<List<ColumnMetaData>> handler, Callback<Throwable> error);
 
     interface Callback<T> {
 

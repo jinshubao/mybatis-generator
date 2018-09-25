@@ -28,22 +28,10 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
     private static final String REMARKS = "remarks";
 
-    private ConnectionConfig connectionConfig;
-
     @Override
-    public void setConnectionConfig(ConnectionConfig config) {
-        this.connectionConfig = config;
-    }
-
-    @Override
-    public ConnectionConfig getConnectionConfig() {
-        return connectionConfig;
-    }
-
-    @Override
-    public Connection getConnection() throws SQLException, ClassNotFoundException {
+    public Connection getConnection(ConnectionConfig connectionConfig) throws SQLException, ClassNotFoundException {
         Properties props = new Properties();
-        Properties properties = getConnectionProperties();
+        Properties properties = connectionConfig.getConnectionProperties();
         if (properties != null && !properties.isEmpty()) {
             props.putAll(properties);
         }
@@ -56,15 +44,15 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
         Class.forName(connectionConfig.getType().driverClass);
         //设置可以获取remarks信息
         props.setProperty(REMARKS, Boolean.toString(true));
-        return DriverManager.getConnection(getConnectionURL(), props);
+        return DriverManager.getConnection(connectionConfig.getConnectionURL(), props);
     }
 
     @Override
-    public List<CatalogMetaData> getCatalogs() throws Exception {
+    public List<CatalogMetaData> getCatalogs(ConnectionConfig connectionConfig) throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         try {
-            connection = getConnection();
+            connection = getConnection(connectionConfig);
             DatabaseMetaData metaData = connection.getMetaData();
             rs = metaData.getCatalogs();
             List<CatalogMetaData> catalogs = new ArrayList<>();
@@ -78,11 +66,11 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public List<SchemaMetaData> getSchemas() throws Exception {
+    public List<SchemaMetaData> getSchemas(ConnectionConfig connectionConfig) throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         try {
-            connection = getConnection();
+            connection = getConnection(connectionConfig);
             DatabaseMetaData metaData = connection.getMetaData();
             rs = metaData.getSchemas(connectionConfig.getTableCatalog(), null);
             List<SchemaMetaData> schemas = new ArrayList<>();
@@ -97,11 +85,11 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
 
 
     @Override
-    public List<TableMetaData> getTables() throws Exception {
+    public List<TableMetaData> getTables(ConnectionConfig connectionConfig) throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         try {
-            connection = getConnection();
+            connection = getConnection(connectionConfig);
             DatabaseMetaData metaData = connection.getMetaData();
             rs = metaData.getTables(connectionConfig.getTableCatalog(),
                     connectionConfig.getTableSchema(),
@@ -125,12 +113,12 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
     }
 
     @Override
-    public List<ColumnMetaData> getColumns(String tableNamePattern) throws Exception {
+    public List<ColumnMetaData> getColumns(ConnectionConfig connectionConfig, String tableNamePattern) throws Exception {
         Connection connection = null;
         ResultSet rs = null;
         ResultSet primaryKeys = null;
         try {
-            connection = getConnection();
+            connection = getConnection(connectionConfig);
             DatabaseMetaData metaData = connection.getMetaData();
             rs = metaData.getColumns(connectionConfig.getTableCatalog(),
                     connectionConfig.getTableSchema(),
@@ -257,8 +245,9 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
+        } finally {
+            connection = null;
         }
-
     }
 
     void close(ResultSet resultSet) {
@@ -268,23 +257,20 @@ public abstract class AbstractMetadataProvider implements IMetadataProvider {
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
+        } finally {
+            resultSet = null;
         }
     }
 
     @Override
-    public boolean testConnection() throws Exception {
+    public boolean testConnection(ConnectionConfig connectionConfig) throws Exception {
         Connection connection = null;
         try {
-            connection = getConnection();
+            connection = getConnection(connectionConfig);
             return connection != null;
         } finally {
             close(connection);
         }
-    }
-
-
-    protected Properties getConnectionProperties() {
-        return null;
     }
 
 }

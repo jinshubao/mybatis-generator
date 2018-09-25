@@ -16,26 +16,73 @@ import java.util.List;
  */
 public interface IMetadataProvider extends ISupport {
 
-    String getConnectionURL();
+    /**
+     * 获取连接
+     *
+     * @param connectionConfig
+     * @return
+     * @throws Exception
+     */
+    Connection getConnection(ConnectionConfig connectionConfig) throws Exception;
 
-    Connection getConnection() throws Exception;
+    /**
+     * 测试连接
+     *
+     * @param connectionConfig
+     * @return
+     * @throws Exception
+     */
+    boolean testConnection(ConnectionConfig connectionConfig) throws Exception;
 
-    boolean testConnection() throws Exception;
+    /**
+     * 获取Catalog
+     *
+     * @param connectionConfig
+     * @return
+     * @throws Exception
+     */
+    List<CatalogMetaData> getCatalogs(ConnectionConfig connectionConfig) throws Exception;
 
-    void setConnectionConfig(ConnectionConfig config);
+    /**
+     * 获取Schema
+     *
+     * @param connectionConfig
+     * @return
+     * @throws Exception
+     */
+    List<SchemaMetaData> getSchemas(ConnectionConfig connectionConfig) throws Exception;
 
-    ConnectionConfig getConnectionConfig();
+    /**
+     * 获取table
+     *
+     * @param connectionConfig
+     * @return
+     * @throws Exception
+     */
+    List<TableMetaData> getTables(ConnectionConfig connectionConfig) throws Exception;
 
-    List<CatalogMetaData> getCatalogs() throws Exception;
+    /**
+     * 获取column
+     *
+     * @param connectionConfig
+     * @param tableNamePattern
+     * @return
+     * @throws Exception
+     */
+    List<ColumnMetaData> getColumns(ConnectionConfig connectionConfig, String tableNamePattern) throws Exception;
 
-    List<SchemaMetaData> getSchemas() throws Exception;
-
-    List<TableMetaData> getTables() throws Exception;
-
-    List<ColumnMetaData> getColumns(String tableNamePattern) throws Exception;
-
+    /**
+     * 分隔符
+     *
+     * @return
+     */
     String getBeginningDelimiter();
 
+    /**
+     * 分隔符
+     *
+     * @return
+     */
     String getEndDelimiter();
 
 }

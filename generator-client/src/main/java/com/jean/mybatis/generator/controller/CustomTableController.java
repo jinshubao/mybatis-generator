@@ -84,7 +84,9 @@ public class CustomTableController extends BaseController {
                         CommonConstant.JavaType.FLOAT,
                         CommonConstant.JavaType.BOOLEAN,
                         CommonConstant.JavaType.SHORT,
-                        CommonConstant.JavaType.BYTE), true));
+                        CommonConstant.JavaType.BYTE,
+                        CommonConstant.JavaType.BYTE_ARRAY,
+                        CommonConstant.JavaType.OBJECT), true));
         javaTypeColumn.setCellValueFactory(param -> param.getValue().javaTypeProperty());
 
         TableColumn<ColumnMetaData, String> javaPropertyColumn = (TableColumn<ColumnMetaData, String>) tableColumns.get(columnIndex++);

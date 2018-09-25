@@ -1,11 +1,14 @@
 package com.jean.mybatis.generator.support.connection;
 
 import com.jean.mybatis.generator.constant.DatabaseType;
+import com.jean.mybatis.generator.utils.StringUtils;
+
+import java.util.Properties;
 
 /**
  * @author jinshubao
  */
-public class ConnectionConfig {
+public abstract class ConnectionConfig {
 
     protected DatabaseType type;
 
@@ -23,7 +26,12 @@ public class ConnectionConfig {
 
     protected String properties;
 
+
     public ConnectionConfig() {
+    }
+
+    public ConnectionConfig(DatabaseType type) {
+        this.type = type;
     }
 
     public ConnectionConfig(DatabaseType type, String host, Integer port, String user, String password,
@@ -37,6 +45,19 @@ public class ConnectionConfig {
         this.tableCatalog = tableCatalog;
         this.properties = properties;
     }
+
+    /**
+     * 获取连接字符串
+     *
+     * @return
+     */
+    public abstract String getConnectionURL();
+
+    /**
+     *
+     * @return
+     */
+    public abstract Properties getConnectionProperties();
 
     public DatabaseType getType() {
         return type;

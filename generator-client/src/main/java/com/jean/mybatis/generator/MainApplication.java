@@ -25,11 +25,9 @@ public class MainApplication extends ApplicationSupport {
     private Locale locale = Locale.SIMPLIFIED_CHINESE;
 
     private Parent root = null;
-    Parent databaseConnection = null;
-    Parent customTable = null;
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         notifyProgress(0D);
 
         ApplicationContext context = new AnnotationConfigApplicationContext(MainApplication.class);
@@ -40,10 +38,10 @@ public class MainApplication extends ApplicationSupport {
         root = loadFxml("/fxml/Scene.fxml", "message.scene", locale);
         notifyProgress(0.4);
 
-        databaseConnection = loadFxml("/fxml/Connection.fxml", "message.connection", locale);
+        Parent databaseConnection = loadFxml("/fxml/Connection.fxml", "message.connection", locale);
         notifyProgress(0.6);
 
-        customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
+        Parent customTable = loadFxml("/fxml/CustomTable.fxml", "message.customTable", locale);
         notifyProgress(0.8);
 
         CommonConstant.SCENES.put(StageType.MAIN, root);
@@ -70,7 +68,7 @@ public class MainApplication extends ApplicationSupport {
     /**
      * 应用图标
      *
-     * @return
+     * @return 应用图标
      */
     private Image getIcon() {
         return new Image(getClass().getResourceAsStream(CommonConstant.LOGO_IMAGE));

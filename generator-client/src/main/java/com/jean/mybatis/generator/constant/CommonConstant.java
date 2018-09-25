@@ -21,7 +21,7 @@ public class CommonConstant {
     public static final String DEFAULT_SOURCE_DIR = "src" + File.separator + "main" + File.separator + "java";
 
 
-    public static final String DEFAULT = "自动生成";
+    public static final String DEFAULT = "自动";
 
     public static final String USER_HOME = "user.home";
 
@@ -43,6 +43,8 @@ public class CommonConstant {
         public static final String BOOLEAN = "Boolean";
         public static final String SHORT = "Short";
         public static final String BYTE = "Byte";
+        public static final String BYTE_ARRAY = "byte[]";
+        public static final String OBJECT = "Object";
     }
 
     /**

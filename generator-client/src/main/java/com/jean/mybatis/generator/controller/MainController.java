@@ -184,7 +184,6 @@ public class MainController extends BaseController {
 
     //---------bottom----------
 
-
     @FXML
     private Label message;
     @FXML
@@ -192,10 +191,6 @@ public class MainController extends BaseController {
     @FXML
     private ProgressIndicator progressIndicator;
 
-    //私有变量
-
-    private final FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("XML", "*.xml");
-    private final ObjectProperty<ConnectionConfig> connectionConfigProperty = new SimpleObjectProperty<>(this, "connectionConfigProperty");
     @Autowired
     private ConnectionController connectionController;
 
@@ -211,6 +206,14 @@ public class MainController extends BaseController {
     @Autowired
     private ITaskFactory taskFactory;
 
+    //私有变量
+
+    private final FileChooser.ExtensionFilter extensionFilter
+            = new FileChooser.ExtensionFilter("XML", "*.xml");
+
+    private final ObjectProperty<ConnectionConfig> connectionConfigProperty
+            = new SimpleObjectProperty<>(this, "connectionConfigProperty");
+
     private ResourceBundle resources;
 
     @Override
@@ -223,7 +226,7 @@ public class MainController extends BaseController {
                         CommonConstant.SCENES.get(StageType.CONNECTION),
                         buttonType -> {
                             if (buttonType == ButtonType.OK) {
-                                return connectionController.getConnectionConfig();
+                                return connectionController.getConnectionConfig(resources);
                             }
                             return null;
                         }).ifPresent(config -> {
@@ -249,7 +252,7 @@ public class MainController extends BaseController {
         });
 
         this.aboutMenuItem.setOnAction(event -> {
-
+            //
         });
 
         this.tableCatalog.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -294,7 +297,8 @@ public class MainController extends BaseController {
         customColumn.setText(resources.getString("custom.text"));
         customColumn.setCellFactory(TableCellFactory.hyperlinkForTableView(resources.getString("customHtperlink.text"),
                 param -> {
-                    taskFactory.getColumns(param.getTableName(),
+                    taskFactory.getColumns(connectionConfigProperty.get(),
+                            param.getTableName(),
                             columns -> customColumns(param, columns),
                             ex -> showExceptionDialog(resources, ex));
                     return null;
@@ -430,13 +434,7 @@ public class MainController extends BaseController {
 
         //保存配置
         this.saveConfig.disableProperty().bind(connectionConfigProperty.isNull());
-        this.saveConfig.setOnAction((ActionEvent event) -> {
-            try {
-                saveConfiguration(resources, event);
-            } catch (IOException e) {
-                showExceptionDialog(resources, e);
-            }
-        });
+        this.saveConfig.setOnAction((ActionEvent event) -> saveConfiguration(resources, event));
 
         // bottom
         final ReadOnlyObjectProperty<List<String>> valueProperty = generatorService.valueProperty();
@@ -453,8 +451,7 @@ public class MainController extends BaseController {
     private void customColumns(TableMetaData param, List<ColumnMetaData> columns) {
         for (ColumnMetaData columnMetaData : columns) {
             columnMetaData.setSelected(true);
-            columnMetaData.setJavaType("");
-            columnMetaData.setJavaType("");
+            columnMetaData.setJavaType(CommonConstant.JavaType.AUTO);
             for (ColumnOverride override : param.getColumnOverrides()) {
                 if (override.getColumnName().equals(columnMetaData.getColumnName())) {
                     columnMetaData.setJavaType(override.getJavaType());
@@ -508,24 +505,21 @@ public class MainController extends BaseController {
     private void refreshTableCatalog() {
         this.tableCatalog.getSelectionModel().clearSelection();
         this.tableCatalog.getItems().clear();
-        taskFactory.setConnectionConfig(connectionConfigProperty.get());
-        taskFactory.getCatalogs(value -> tableCatalog.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
+        taskFactory.getCatalogs(connectionConfigProperty.get(), value -> tableCatalog.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
 
     }
 
     private void refreshTableSchema() {
         this.tableSchema.getSelectionModel().clearSelection();
         this.tableSchema.getItems().clear();
-        taskFactory.setConnectionConfig(connectionConfigProperty.get());
-        taskFactory.getSchemas(value -> tableSchema.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
+        taskFactory.getSchemas(connectionConfigProperty.get(), value -> tableSchema.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
     }
 
 
     private void refreshTableItem() {
         this.tables.getSelectionModel().clearSelection();
         this.tables.getItems().clear();
-        taskFactory.setConnectionConfig(connectionConfigProperty.get());
-        taskFactory.getTables(value -> tables.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
+        taskFactory.getTables(connectionConfigProperty.get(), value -> tables.getItems().addAll(value), ex -> showExceptionDialog(resources, ex));
     }
 
     /**
@@ -562,7 +556,7 @@ public class MainController extends BaseController {
         return null;
     }
 
-    private void saveConfiguration(ResourceBundle resources, ActionEvent event) throws IOException {
+    private void saveConfiguration(ResourceBundle resources, ActionEvent event) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(resources.getString("saveConfiguration.chooser.title"));
         chooser.setInitialFileName(CommonConstant.CONFIGURATION_NAME);
@@ -581,6 +575,8 @@ public class MainController extends BaseController {
                 bos.write(content.getBytes());
                 bos.flush();
                 logger.debug(content);
+            } catch (Exception e) {
+                showExceptionDialog(resources, e);
             } finally {
                 if (fs != null) {
                     try {
@@ -593,7 +589,7 @@ public class MainController extends BaseController {
                     try {
                         bos.close();
                     } catch (IOException e) {
-                        logger.error(e.getMessage(), e);
+                        showExceptionDialog(resources, e);
                     }
                 }
             }
@@ -606,9 +602,12 @@ public class MainController extends BaseController {
         return configuration;
     }
 
+    /**
+     * 组装context
+     *
+     * @return Context
+     */
     private Context createDefaultContext() {
-
-        IMetadataProvider provider = providerManager.getSupportedMetaDataProvider(connectionConfigProperty.get().getType());
 
         //---------上下文环境----------
         Context context = new Context(this.defaultModelType.getValue());
@@ -619,11 +618,6 @@ public class MainController extends BaseController {
         context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, this.javaFileEncoding.getValue().value.name());
         //自定义代码格式化 CONTEXT_JAVA_FORMATTER
         //自定义XML格式化 CONTEXT_XML_FORMATTER
-
-        String projectDirText = this.projectDir.getText();
-
-        String sourcePath = projectDirText + File.separator + this.sourceDir.getText();
-        String resourcePath = projectDirText + File.separator + this.resourcesDir.getText();
 
         //---------插件----------
         if (this.useSerializerPlugin.isSelected()) {
@@ -665,7 +659,7 @@ public class MainController extends BaseController {
 
         //---------model----------
         JavaModelGeneratorConfiguration javaModelGenerator = new JavaModelGeneratorConfiguration();
-        javaModelGenerator.setTargetProject(sourcePath);
+        javaModelGenerator.setTargetProject(getSourcePath());
         javaModelGenerator.setTargetPackage(this.modelPackage.getText());
         String rootClassText = this.rootClass.getText();
         if (StringUtils.hasText(rootClassText)) {
@@ -680,7 +674,7 @@ public class MainController extends BaseController {
         //---------mapper----------
         JavaClientGeneratorConfiguration javaClientGenerator = new JavaClientGeneratorConfiguration();
         javaClientGenerator.setConfigurationType(this.javaClientType.getValue().getValue());
-        javaClientGenerator.setTargetProject(sourcePath);
+        javaClientGenerator.setTargetProject(getSourcePath());
         javaClientGenerator.setTargetPackage(this.mapperPackage.getText());
         boolean subPackagesSelected = this.enableMapperSubPackages.isSelected();
         javaClientGenerator.addProperty(PropertyRegistry.DAO_EXAMPLE_METHOD_VISIBILITY, this.exampleMethodVisibility.getValue().getValue());
@@ -701,16 +695,16 @@ public class MainController extends BaseController {
 
         //---------sql----------
         SqlMapGeneratorConfiguration sqlMapGenerator = new SqlMapGeneratorConfiguration();
-        sqlMapGenerator.setTargetProject(resourcePath);
+        sqlMapGenerator.setTargetProject(getResourcePath());
         sqlMapGenerator.setTargetPackage(this.sqlMapperPackage.getText());
         context.setSqlMapGeneratorConfiguration(sqlMapGenerator);
 
         //---------jdbc----------
-        ConnectionConfig connectionConfig = provider.getConnectionConfig();
+        ConnectionConfig connectionConfig = this.connectionConfigProperty.get();
 
         JDBCConnectionConfiguration jdbcConnection = new JDBCConnectionConfiguration();
         jdbcConnection.setDriverClass(connectionConfig.getType().driverClass);
-        jdbcConnection.setConnectionURL(provider.getConnectionURL());
+        jdbcConnection.setConnectionURL(connectionConfig.getConnectionURL());
         jdbcConnection.setUserId(connectionConfig.getUser());
         jdbcConnection.setPassword(connectionConfig.getPassword());
         context.setJdbcConnectionConfiguration(jdbcConnection);
@@ -749,4 +743,13 @@ public class MainController extends BaseController {
         return context;
     }
 
+    private String getResourcePath() {
+        String projectDirText = this.projectDir.getText();
+        return projectDirText + File.separator + this.resourcesDir.getText();
+    }
+
+    private String getSourcePath() {
+        String projectDirText = this.projectDir.getText();
+        return projectDirText + File.separator + this.sourceDir.getText();
+    }
 }

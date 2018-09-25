@@ -74,10 +74,9 @@ public class ConnectionController extends BaseController {
 
         this.testConnection.setOnAction(event -> {
             try {
-                ConnectionConfig config = getConnectionConfig();
+                ConnectionConfig config = getConnectionConfig(resources);
                 IMetadataProvider provider = providerManager.getSupportedMetaDataProvider(config.getType());
-                provider.setConnectionConfig(config);
-                if (provider.testConnection()) {
+                if (provider.testConnection(config)) {
                     String success = resources.getString("test.connection.success");
                     DialogUtils.information(success, null, success);
                 } else {
@@ -90,7 +89,7 @@ public class ConnectionController extends BaseController {
         });
     }
 
-    public ConnectionConfig getConnectionConfig() {
+    public ConnectionConfig getConnectionConfig(ResourceBundle resources) {
         String host = DEFAULT_HOST;
         int port = DEFAULT_PORT;
         if (StringUtils.hasText(this.host.getText())) {
@@ -100,19 +99,16 @@ public class ConnectionController extends BaseController {
             try {
                 port = NumberUtils.parseNumber(this.port.getText(), Integer.class);
             } catch (IllegalArgumentException e) {
-                logger.error(e.getMessage(), e);
-                DialogUtils.error("ERROR", e);
+                showExceptionDialog(resources, e);
             }
         }
-        return new ConnectionConfig(
-                this.dataBaseType.getValue(),
-                host,
-                port,
-                this.user.getText(),
-                this.password.getText(),
-                null,
-                null,
-                this.properties.getText());
+        ConnectionConfig config = providerManager.newConnectionConfig(this.dataBaseType.getValue());
+        config.setHost(host);
+        config.setPort(port);
+        config.setUser(this.user.getText());
+        config.setPassword(this.password.getText());
+        config.setProperties(this.properties.getText());
+        return config;
     }
 
 }

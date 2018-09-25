@@ -57,17 +57,17 @@ public class GeneratorService extends Service<List<String>> {
 
         @Override
         public void introspectionStarted(int totalTasks) {
-            updateMessage("introspection Started, total tasks:" + totalTasks);
+            updateMessage("introspection started, total tasks:" + totalTasks);
         }
 
         @Override
         public void generationStarted(int totalTasks) {
-            updateMessage("generation Started, total tasks:" + totalTasks);
+            updateMessage("generation started, total tasks:" + totalTasks);
         }
 
         @Override
         public void saveStarted(int totalTasks) {
-            updateMessage("save Started, total tasks:" + totalTasks);
+            updateMessage("save started, total tasks:" + totalTasks);
         }
 
         @Override
